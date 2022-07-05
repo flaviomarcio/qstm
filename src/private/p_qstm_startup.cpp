@@ -58,6 +58,7 @@ void StartUpRunner::runnerStart()
     }
     for(int i=0; i<=max; i++){
         auto v=hash.value(i);
+        qInfo()<<QT_STRINGIFY2(QStm::StartUp)<<qsl(": module[%1]==%2").arg(i).arg(v->metaObject()->className());
         if(v){
             for(auto&func:v->methods())
                 func();

@@ -15,6 +15,7 @@ HEADERS += \
     $$PWD/qstm_macro.h \
     $$PWD/qstm_meta_enum.h \
     $$PWD/qstm_meta_types.h \
+    $$PWD/qstm_log.h \
     $$PWD/qstm_network_types.h \
     $$PWD/qstm_object_macro.h \
     $$PWD/qstm_result_info.h \
@@ -44,6 +45,7 @@ SOURCES += \
     $$PWD/private/p_qstm_setting_manager.cpp \
     $$PWD/private/p_qstm_startup.cpp \
     $$PWD/qstm_meta_types.cpp \
+    $$PWD/qstm_log.cpp \
     $$PWD/qstm_network_types.cpp \
     $$PWD/qstm_result_info.cpp \
     $$PWD/qstm_startup.cpp \
