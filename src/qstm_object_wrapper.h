@@ -6,6 +6,10 @@
 
 namespace QStm {
 
+#define QSTM_OBJECT_WRAPPER_MD5_IGNORE(IGNORE)\
+public:\
+virtual QVariant __md5IgnoreProperties(){return QVariant{IGNORE};}
+
 
 #define QSTM_OBJECT_WRAPPER(CLASS)\
 public:\
@@ -32,6 +36,8 @@ class Q_STM_EXPORT ObjectWrapper : public QObject
 {
     Q_OBJECT
     QSTM_OBJECT_WRAPPER(ObjectWrapper)
+    QSTM_OBJECT_WRAPPER_MD5_IGNORE()
+
 public:
     //!
     //! \brief ObjectWrapper
@@ -92,6 +98,12 @@ public:
     Q_INVOKABLE const virtual QVariantHash toHash();
 
     //!
+    //! \brief toMd5
+    //! \return
+    //!
+    Q_INVOKABLE const virtual QByteArray toMd5();
+
+    //!
     //! \brief toPropList
     //! \return
     //!
@@ -113,7 +125,6 @@ public:
     void setBaseValues(QObject *newBaseValues);
     void resetBaseValues();
 
-
     //!
     //! \brief parserVariant
     //! \param v
@@ -133,7 +144,7 @@ public:
     //! \param object
     //! \return
     //!
-    static const QVariantHash extractHash(const QObject *object);
+    static const QVariantHash extractHash(const QObject *object, const QStringList &ignoreProperties={});
 
 protected:
 

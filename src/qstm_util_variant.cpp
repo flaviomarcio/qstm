@@ -212,6 +212,11 @@ public:
         if(md5ParserUuid(smd5, smd5))
             return QUuid::fromString(qsl("{")+smd5+qsl("}"));
 
+        smd5=this->toMd5(md5);
+
+        if(md5ParserUuid(smd5, smd5))
+            return QUuid::fromString(qsl("{")+smd5+qsl("}"));
+
         return {};
     }
 

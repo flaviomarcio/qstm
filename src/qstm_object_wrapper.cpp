@@ -1,4 +1,5 @@
 #include "./qstm_object_wrapper.h"
+#include "./qstm_util_variant.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
 #include <QVariantHash>
@@ -101,6 +102,13 @@ const QVariantHash ObjectWrapper::toHash()
     return __return;
 }
 
+const QByteArray QStm::ObjectWrapper::toMd5()
+{
+    auto vHash=this->extractHash(this, this->__md5IgnoreProperties().toStringList());
+    Q_DECLARE_VU;
+    return vu.toMd5(vHash);
+}
+
 QVector<QMetaProperty> ObjectWrapper::toPropList() const
 {
     return this->extractProperty(this);
@@ -137,6 +145,8 @@ bool ObjectWrapper::setValues(const QVariant &v)
             const auto &metaType=property.metaType().metaObject();
             if(!metaType)
                 return false;
+            if(metaType->inherits(&ObjectWrapper::staticMetaObject))
+                return true;
             return false;
         };
 
@@ -283,8 +293,9 @@ const QVector<QMetaProperty> ObjectWrapper::extractProperty(const QObject *objec
     auto&metaObject = *object->metaObject();
     for(int col = 0; col < metaObject.propertyCount(); ++col) {
         auto property = metaObject.property(col);
+        auto name=QByteArray{property.name()};
 
-        if(staticIgnoreMethods->contains(QByteArray{property.name()}))
+        if(staticIgnoreMethods->contains(name))
             continue;
 
         __return.append(property);
@@ -292,7 +303,7 @@ const QVector<QMetaProperty> ObjectWrapper::extractProperty(const QObject *objec
     return __return;
 }
 
-const QVariantHash ObjectWrapper::extractHash(const QObject *object)
+const QVariantHash ObjectWrapper::extractHash(const QObject *object, const QStringList &ignoreProperties)
 {
     QVariantHash __return;
     auto metaObject = object->metaObject();
@@ -301,10 +312,14 @@ const QVariantHash ObjectWrapper::extractHash(const QObject *object)
 
         auto property = metaObject->property(col);
 
+        auto name=QByteArray{property.name()};
+        if(ignoreProperties.contains(name))
+            continue;
+
         if(!property.isReadable())
             continue;
 
-        if(staticIgnoreMethods->contains(QByteArray{property.name()}))
+        if(staticIgnoreMethods->contains(name))
             continue;
 
         auto value=property.read(object);
