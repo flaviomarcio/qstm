@@ -1,4 +1,5 @@
 #include "./p_qstm_startup.h"
+#include "../qstm_log.h"
 
 namespace QStm{
 
@@ -8,6 +9,7 @@ Q_GLOBAL_STATIC(StartUp, staticStartUp)
 
 static void init()
 {
+    Log::enabled();
     staticStartUp->run();
 }
 
