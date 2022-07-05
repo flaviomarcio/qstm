@@ -23,13 +23,13 @@ const QHash<int, QString> &Network::methodName(){
     return __return;
 }
 
-QString Network::urlParsert(const QString &protocol, const QString &hostName, int port, const QString &basePath, const QString &path)
+QByteArray Network::urlParsert(const QString &protocol, const QString &hostName, int port, const QString &basePath, const QString &path)
 {
     auto sport=port<=0?"":QStringLiteral(":%1").arg(port);
     auto url=QStringLiteral("%1%2/%3/%4").arg(hostName, sport, basePath, path);
     while(url.contains(QStringLiteral("//")))
         url.replace(QStringLiteral("//"), QStringLiteral("/"));
-    return QStringLiteral("%1://%2").arg(protocol, url);
+    return QStringLiteral("%1://%2").arg(protocol, url).toUtf8();
 }
 
 }
