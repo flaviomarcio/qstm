@@ -146,7 +146,7 @@ bool QStm::SettingManagerPvt::load(QObject *settingsObject)
             continue;
 
         auto methodName=QString(metaMethod.name()).toLower().trimmed();
-        static auto staticNames=QStringList{qsl("settings_filename"), qsl("settingsfilename"), qsl("settings_server"), qsl("settingsserver")};
+        static auto staticNames=QStringList{qsl("resourcesettings")};
         if(!staticNames.contains(methodName))
             continue;
 
@@ -255,15 +255,15 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
         return false;
     }
 
-    auto map=doc.object().toVariantHash();
-    if(!map.contains(qsl("services"))){
+    auto vHash=doc.object().toVariantHash();
+    if(!vHash.contains(qsl("services"))){
 #if Q_STM_LOG
         sWarning()<<qsl("tag services not exists, %1").arg(file.fileName());
 #endif
         return false;
     }
 
-    return p.load(map);
+    return p.load(vHash);
 }
 
 bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)

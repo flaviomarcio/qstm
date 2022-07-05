@@ -14,6 +14,8 @@ static const QtMessageHandler qtMessageHandlerDefault = qInstallMessageHandler(0
 
 static void initMsg()
 {
+
+
     auto &vHash=*msgTypeMap;
     vHash[QtDebugMsg]=QStringLiteral("D");
     vHash[QtWarningMsg]=QStringLiteral("W");
@@ -21,7 +23,14 @@ static void initMsg()
     vHash[QtFatalMsg]=QStringLiteral("F");
     vHash[QtInfoMsg]=QStringLiteral("I");
     vHash[QtSystemMsg]=QStringLiteral("S");
-    qputenv(QByteArrayLiteral("QT_LOGGING_RULES"), QByteArrayLiteral("qt.network.ssl.warning=false;qml.debug=true;*.debug=true;*.warning=true;*.critical=true;*.info=true"));
+
+    auto format=
+#ifdef QTREFORCE_DEBUG_LOG
+    QByteArrayLiteral("qt.network.ssl.warning=true;qml.debug=true;*.debug=true;*.warning=true;*.critical=true;*.info=true");
+#else
+    QByteArrayLiteral("qt.network.ssl.warning=true;qml.debug=true;*.debug=false;*.warning=true;*.critical=true;*.info=true");
+#endif
+    qputenv(QByteArrayLiteral("QT_LOGGING_RULES"), format);
 }
 
 
