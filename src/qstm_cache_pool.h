@@ -66,7 +66,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual QByteArray set(QVariant&value)const;
+    virtual QByteArray set(QVariant &value)const;
 
     //!
     //! \brief set

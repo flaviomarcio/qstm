@@ -258,7 +258,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual const QVVM toVVM(const QVariant&key, const QVariant &value);
+    virtual const QVVM toVVM(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief takeList
@@ -312,7 +312,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual const QVariantMap toMap(const QVariant&key, const QVariant &value);
+    virtual const QVariantMap toMap(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief toHash
@@ -333,7 +333,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual const QVariantHash toHash(const QVariant&key, const QVariant &value);
+    virtual const QVariantHash toHash(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief toMultiHash
@@ -405,7 +405,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &makeVVM(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &makeVVM(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief mVVM
@@ -413,7 +413,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &mVVM(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &mVVM(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief makeMap
@@ -421,7 +421,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &makeMap(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &makeMap(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief mMap
@@ -429,7 +429,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &mMap(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &mMap(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief makeHash
@@ -437,7 +437,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &makeHash(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &makeHash(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief mHash
@@ -445,7 +445,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &mHash(const QVariant&key, const QVariant &value);
+    virtual VariantUtil &mHash(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief makeList

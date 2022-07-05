@@ -80,7 +80,7 @@ public:
         return r;
     }
 
-    QVariant parseInterval(const QVariant &v, const QVariant&defaultV={})
+    QVariant parseInterval(const QVariant &v, const QVariant &defaultV={})
     {
         if(v.isNull() || !v.isValid() || v.toLongLong()<0)
             return defaultV;

@@ -118,7 +118,7 @@ public:
     //! \param settings
     //! \return
     //!
-    virtual bool load(const QVariant&settings);
+    virtual bool load(const QVariant &settings);
 
     //!
     //! \brief load

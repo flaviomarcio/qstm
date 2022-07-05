@@ -110,7 +110,7 @@ public:
     //! \param dt
     //! \return
     //!minimal datetime day
-    static QDateTime minDateTime(const QVariant&dt);
+    static QDateTime minDateTime(const QVariant &dt);
 
     //!
     //! \brief maxDateTime
@@ -123,7 +123,7 @@ public:
     //! \param dt
     //! \return
     //!maximum datetime day
-    static QDateTime maxDateTime(const QVariant&dt);
+    static QDateTime maxDateTime(const QVariant &dt);
 
     //!
     //! \brief minMonthDateTime
@@ -324,7 +324,7 @@ public:
     //! \param defaultV
     //! \return
     //!parse text to interval ms
-    QVariant parseInterval(const QVariant &v, const QVariant&defaultV=QVariant());
+    QVariant parseInterval(const QVariant &v, const QVariant &defaultV=QVariant());
 
 private:
     DateUtilPvt *p=nullptr;

@@ -73,20 +73,20 @@ public:
     //! \param key
     //! \param value
     //!
-    virtual QVVM &insert(const QVariant&key, const QVariant &value);
+    virtual QVVM &insert(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief remove
     //! \param key
     //!
-    virtual QVVM &remove(const QVariant&key);
+    virtual QVVM &remove(const QVariant &key);
 
     //!
     //! \brief value
     //! \param key
     //! \return
     //!
-    virtual QVariant value(const QVariant&key)const;
+    virtual QVariant value(const QVariant &key)const;
 };
 
 Q_DECLARE_METATYPE(QVVM)

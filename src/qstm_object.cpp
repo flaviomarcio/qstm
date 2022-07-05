@@ -92,7 +92,7 @@ ResultValue &Object::lr()
     return p->result;
 }
 
-ResultValue &Object::lr(const ResultValue&value)
+ResultValue &Object::lr(const ResultValue &value)
 {
 
     p->result.setResult(value);
@@ -126,7 +126,7 @@ ResultValue &Object::lastResult()
     return p->result;
 }
 
-ResultValue &Object::lastResult(const ResultValue&value)
+ResultValue &Object::lastResult(const ResultValue &value)
 {
     return this->lr(value);
 }
@@ -146,7 +146,7 @@ ResultValue &Object::lastResult(const QString &value)
     return this->lr(value);
 }
 
-ResultValue &Object::setResult(const ResultValue&value)
+ResultValue &Object::setResult(const ResultValue &value)
 {
     return this->lastResult().setResult(value);
 }

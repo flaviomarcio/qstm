@@ -81,7 +81,7 @@ CachePool &CachePool::clear()
     return*this;
 }
 
-bool CachePool::get(const QVariant &key, QVariant&value) const
+bool CachePool::get(const QVariant &key, QVariant &value) const
 {
     value=this->get(key);
     return value.isValid();

@@ -54,7 +54,7 @@ public:
     //! \param value
     //! \return
     //!result value class
-    virtual ResultValue &lr(const ResultValue&value);
+    virtual ResultValue &lr(const ResultValue &value);
 
     //!
     //! \brief lr
@@ -88,7 +88,7 @@ public:
     //! \param value
     //! \return
     //!result value class
-    virtual ResultValue &lastResult(const ResultValue&value);
+    virtual ResultValue &lastResult(const ResultValue &value);
 
     //!
     //! \brief lastResult
@@ -116,7 +116,7 @@ public:
     //! \param value
     //! \return
     //!result value class
-    virtual ResultValue &setResult(const ResultValue&value);
+    virtual ResultValue &setResult(const ResultValue &value);
 
     //!
     //! \brief setResult

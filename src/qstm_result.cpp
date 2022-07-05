@@ -43,10 +43,8 @@ public:
     QMutex staticThreadLocker;
 };
 
-Q_GLOBAL_STATIC(QStmConstsResult, ___consts)
+Q_GLOBAL_STATIC(QStmConstsResult, consts)
 auto &qapp = *QCoreApplication::instance();
-
-static auto &consts = *___consts;
 
 class ResultValuePvt
 {
@@ -104,9 +102,9 @@ public:
             if (this->returnCode.isValid())
                 sWarning() << this->toString();
 
-            consts.staticThreadLocker.lock();
-            consts.staticThreadError[QThread::currentThread()]=this->returnHash;
-            consts.staticThreadLocker.unlock();
+            consts->staticThreadLocker.lock();
+            consts->staticThreadError[QThread::currentThread()]=this->returnHash;
+            consts->staticThreadLocker.unlock();
         }
         if(!this->parent->returnText().isEmpty()){
             resultInfo.setSuccess(false);
@@ -273,7 +271,7 @@ public:
         case QMetaType_QVariantList:
         {
             for (auto &v : value.toList())
-                list << v.toByteArray();
+                list.append(v.toByteArray());
             break;
         }
         case QMetaType_QVariantMap:
@@ -315,7 +313,7 @@ public:
         case QMetaType_QVariantList:
         {
             for (auto &v : value.toList())
-                list << v.toByteArray();
+                list.append(v.toByteArray());
             break;
         }
         case QMetaType_QVariantMap:
@@ -328,7 +326,7 @@ public:
                 break;
             }
         default:
-            list << value.toString().trimmed();
+            list.append(value.toString().trimmed());
             break;
         }
         return list.join(qbl("\n")).toUtf8();
@@ -512,16 +510,16 @@ QStringList ResultValue::resultStringList() const
             case QMetaType_QVariantMap:
             case QMetaType_QVariantList:
             case QMetaType_QStringList:
-                __return<<vu.toStr(row);
+                __return.append(vu.toStr(row));
                 break;
             case QMetaType_QUrl:
-                __return<<row.toUrl().toString();
+                __return.append(row.toUrl().toString());
                 break;
             case QMetaType_QUuid:
-                __return<<row.toUuid().toString();
+                __return.append(row.toUuid().toString());
                 break;
             default:
-                __return<<row.toString();
+                __return.append(row.toString());
             }
         }
         return __return;
@@ -806,7 +804,7 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
             resultInfo.fromVar(vResultInfo);
             if(resultInfo.errors().isEmpty()){
                 if(reason_phrase.isEmpty())
-                    resultInfo.errors()<<reason_phrase;
+                    resultInfo.errors().append(reason_phrase);
             }
             if(!resultInfo.errors().isEmpty())
                 reason_phrase=resultInfo.errors().first().toString().trimmed();
