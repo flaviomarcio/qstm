@@ -43,7 +43,7 @@ static void init()
     QStm::Log::enabled();
 }
 
-Q_STM_STARTUP_FUNCTION(init);
+Q_COREAPP_STARTUP_FUNCTION(init);
 
 Log::Log(QObject *parent) : QObject{parent}
 {
