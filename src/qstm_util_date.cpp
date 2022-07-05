@@ -11,10 +11,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(QTime, static_minTime , ({23,59,59,999}))//
 Q_GLOBAL_STATIC_WITH_ARGS(QTime, static_maxTime , ({00,00,00,000}))//
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, static_paramDelimiter , ({",","|"}))//
 
-//static void initConsts(){
-//}
-//Q_COREAPP_STARTUP_FUNCTION(initConsts)
-
 
 class DateUtilPvt{
 public:

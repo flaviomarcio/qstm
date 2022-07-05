@@ -1,11 +1,11 @@
 #include "./qstm_util_formatting.h"
 #include "./qstm_currency.h"
+#include "./qstm_meta_types.h"
 #include <QChar>
 #include <QLocale>
 #include <QUuid>
 #include <QUrl>
 #include <QCoreApplication>
-#include "./qstm_meta_types.h"
 
 #define set_v \
 this->setValue((v.isValid())?v:(*this))
@@ -39,7 +39,7 @@ public:
 
     void init()
     {
-        auto brz=QLocale(QLocale::Portuguese, QLocale::Brazil);
+        auto brz=QLocale{QLocale::Portuguese, QLocale::Brazil};
         auto sys=QLocale::system();
         auto loc=QLocale::c();
 
@@ -67,11 +67,12 @@ public:
 
 Q_GLOBAL_STATIC(FormattingUtilStruct,___formattingUtilStruct)
 
-void init(){
+void init()
+{
     ___formattingUtilStruct->init();
 }
 
-Q_COREAPP_STARTUP_FUNCTION(init)
+Q_COREAPP_STARTUP_FUNCTION(init);
 
 class FormattingUtilPvt{
 public:
@@ -80,7 +81,7 @@ public:
     int prec_cur=currencyPrecision;
     int prec_per=percentagePrecision;
     FormattingUtil*parent=nullptr;
-    QHash<QString,QString> maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
+    QHash<QString, QString> maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
     FormattingUtil::Masks masks;
     explicit FormattingUtilPvt(FormattingUtil*parent):masks()
     {
@@ -227,7 +228,6 @@ const QString FormattingUtil::toInt(const QVariant &v)
 
 const QString FormattingUtil::toDouble(const QVariant &v, int prec)
 {
-
     prec=(prec<0)?p->prec_dbl:prec;
     set_v;
     return p->c.toString(QVariant::toDouble(),fChar,prec);

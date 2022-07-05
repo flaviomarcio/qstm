@@ -14,7 +14,7 @@
 
 namespace QStm {
 
-class SettingManagerPvt{
+class SettingManagerPvt: QObject{
 public:
     QVariant settingsFileName;
     SettingBase settingsDefault;

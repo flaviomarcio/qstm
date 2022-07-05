@@ -128,7 +128,7 @@ public:
     QString arg(const QVariant &v);
 
 private:
-    PathUtilPvt*p=nullptr;
+    PathUtilPvt *p=nullptr;
 };
 
 }

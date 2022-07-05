@@ -35,7 +35,7 @@ public:
     {
     }
 
-    static QVariant staticReplaceVar(const QVariantHash&static_variables, const QVariant &v)
+    static QVariant staticReplaceVar(const QVariantHash &static_variables, const QVariant &v)
     {
         Q_DECLARE_VU;
         QString value;

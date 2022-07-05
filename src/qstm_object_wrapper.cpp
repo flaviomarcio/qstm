@@ -72,7 +72,7 @@ void ObjectWrapper::clear()
         if(!property.isResettable())
             continue;
 
-        auto pName=QByteArray(property.name());
+        auto pName=QByteArray{property.name()};
 
         if(staticIgnoreMethods->contains(pName))
             continue;

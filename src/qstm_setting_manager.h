@@ -4,37 +4,40 @@
 #include "./qstm_setting_base.h"
 #include <QSettings>
 
+#define Q_SETTING_MANAGER_REPLACE_METHODS(Manager, Setting) \
+public: \
+Q_INVOKABLE explicit Manager(QObject *parent = nullptr) : QStm::SettingManager(parent) \
+{ \
+} \
+Q_INVOKABLE explicit Manager(const QStringList&settingFileName, QObject *parent = nullptr):QStm::SettingManager(settingFileName, parent) \
+{ \
+} \
+Q_INVOKABLE explicit Manager(const QString &settingFileName, QObject *parent = nullptr):QStm::SettingManager(settingFileName, parent) \
+{ \
+} \
+~Manager() \
+{ \
+} \
+Setting &setting(){ \
+    auto setting=&QStm::SettingManager::setting(); \
+    return*dynamic_cast<Setting*>(setting); \
+} \
+Setting &setting(const QString &value){ \
+    auto setting=&QStm::SettingManager::setting(value); \
+    return*dynamic_cast<Setting*>(setting); \
+} \
+Setting *settingClone(const QString &value){ \
+    auto setting=QStm::SettingManager::settingClone(value); \
+    return dynamic_cast<Setting*>(setting); \
+} \
+virtual QObject*settingCreate(QObject*parent){ \
+    return new Setting(parent); \
+}
+
+
 namespace QStm {
 class SettingManagerPvt;
-#define Q_SETTING_MANAGER_REPLACE_METHODS(Manager,Setting)                                                                                          \
-public:                                                                                                                                             \
-    Q_INVOKABLE explicit Manager(QObject *parent = nullptr) : QStm::SettingManager(parent)                                                          \
-    {                                                                                                                                               \
-    }                                                                                                                                               \
-    Q_INVOKABLE explicit Manager(const QStringList&settingFileName, QObject *parent = nullptr):QStm::SettingManager(settingFileName, parent)        \
-    {                                                                                                                                               \
-    }                                                                                                                                               \
-    Q_INVOKABLE explicit Manager(const QString &settingFileName, QObject *parent = nullptr):QStm::SettingManager(settingFileName, parent)            \
-    {                                                                                                                                               \
-    }                                                                                                                                               \
-    ~Manager()                                                                                                                          \
-    {                                                                                                                                               \
-    }                                                                                                                                               \
-    Setting &setting(){                                                                                                                             \
-        auto setting=&QStm::SettingManager::setting();                                                                                              \
-        return*dynamic_cast<Setting*>(setting);                                                                                                     \
-    }                                                                                                                                               \
-    Setting &setting(const QString &value){                                                                                                         \
-        auto setting=&QStm::SettingManager::setting(value);                                                                                         \
-        return*dynamic_cast<Setting*>(setting);                                                                                                     \
-    }                                                                                                                                               \
-    Setting *settingClone(const QString &value){                                                                                                    \
-        auto setting=QStm::SettingManager::settingClone(value);                                                                                     \
-        return dynamic_cast<Setting*>(setting);                                                                                                     \
-    }                                                                                                                                               \
-    virtual QObject*settingCreate(QObject*parent){                                                                                                  \
-        return new Setting(parent);                                                                                                                 \
-    }
+
 
 //!
 //! \brief The SettingManager class
@@ -63,27 +66,25 @@ public:
     //!
     explicit SettingManager(const QString &settingFileName, QObject *parent = nullptr);
 
-    ~SettingManager();
-
     //!
     //! \brief clear
     //! \return
     //!
-    virtual SettingManager&clear();
+    virtual SettingManager &clear();
 
     //!
     //! \brief insert
     //! \param value
     //! \return
     //!
-    virtual SettingManager&insert(SettingBase &value);
+    virtual SettingManager &insert(SettingBase &value);
 
     //!
     //! \brief insert
     //! \param value
     //! \return
     //!
-    virtual SettingManager&insert(const QVariantHash &value);
+    virtual SettingManager &insert(const QVariantHash &value);
 
     //!
     //! \brief setting
@@ -144,7 +145,7 @@ public:
     //! \param value
     //! \return
     //!
-    SettingManager&operator<<(SettingBase&value);
+    SettingManager &operator<<(SettingBase&value);
 
     //!
     //! \brief settingBody
@@ -194,7 +195,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual SettingManager&setRootDir(const QString &value);
+    virtual SettingManager &setRootDir(const QString &value);
 
     //!
     //! \brief toMap

@@ -1,5 +1,6 @@
 #include "./qstm_types.h"
 #include <QCoreApplication>
+#include "./qstm_startup.h"
 
 namespace QStm {
 namespace Private {
@@ -74,23 +75,3 @@ const QHash<int, QString> &___RequestMethodName()
 }
 } // namespace Private
 } // namespace QStm
-
-////initialize statict variables
-//QStm::Protocol rpcProtocolMin=QStm::Protocol::TcpSocket;
-//QStm::Protocol rpcProtocolMax=QStm::Protocol::Https;
-//QHash<int, QString> RequestMethodName = ___RequestMethodName();
-//QList<QString> RequestMethodNameList = ___RequestMethodName().values();
-//QHash<QString, RequestMethod> RequestMethodType=___RequestMethodType();
-//QHash<int, QString> QStm::ProtocolName=___QStm::ProtocolName();
-//QHash<QString, int> QStm::ProtocolType=___QStm::ProtocolType();
-
-//void init()
-//{
-//    RequestMethodName = ___RequestMethodName();
-//    RequestMethodNameList = ___RequestMethodName().values();
-//    RequestMethodType = ___RequestMethodType();
-//    QStm::ProtocolName = ___QStm::ProtocolName();
-//    QStm::ProtocolType = ___QStm::ProtocolType();
-//}
-
-//Q_COREAPP_STARTUP_FUNCTION(init)

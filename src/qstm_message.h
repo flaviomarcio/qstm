@@ -316,7 +316,7 @@ public:
     Message &setAttachment(const QVariantList &value);
 
 private:
-    MessagePvt*p = nullptr;
+    MessagePvt *p = nullptr;
 };
 }
 

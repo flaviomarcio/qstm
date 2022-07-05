@@ -269,7 +269,7 @@ QMetaProperty MetaObjectUtil::property(const QByteArray &name)
     for(auto &metaObject:p->metaObjectList){
         for(int i = 0; i < metaObject->propertyCount(); ++i) {
             auto property = metaObject->property(i);
-            auto name__=QByteArray(property.name()).toLower();
+            auto name__=QByteArray{property.name()}.toLower();
             if(name__ != __name)
                 continue;
 

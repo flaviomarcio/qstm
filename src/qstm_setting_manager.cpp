@@ -37,27 +37,20 @@ SettingManager::SettingManager(const QString &settingFileName, QObject *parent) 
     p->load(settingFileName);
 }
 
-SettingManager::~SettingManager()
-{
-    delete p;
-}
 
 SettingManager &SettingManager::clear()
 {
-
     p->clear();
     return *this;
 }
 
 SettingManager &SettingManager::insert(SettingBase &value)
 {
-
     return p->insert(value.toHash());
 }
 
 SettingManager &SettingManager::insert(const QVariantHash &value)
 {
-
     return p->insert(value);
 }
 
@@ -68,14 +61,12 @@ SettingBase &SettingManager::setting()
 
 SettingBase &SettingManager::setting(const QString &value)
 {
-
     const auto name = value.toUtf8();
     return p->settingGetCheck(name);
 }
 
 SettingBase *SettingManager::settingClone(const QString &value)
 {
-
     const auto name = value.toUtf8();
     auto &setting = p->settingGetCheck(name);
     if (!setting.isValid())
@@ -95,25 +86,21 @@ QObject *SettingManager::settingCreate(QObject *parent)
 
 bool SettingManager::load(const QVariant &settings)
 {
-
     return p->v_load(settings);
 }
 
 bool SettingManager::load(const SettingManager &manager)
 {
-
     return p->load(manager.toHash());
 }
 
 bool SettingManager::load(QObject *settingsObject)
 {
-
     return p->load(settingsObject);
 }
 
 QVariant SettingManager::settingsFileName() const
 {
-
     return p->settingsFileName;
 }
 
@@ -124,7 +111,6 @@ SettingManager &SettingManager::operator<<(SettingBase &value)
 
 QVariantHash SettingManager::settingBody() const
 {
-
     return p->settingBody;
 }
 
@@ -137,13 +123,11 @@ const QVariantHash SettingManager::settingBody(const QString &value)
 
 QVariantHash SettingManager::arguments() const
 {
-
     return p->variables.value(qsl("arguments")).toHash();
 }
 
 void SettingManager::setArguments(const QVariantHash &value)
 {
-
     auto arguments = p->variables.value(qsl("arguments")).toHash();
     QHashIterator<QString, QVariant> i(value);
     while (i.hasNext()) {
@@ -156,32 +140,27 @@ void SettingManager::setArguments(const QVariantHash &value)
 
 QVariantHash SettingManager::variables() const
 {
-
     return p->variables;
 }
 
 void SettingManager::setVariables(const QVariantHash &value)
 {
-
     p->variables = value;
 }
 
 QVariantHash SettingManager::toHash() const
 {
-
     return p->toHash();
 }
 
 QString SettingManager::rootDir() const
 {
-
     auto v = p->variables.value(qsl("rootdir")).toString();
     return v;
 }
 
 SettingManager &SettingManager::setRootDir(const QString &value)
 {
-
     p->variables.insert(qsl("rootdir"), value);
     return *this;
 }

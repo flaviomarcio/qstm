@@ -12,7 +12,7 @@ class SettingBasePvt;
 class Q_STM_EXPORT SettingBase:public QStm::SettingBaseTemplate<SettingBase>
 {
     Q_OBJECT
-    SETTING_OBJECT(SettingBase)
+    QSTM_SETTING_OBJECT(SettingBase)
 public:
     //!
     //! \brief SettingBase

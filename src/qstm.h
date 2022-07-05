@@ -22,3 +22,5 @@
 #include "./qstm_util_meta_object.h"
 #include "./qstm_fileinfo.h"
 #include "./qstm_network_types.h"
+#include "./qstm_startup.h"
+#include "./qstm_meta_enum.h"

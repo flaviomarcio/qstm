@@ -22,3 +22,4 @@
 #include "../src/qstm_util_double.h"
 #include "../src/qstm_util_meta_object.h"
 #include "../src/qstm_object_wrapper.h"
+#include "../src/qstm_startup.h"

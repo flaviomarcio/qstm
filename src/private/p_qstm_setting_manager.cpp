@@ -1,6 +1,8 @@
 #include "./p_qstm_setting_manager.h"
 
-QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent):settingsDefault(parent)
+QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
+    : QObject{parent},
+      settingsDefault(parent)
 {
     this->parent=parent;
 }
