@@ -44,6 +44,7 @@ static const auto vpDefaultSelect="defaultSelect";
 static const auto vpDefaultValue="defaultValue";
 static const auto vpDesign="design";
 static const auto vpDisplayer="displayer";
+static const auto vpDisplayText="displaytext";
 static const auto vpEdit="edit";
 static const auto vpEditable="editable";
 static const auto vpField="field";
@@ -86,6 +87,8 @@ static const auto vpType="type";
 static const auto vpUuid="uuid";
 static const auto vpVisible="visible";
 static const auto vpWidth="width";
+static const auto vpPrimaryKey="primarykey";
+
 
 static const auto vtInputAddress="inputaddress";
 static const auto vtInputCalendar="inputcalendar";
