@@ -2,6 +2,13 @@
 
 #include <QObject>
 
+struct EditReadOnly{
+    const char *erNo="erNo";
+    const char *erYes="erYes";
+    const char *erIfNew="erIfNew";
+    const char *erIfExisting="erIfExisting";
+};
+
 static const auto vDELETE="delete";
 static const auto vGET="get";
 static const auto vPATCH="patch";
@@ -27,6 +34,7 @@ static const auto vText="text";
 static const auto vTime="time";
 static const auto vUrl="url";
 static const auto vUuid="uuid";
+static const EditReadOnly vReadOnly;
 
 static const auto vaCenter="center";
 static const auto vaEnd="end";
