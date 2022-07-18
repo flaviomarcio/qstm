@@ -6,7 +6,6 @@
 #include <QVariant>
 #include <QCryptographicHash>
 #include <QJsonDocument>
-#include "../../qstm/src/qstm_meta_types.h"
 
 namespace QStm {
 
@@ -29,11 +28,11 @@ public:
     QByteArray toMd5(const QVariant &value)const
     {
         QByteArray bytes;
-        switch (qTypeId(value)) {
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        switch (value.typeId()) {
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
             bytes = QJsonDocument::fromVariant(value).toJson(QJsonDocument::Compact);
             break;
         default:
@@ -44,7 +43,7 @@ public:
 
     void clear()
     {
-        QMutexLOCKER locker(&cacheMutex);
+        QMutexLocker<QMutex> locker(&cacheMutex);
         this->cache.clear();
     }
 };
@@ -68,7 +67,7 @@ CachePool &CachePool::instance()
 CachePool &CachePool::instance(QThread*currentThread)
 {
     static QMutex instanceMutex;
-    QMutexLOCKER locker(&instanceMutex);//enfileira e apenas 1 vai entrar
+    QMutexLocker<QMutex> locker(&instanceMutex);//enfileira e apenas 1 vai entrar
     auto &i=(*instancesMap)[currentThread];
     if(i==nullptr)
         i=new CachePool{};
@@ -92,7 +91,7 @@ QVariant CachePool::get(const QVariant &key) const
     if(!key.isValid())
         return {};
 
-    QMutexLOCKER locker(&p->cacheMutex);
+    QMutexLocker<QMutex> locker(&p->cacheMutex);
     auto hshMd5 = p->toMd5(key);
     return p->cache.value(hshMd5).second;
 }
@@ -102,7 +101,7 @@ QByteArray CachePool::set(QVariant &value) const
     if(!value.isValid())
         return {};
 
-    QMutexLOCKER locker(&p->cacheMutex);
+    QMutexLocker<QMutex> locker(&p->cacheMutex);
     auto hshMd5 = p->toMd5(value);
     if(this->set(hshMd5, value))
         return hshMd5;
@@ -116,7 +115,7 @@ bool CachePool::set(const QVariant &key, const QVariant &value) const
 
 
     auto hshMd5 = p->toMd5(key);
-    QMutexLOCKER locker(&p->cacheMutex);
+    QMutexLocker<QMutex> locker(&p->cacheMutex);
     auto pair=CacheItem(QDateTime::currentDateTime(), value);
     p->cache.insert(hshMd5, pair);
     return true;
@@ -127,7 +126,7 @@ QVariant CachePool::take(const QVariant &key) const
     if(!key.isValid())
         return {};
 
-    QMutexLOCKER locker(&p->cacheMutex);
+    QMutexLocker<QMutex> locker(&p->cacheMutex);
     auto hshMd5 = p->toMd5(key);
     if(p->cache.contains(hshMd5))
         return p->cache.take(hshMd5).second;
@@ -139,7 +138,7 @@ QVariant CachePool::remove(const QVariant &key) const
     if(!key.isValid())
         return {};
 
-    QMutexLOCKER locker(&p->cacheMutex);
+    QMutexLocker<QMutex> locker(&p->cacheMutex);
     auto hshMd5 = p->toMd5(key);
     if(p->cache.contains(hshMd5))
         return p->cache.take(hshMd5).second;

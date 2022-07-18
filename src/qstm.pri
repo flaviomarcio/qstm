@@ -17,7 +17,6 @@ HEADERS += \
     $$PWD/qstm_meta_types.h \
     $$PWD/qstm_log.h \
     $$PWD/qstm_network_types.h \
-    $$PWD/qstm_object_macro.h \
     $$PWD/qstm_result_info.h \
     $$PWD/qstm_startup.h \
     $$PWD/qstm_types_const.h \

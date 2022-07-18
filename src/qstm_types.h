@@ -1,7 +1,10 @@
 #pragma once
 
-#include "./qstm_global.h"
-#include "./qstm_types_const.h"
+//#include "./qstm_global.h"
+//#include "./qstm_types_const.h"
+//#include "./qstm_macro.h"
+//#include "./qstm_const.h"
+#include "./qstm_types.h"
 #include <QObject>
 #include <QVector>
 #include <QVariant>
@@ -9,17 +12,9 @@
 #include <QString>
 #include <QMetaProperty>
 #include <QMutex>
-#include <QMutexLocker>
 
 typedef QVector<QString> QStringVector;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-typedef QMutexLocker<QMutex> QMutexLOCKER;
-typedef QMetaType::Type QMetaTypeType;
-#else
-typedef QMutexLocker QMutexLOCKER;
-typedef QVariant::Type QMetaTypeType;
-#endif
 
 namespace QStm {
 

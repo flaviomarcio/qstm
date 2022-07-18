@@ -1,6 +1,5 @@
 #include "./qstm_setting_base.h"
 #include "./qstm_types.h"
-#include "./qstm_meta_types.h"
 #include <QStandardPaths>
 #include <QProcess>
 #include <QDateTime>
@@ -66,36 +65,36 @@ QVariant SettingBase::url()const
 
     for(auto &v:vRouteList){
         auto route=v.toString().trimmed();
-        auto url=qsl("%1:%2/%3").arg(this->hostName()).arg(this->port()).arg(route);
-        while(url.contains(qsl("//")))
-            url=url.replace(qsl("//"), qsl("/"));
+        auto url=QStringLiteral("%1:%2/%3").arg(this->hostName()).arg(this->port()).arg(route);
+        while(url.contains(QStringLiteral("//")))
+            url=url.replace(QStringLiteral("//"), QStringLiteral("/"));
 
 
-        switch (qTypeId(protocol())) {
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        switch (protocol().typeId()) {
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
         {
             auto record=this->protocol().toList();
             for(const auto &v:record){
                 QString protocol;
-                switch (qTypeId(v)) {
-                case QMetaType_Int:
+                switch (v.typeId()) {
+                case QMetaType::Int:
                     protocol=QStm::ProtocolName.value(v.toInt());
                     break;
-                case QMetaType_QString:
-                case QMetaType_QByteArray:
+                case QMetaType::QString:
+                case QMetaType::QByteArray:
                     protocol=v.toString().toLower();
                     break;
                 default:
                     continue;
                 }
-                vList.append(qsl("%1://%2").arg(protocol,url));
+                vList.append(QStringLiteral("%1://%2").arg(protocol,url));
             }
             break;
         }
         default:
             const auto protocol=this->protocol().toString();
-            vList.append(qsl("%1://%2").arg(protocol,url));
+            vList.append(QStringLiteral("%1://%2").arg(protocol,url));
         }
     }
     QVariant __return=(vList.size()==1)?vList.first():vList;
@@ -131,12 +130,12 @@ QVariant SettingBase::protocol() const
 
 SettingBase &SettingBase::setProtocol(const QVariant &value)
 {
-    switch (qTypeId(value)) {
-    case QMetaType_Int:
-    case QMetaType_UInt:
-    case QMetaType_Double:
-    case QMetaType_LongLong:
-    case QMetaType_ULongLong:
+    switch (value.typeId()) {
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::Double:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
         p->protocol=QStm::ProtocolName.value(value.toInt());
         break;
     default:

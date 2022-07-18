@@ -1,9 +1,8 @@
 #pragma once
 
-#include <QMutex>
 #include <QCoreApplication>
-#include <algorithm>
-#include <QTimer>
+#include <QThread>
+#include <QMutex>
 #include "../qstm_startup.h"
 
 namespace QStm{

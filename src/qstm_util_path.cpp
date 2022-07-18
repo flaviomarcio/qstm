@@ -3,6 +3,8 @@
 #include <QCryptographicHash>
 #include <QDir>
 
+#define q_dir_separator QDir::separator()
+
 namespace QStm {
 
 class PathUtilPvt:public QObject{
@@ -25,8 +27,8 @@ public:
     QString format(const QString &v)const
     {
         auto s=v;
-        s=q_dir_separator+s.replace(qsl("\\"),q_dir_separator);
-        s=s.replace(s,qsl_null);
+        s=q_dir_separator+s.replace(QStringLiteral("\\"),q_dir_separator);
+        s=s.replace(s,"");
         return s;
     }
 };
@@ -43,7 +45,7 @@ PathUtil::~PathUtil()
     delete p;
 }
 
-PathUtil&PathUtil::operator=(const QVariant &v)
+PathUtil &PathUtil::operator=(const QVariant &v)
 {
     this->setPath(v);
     return*this;
@@ -57,7 +59,7 @@ PathUtil &PathUtil::operator+=(const QVariant &v)
 PathUtil &PathUtil::operator-=(const QVariant &v)
 {
 
-    return this->setPath(p->v.replace(v.toString(),qsl_null));
+    return this->setPath(p->v.replace(v.toString(), ""));
 }
 
 PathUtil &PathUtil::operator<<(const QVariant &v)
@@ -107,8 +109,8 @@ PathUtil &PathUtil::append(const QVariant &v)
 PathUtil &PathUtil::remove(const QVariant &v)
 {
 
-    auto s=v.toString().replace(qsl("\\"),q_dir_separator);
-    s=p->v.replace(s,qsl_null);
+    auto s=v.toString().replace(QStringLiteral("\\"),q_dir_separator);
+    s=p->v.replace(s, "");
     return this->setPath(s);
 }
 

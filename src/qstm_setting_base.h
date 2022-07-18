@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./private/p_qstm_base_setting.h"
 #include "./qstm_global.h"
+#include "./private/p_qstm_base_setting.h"
 
 namespace QStm {
 class SettingBasePvt;

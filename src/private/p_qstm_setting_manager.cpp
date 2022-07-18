@@ -1,4 +1,5 @@
 #include "./p_qstm_setting_manager.h"
+#include "../qstm_util_variant.h"
 
 QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
     : QObject{parent},
@@ -56,8 +57,8 @@ QVariantHash QStm::SettingManagerPvt::toHash()
     vList=vList+this->settings.values();
     for(auto &v:vList)
         vServices.insert(v->name(), v->toHash());
-    vHash.insert(qsl("variables"), this->variables);
-    vHash.insert(qsl("services"), vServices);
+    vHash.insert(QStringLiteral("variables"), this->variables);
+    vHash.insert(QStringLiteral("services"), vServices);
     return vHash;
 }
 
@@ -96,7 +97,7 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
     QVariantHash vValue=value;
     if(vValue.isEmpty())
         return*this->parent;
-    auto name=vValue.value(qsl("name")).toByteArray().trimmed();
+    auto name=vValue.value(QStringLiteral("name")).toByteArray().trimmed();
     if(name.isEmpty())
         return*this->parent;
 
@@ -121,12 +122,12 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
 
 bool QStm::SettingManagerPvt::v_load(const QVariant &v)
 {
-    switch (qTypeId(v)) {
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    switch (v.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         return this->load(v.toHash());
-    case QMetaType_QVariantList:
-    case QMetaType_QStringList:
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
         return this->load(v.toStringList());
     default:
         return this->load(v.toString());
@@ -146,7 +147,7 @@ bool QStm::SettingManagerPvt::load(QObject *settingsObject)
             continue;
 
         auto methodName=QString(metaMethod.name()).toLower().trimmed();
-        static auto staticNames=QStringList{qsl("resourcesettings")};
+        static auto staticNames=QStringList{QStringLiteral("resourcesettings")};
         if(!staticNames.contains(methodName))
             continue;
 
@@ -170,14 +171,14 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
 
         if(!file.exists()){
 #if Q_STM_LOG
-            sWarning()<<qsl("file not exists %1").arg(file.fileName());
+            sWarning()<<QStringLiteral("file not exists %1").arg(file.fileName());
 #endif
             continue;
         }
 
         if(!file.open(QFile::ReadOnly)){
 #if Q_STM_LOG
-            sWarning()<<qsl("%1, %2").arg(file.fileName(), file.errorString());
+            sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), file.errorString());
 #endif
             continue;
         }
@@ -188,14 +189,14 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
         auto doc=QJsonDocument::fromJson(bytes, error);
         if(error!=nullptr){
 #if Q_STM_LOG
-            sWarning()<<qsl("%1, %2").arg(file.fileName(), error->errorString());
+            sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), error->errorString());
 #endif
             continue;
         }
 
         if(doc.object().isEmpty()){
 #if Q_STM_LOG
-            sWarning()<<qsl("object is empty, %1").arg(file.fileName());
+            sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
 #endif
             continue;
 
@@ -219,20 +220,20 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     QFile file(fileName);
     if(fileName.trimmed().isEmpty()){
 #if Q_STM_LOG
-        sWarning()<<qsl("not file settings");
+        sWarning()<<QStringLiteral("not file settings");
 #endif
         return false;
     }
     if(!file.exists()){
 #if Q_STM_LOG
-        sWarning()<<qsl("file not exists %1").arg(file.fileName());
+        sWarning()<<QStringLiteral("file not exists %1").arg(file.fileName());
 #endif
         return false;
     }
 
     if(!file.open(QFile::ReadOnly)){
 #if Q_STM_LOG
-        sWarning()<<qsl("%1, %2").arg(file.fileName(), fileName);
+        sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), fileName);
 #endif
         return false;
     }
@@ -243,22 +244,22 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     auto doc=QJsonDocument::fromJson(bytes, error);
     if(error!=nullptr){
 #if Q_STM_LOG
-        sWarning()<<qsl("%1, %2").arg(file.fileName(), error->errorString());
+        sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), error->errorString());
 #endif
         return false;
     }
 
     if(doc.object().isEmpty()){
 #if Q_STM_LOG
-        sWarning()<<qsl("object is empty, %1").arg(file.fileName());
+        sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
 #endif
         return false;
     }
 
     auto vHash=doc.object().toVariantHash();
-    if(!vHash.contains(qsl("services"))){
+    if(!vHash.contains(QStringLiteral("services"))){
 #if Q_STM_LOG
-        sWarning()<<qsl("tag services not exists, %1").arg(file.fileName());
+        sWarning()<<QStringLiteral("tag services not exists, %1").arg(file.fileName());
 #endif
         return false;
     }
@@ -271,24 +272,24 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
     auto &p=*this;
     p.settingBody=settingsBody;
 
-    const auto settings=settingsBody.contains(qsl("services"))?settingsBody.value(qsl("services")).toHash():p.settingBody;
+    const auto settings=settingsBody.contains(QStringLiteral("services"))?settingsBody.value(QStringLiteral("services")).toHash():p.settingBody;
 
     {//variables
-        this->variables=settingsBody[qsl("variables")].toHash();
+        this->variables=settingsBody[QStringLiteral("variables")].toHash();
 
-        auto rootDir=settingsBody[qsl("rootdir")].toString().trimmed();
-        this->variables[qsl("rootdir")]=rootDir.isEmpty()?qsl("%HOME/$APPNAME"):rootDir;
+        auto rootDir=settingsBody[QStringLiteral("rootdir")].toString().trimmed();
+        this->variables[QStringLiteral("rootdir")]=rootDir.isEmpty()?QStringLiteral("%HOME/$APPNAME"):rootDir;
 
         QVariantHash arguments;
-        auto varguments=settingsBody[qsl("arguments")];
+        auto varguments=settingsBody[QStringLiteral("arguments")];
         if(varguments.isNull() || !varguments.isValid())
-            varguments=this->variables[qsl("arguments")];
+            varguments=this->variables[QStringLiteral("arguments")];
         else
-            this->variables[qsl("arguments")]=varguments;
+            this->variables[QStringLiteral("arguments")]=varguments;
 
-        switch (qTypeId(varguments)) {
-        case QMetaType_QVariantHash:
-        case QMetaType_QVariantMap:
+        switch (varguments.typeId()) {
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantMap:
         {
             QHashIterator<QString, QVariant> i(varguments.toHash());
             while (i.hasNext()) {
@@ -297,11 +298,11 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
             }
             break;
         }
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
         {
             for(auto &v:varguments.toList()){
-                auto l=v.toString().split(qsl("="));
+                auto l=v.toString().split(QStringLiteral("="));
                 if(l.isEmpty())
                     continue;
 
@@ -324,7 +325,7 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
         this->parent->setArguments(arguments);
     }
 
-    QVariantHash defaultVariables({{qsl("hostName"), qsl("SERVICE_HOST")}});
+    QVariantHash defaultVariables({{QStringLiteral("hostName"), QStringLiteral("SERVICE_HOST")}});
     QVariantHash defaultValues;
     if(!defaultVariables.isEmpty()){
         QHashIterator<QString, QVariant> i(defaultVariables);
@@ -339,11 +340,11 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
         }
     }
 
-    auto defaultSetting=settings.value(qsl("default")).toHash();
+    auto defaultSetting=settings.value(QStringLiteral("default")).toHash();
 
     p.settingsDefault=defaultSetting;
 
-    if(settings.contains(qsl("hostName")) && settings.contains(qsl("port"))){
+    if(settings.contains(QStringLiteral("hostName")) && settings.contains(QStringLiteral("port"))){
         this->insert(settings);
         return this->isLoaded();
     }
@@ -352,7 +353,7 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
     while (i.hasNext()) {
         i.next();
         auto value=i.value().toHash();
-        value.insert(qsl("name"), i.key().trimmed());
+        value.insert(QStringLiteral("name"), i.key().trimmed());
 
         {
             QHashIterator<QString, QVariant> i(defaultValues);

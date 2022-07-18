@@ -1,5 +1,4 @@
 #include "./qstm_fileinfo.h"
-#include "./qstm_object.h"
 #include <QMetaProperty>
 
 namespace QStm {

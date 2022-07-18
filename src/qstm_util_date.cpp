@@ -1,9 +1,8 @@
 #include "./qstm_util_date.h"
-#include "./qstm_types.h"
+#include "./qstm_meta_types.h"
 #include <QCoreApplication>
 #include <QStringList>
 #include <QVariantList>
-#include "./qstm_meta_types.h"
 
 namespace QStm {
 
@@ -30,16 +29,16 @@ public:
 
     static const QVariant getAlpha(const QVariant &v)
     {
-        static const auto num=qsl("0123456789,.");
+        static const auto num=QStringLiteral("0123456789,.");
         QString r,ss;
-        switch (qTypeId(v)) {
-        case QMetaType_Double:
+        switch (v.typeId()) {
+        case QMetaType::Double:
             ss=QString::number(v.toDouble(),'f',6);
             break;
-        case QMetaType_ULongLong:
-        case QMetaType_LongLong:
-        case QMetaType_Int:
-        case QMetaType_UInt:
+        case QMetaType::ULongLong:
+        case QMetaType::LongLong:
+        case QMetaType::Int:
+        case QMetaType::UInt:
             ss=QString::number(v.toLongLong(),'f',0);
             break;
         default:
@@ -55,17 +54,17 @@ public:
 
     static const QVariant getNumber(const QVariant &v)
     {
-        static const auto num=qsl("0123456789,.");
+        static const auto num=QStringLiteral("0123456789,.");
         QString r,ss;
 
-        switch (qTypeId(v)) {
-        case QMetaType_Double:
+        switch (v.typeId()) {
+        case QMetaType::Double:
             ss=QString::number(v.toDouble(),'f',6);
             break;
-        case QMetaType_ULongLong:
-        case QMetaType_LongLong:
-        case QMetaType_Int:
-        case QMetaType_UInt:
+        case QMetaType::ULongLong:
+        case QMetaType::LongLong:
+        case QMetaType::Int:
+        case QMetaType::UInt:
             ss=QString::number(v.toLongLong(),'f',0);
             break;
         default:
@@ -85,22 +84,22 @@ public:
         if(v.isNull() || !v.isValid() || v.toLongLong()<0)
             return defaultV;
 
-        if(QMetaTypeUtilNumeric.contains(qTypeId(v)))
+        if(QMetaTypeUtilNumeric.contains(v.typeId()))
             return v;
 
         qlonglong scale=1;
         auto a=getAlpha(v).toString().toLower();
-        if(a==qsl("s") || a==qsl("sc") || a==qsl("second"))
+        if(a==QStringLiteral("s") || a==QStringLiteral("sc") || a==QStringLiteral("second"))
             scale=1;
-        else if(a==qsl("m") || a==qsl("mn") || a==qsl("minute"))
+        else if(a==QStringLiteral("m") || a==QStringLiteral("mn") || a==QStringLiteral("minute"))
             scale=60;
-        else if(a==qsl("h") || a==qsl("hr") || a==qsl("hour"))
+        else if(a==QStringLiteral("h") || a==QStringLiteral("hr") || a==QStringLiteral("hour"))
             scale=60*60;
-        else if(a==qsl("d") || a==qsl("dd") || a==qsl("day"))
+        else if(a==QStringLiteral("d") || a==QStringLiteral("dd") || a==QStringLiteral("day"))
             scale=60*60*24;
-        else if(a==qsl("mo")|| a==qsl("mo") || a==qsl("month"))
+        else if(a==QStringLiteral("mo")|| a==QStringLiteral("mo") || a==QStringLiteral("month"))
             scale=(60*60*24*30);
-        else if(a==qsl("y") || a==qsl("yy") || a==qsl("year"))
+        else if(a==QStringLiteral("y") || a==QStringLiteral("yy") || a==QStringLiteral("year"))
             scale=(60*60*24*30*12);
         else
             scale=1;//ms
@@ -136,15 +135,15 @@ QDateTime DateUtil::firstMonthDate(const QVariant &v) const
 {
     auto vv=v.isValid()?v:*this;
     QDate d;
-    switch (qTypeId(vv)) {
-    case QMetaType_QDate:
+    switch (vv.typeId()) {
+    case QMetaType::QDate:
         d=vv.toDate();
         break;
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         d=vv.toDateTime().date();
         break;
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDateTime::fromString(QVariant::toString(), Qt::ISODate);
         if(v.isNull()){
@@ -165,15 +164,15 @@ QDateTime DateUtil::lastMonthDate(const QVariant &v) const
 {
     auto vv=v.isValid()?v:*this;
     QDate d;
-    switch (qTypeId(vv)) {
-    case QMetaType_QDate:
+    switch (vv.typeId()) {
+    case QMetaType::QDate:
         d=vv.toDate();
         break;
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         d=vv.toDateTime().date();
         break;
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDateTime::fromString(QVariant::toString(), Qt::ISODate);
         if(v.isNull()){
@@ -195,15 +194,15 @@ QDateTime DateUtil::firstYearDate(const QVariant &v) const
 {
     auto vv=v.isValid()?v:*this;
     QDate d;
-    switch (qTypeId(vv)) {
-    case QMetaType_QDate:
+    switch (vv.typeId()) {
+    case QMetaType::QDate:
         d=vv.toDate();
         break;
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         d=vv.toDateTime().date();
         break;
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDateTime::fromString(QVariant::toString(), Qt::ISODate);
         if(v.isNull()){
@@ -224,15 +223,15 @@ QDateTime DateUtil::lastYearDate(const QVariant &v) const
 {
     auto vv=v.isValid()?v:*this;
     QDate d;
-    switch (qTypeId(vv)) {
-    case QMetaType_QDate:
+    switch (vv.typeId()) {
+    case QMetaType::QDate:
         d=vv.toDate();
         break;
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         d=vv.toDateTime().date();
         break;
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDateTime::fromString(QVariant::toString(), Qt::ISODate);
         if(v.isNull()){
@@ -298,17 +297,17 @@ QVariantList DateUtil::listYearDays(const QVariant &v) const
 {
     QVariantList list;
     int year=0;
-    switch (qTypeId(v)) {
-    case QMetaType_QDate:
+    switch (v.typeId()) {
+    case QMetaType::QDate:
         year=v.toDate().year();
         break;
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         year=v.toDateTime().date().year();
         break;
-    case QMetaType_ULongLong:
-    case QMetaType_LongLong:
-    case QMetaType_UInt:
-    case QMetaType_Int:
+    case QMetaType::ULongLong:
+    case QMetaType::LongLong:
+    case QMetaType::UInt:
+    case QMetaType::Int:
         year=v.toInt();
         break;
     default:
@@ -358,7 +357,7 @@ QDateTime DateUtil::minDateTime()
 
 QDateTime DateUtil::minDateTime(const QVariant &dt)
 {
-    auto d=qTypeId(dt)==QMetaType_QDateTime?dt.toDateTime().date():dt.toDate();
+    auto d=dt.typeId()==QMetaType::QDateTime?dt.toDateTime().date():dt.toDate();
     return QDateTime{d, *static_minTime};
 }
 
@@ -370,7 +369,7 @@ QDateTime DateUtil::maxDateTime()
 
 QDateTime DateUtil::maxDateTime(const QVariant &dt)
 {
-    auto d=qTypeId(dt)==QMetaType_QDateTime?dt.toDateTime().date():dt.toDate();
+    auto d=dt.typeId()==QMetaType::QDateTime?dt.toDateTime().date():dt.toDate();
     return QDateTime{d, *static_maxTime};
 }
 
@@ -419,18 +418,18 @@ const QDateTime DateUtil::toDateTime(const QVariant &v)
         QVariant::setValue(v);
 
     QDateTime dt;
-    switch (qTypeId(*this)) {
-    case QMetaType_QDateTime:
+    switch (this->typeId()) {
+    case QMetaType::QDateTime:
         dt=QVariant::toDateTime();
         break;
-    case QMetaType_QDate:
+    case QMetaType::QDate:
         dt=QDateTime{QVariant::toDate(), {}};
         break;
-    case QMetaType_QTime:
+    case QMetaType::QTime:
         dt=QDateTime{QDate{}, QVariant::toTime()};
         break;
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDateTime::fromString(QVariant::toString(), Qt::ISODateWithMs).toUTC();
         if(v.isNull()){
@@ -454,15 +453,15 @@ const QDate DateUtil::toDate(const QVariant &v)
     if(v.isValid())
         QVariant::setValue(v);
 
-    switch (qTypeId(*this)) {
-    case QMetaType_QDateTime:
+    switch (this->typeId()) {
+    case QMetaType::QDateTime:
         return QVariant::toDateTime().date();
-    case QMetaType_QDate:
+    case QMetaType::QDate:
         return QVariant::toDate();
-    case QMetaType_QTime:
+    case QMetaType::QTime:
         return {};
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto v=QDate::fromString(QVariant::toString(), Qt::ISODate);
         if(v.isNull()){
@@ -483,20 +482,20 @@ const QTime DateUtil::toTime(const QVariant &v)
         QVariant::setValue(v);
 
     QTime __return;
-    switch (qTypeId(*this)) {
-    case QMetaType_QDateTime:
+    switch (this->typeId()) {
+    case QMetaType::QDateTime:
         __return=QVariant::toDateTime().time();
         break;
-    case QMetaType_QDate:
+    case QMetaType::QDate:
         __return=*static_minTime;
         break;
-    case QMetaType_QTime:
+    case QMetaType::QTime:
     {
         __return=QVariant::toTime();
         break;
     }
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         __return=QTime::fromString(QVariant::toString(), Qt::ISODateWithMs);
         if(__return.isNull() || !__return.isValid()){
@@ -700,9 +699,9 @@ bool DateUtil::checkBetween(const QVariant &v, QDateTime &vMin, QDateTime &vMax)
         return false;
 
     auto vv=v;
-    switch (qTypeId(vv)) {
-    case QMetaType_QVariantList:
-    case QMetaType_QStringList:
+    switch (vv.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
     {
         auto l=vv.toList();
         if(l.isEmpty())
@@ -713,8 +712,8 @@ bool DateUtil::checkBetween(const QVariant &v, QDateTime &vMin, QDateTime &vMax)
             vv=QVariantList{l[0], l[1]};
         break;
     }
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
     {
         auto s=v.toString().trimmed();
         for(auto &c:*static_paramDelimiter){
@@ -729,20 +728,20 @@ bool DateUtil::checkBetween(const QVariant &v, QDateTime &vMin, QDateTime &vMax)
         break;
     }
 
-    switch (qTypeId(vv)) {
-    case QMetaType_QVariantList:
-    case QMetaType_QStringList:
+    switch (vv.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
     {
         auto l=vv.toList();
         for(auto &v:l){
-            v=v.toString().replace(qsl("\""),qsl_null).replace(qsl("'"),qsl_null).replace(qsl(";"),qsl_null);
+            v=v.toString().replace(QStringLiteral("\""), "").replace(QStringLiteral("'"),"").replace(QStringLiteral(";"),"");
         }
         vMin=l.size()<=0?QDateTime{}:l[0].toDateTime();
         vMax=l.size()<=1?QDateTime{}:l[1].toDateTime();
         break;
     }
-    case QMetaType_QDate:
-    case QMetaType_QDateTime:
+    case QMetaType::QDate:
+    case QMetaType::QDateTime:
     {
         vMin=QDateTime{vv.toDateTime().date(), {}};
         vMax=QDateTime{vv.toDateTime().date(), {}};

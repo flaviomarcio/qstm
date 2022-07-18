@@ -1,10 +1,6 @@
 #pragma once
 
 #include "../qstm_object.h"
-#include "../qstm_types.h"
-#include "../qstm_util_variant.h"
-#include "../qstm_util_date.h"
-#include "../qstm_util_meta_object.h"
 #include <math.h>
 #include <QVariant>
 #include <QVariantHash>
@@ -307,7 +303,7 @@ public:
     //! \brief setStaticVariables
     //! \param v
     //!
-    void setStaticVariables(const QVariantHash&v);
+    void setStaticVariables(const QVariantHash &v);
 
 private:
     SettingBaseTemplatePrv*p=nullptr;

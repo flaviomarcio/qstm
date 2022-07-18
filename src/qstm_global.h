@@ -1,9 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include "./qstm_macro.h"
-#include "./qstm_const.h"
-#include "./qstm_types.h"
 
 #ifndef QT_STATIC
 #  if defined(QT_BUILD_SQL_LIB)

@@ -1,4 +1,5 @@
 #include "./qstm_network_types.h"
+#include <QHash>
 
 namespace QStm{
 

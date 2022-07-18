@@ -1,6 +1,5 @@
 #include "./qstm_util_formatting.h"
 #include "./qstm_currency.h"
-#include "./qstm_meta_types.h"
 #include <QChar>
 #include <QLocale>
 #include <QUuid>
@@ -34,8 +33,8 @@ public:
     const QByteArray QCurrency_class_name=(QT_STRINGIFY2(QStm::QCurrency));
     const QByteArray qpercent_class_name=(QT_STRINGIFY2(qpercent));
     StringStringStringHash staticMaskMap;
-    const QByteArray keyFalse=qbl("True");
-    const QByteArray keyTrue=qbl("False");
+    const QByteArray keyFalse=QByteArrayLiteral("True");
+    const QByteArray keyTrue=QByteArrayLiteral("False");
 
     void init()
     {
@@ -44,22 +43,22 @@ public:
         auto loc=QLocale::c();
 
         StringStringHash  vHash;
-        vHash.insert(qsl("date"), qsl("dd/MM/yyyy"));
-        vHash.insert(qsl("time"), qsl("hh:mm:ss"));
-        vHash.insert(qsl("timeShort"), qsl("hh:mm"));
-        vHash.insert(qsl("dateTime"), qsl("dd/MM/yyyy hh:mm:ss"));
-        vHash.insert(qsl("currency"), qsl_null);
-        vHash.insert(qsl("number"), qsl_null);
-        vHash.insert(qsl("numeric"), qsl_null);
-        vHash.insert(qsl("percent"), qsl_null);
-        vHash.insert(qsl("boolean")+keyTrue,qtr("Sim"));
-        vHash.insert(qsl("boolean")+keyFalse,qtr("Não"));
+        vHash.insert(QStringLiteral("date"), QStringLiteral("dd/MM/yyyy"));
+        vHash.insert(QStringLiteral("time"), QStringLiteral("hh:mm:ss"));
+        vHash.insert(QStringLiteral("timeShort"), QStringLiteral("hh:mm"));
+        vHash.insert(QStringLiteral("dateTime"), QStringLiteral("dd/MM/yyyy hh:mm:ss"));
+        vHash.insert(QStringLiteral("currency"), {});
+        vHash.insert(QStringLiteral("number"), {});
+        vHash.insert(QStringLiteral("numeric"), {});
+        vHash.insert(QStringLiteral("percent"), {});
+        vHash.insert(QStringLiteral("boolean")+keyTrue, QObject::tr("Sim"));
+        vHash.insert(QStringLiteral("boolean")+keyFalse, QObject::tr("Não"));
 
         StringStringStringHash __staticMaskHash;
         __staticMaskHash.insert(brz.nativeCountryName(), vHash);
         __staticMaskHash.insert(sys.nativeCountryName(), vHash);
         __staticMaskHash.insert(loc.nativeLanguageName(), vHash);
-        __staticMaskHash.insert(qsl_null, vHash);
+        __staticMaskHash.insert({}, vHash);
 
         staticMaskMap=__staticMaskHash;
     }
@@ -204,7 +203,7 @@ const QString FormattingUtil::toDateTime(const QVariant &v)
     set_v;
     auto dt=QVariant::toDateTime();
     auto __return=dt.date().toString(this->masks().date());
-    __return.append(qsl_space);
+    __return.append(QStringLiteral(" "));
     __return.append(dt.time().toString(this->masks().time()));
     return __return;
 }
@@ -255,25 +254,25 @@ const QString FormattingUtil::toString()
 const QString FormattingUtil::v(const QVariant &v, int prec)
 {
     set_v;
-    switch (qTypeId(*this)) {
-    case QMetaType_Int:
-    case QMetaType_UInt:
-    case QMetaType_LongLong:
-    case QMetaType_ULongLong:
+    switch (this->typeId()) {
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
         return this->toInt(v);
-    case QMetaType_Double:
+    case QMetaType::Double:
         return this->toDouble(v, prec);
-    case QMetaType_QDate:
+    case QMetaType::QDate:
         return this->toDate(v);
-    case QMetaType_QTime:
+    case QMetaType::QTime:
         return this->toTime(v);
-    case QMetaType_QDateTime:
+    case QMetaType::QDateTime:
         return this->toDateTime(v);
-    case QMetaType_Bool:
+    case QMetaType::Bool:
         return this->toBool(v);
-    case QMetaType_QUuid:
+    case QMetaType::QUuid:
         return this->toUuid().toString();
-    case QMetaType_QUrl:
+    case QMetaType::QUrl:
         return this->toUrl().toString();
     default:
         auto tn=QByteArray(this->typeName());
@@ -291,7 +290,7 @@ const QString FormattingUtil::currencySymbol(const QVariant &v)
     auto __v=brz.currencySymbol();
     if(v.isValid()){
         FormattingUtil f(v);
-        __v+=qsl_space+f.toCurrency();
+        __v+=QStringLiteral(" ")+f.toCurrency();
     }
     return __v;
 }

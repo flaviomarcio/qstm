@@ -1,10 +1,28 @@
 #pragma once
 
-#include "./qstm_result_info.h"
-#include "./qstm_global.h"
-#include "./qstm_types.h"
-#include <QtSql/QSqlError>
+#include <QVariant>
+#include <QUuid>
+#include <QUrl>
+#include <QChar>
+#include <QBitArray>
+#include <QByteArray>
+#include <QString>
+#include <QVariantHash>
+#include <QVariantMap>
 #include <QStringList>
+#include <QVariantList>
+#include <QDate>
+#include <QTime>
+#include <QDateTime>
+#include "./qstm_global.h"
+#include "./qstm_result_info.h"
+
+#define __QSTM_DECLARE_RESULT_READ_OPERATOR(TYPE) \
+    ResultValue &operator = (const TYPE value){ return this->setResult(value);}\
+    ResultValue &operator << (const TYPE value){ return this->setResult(value);}\
+    ResultValue &operator += (const TYPE value){ return this->setResult(value);}
+
+#define __QSTM_DECLARE_RESULT_READ_LR(TYPE) ResultValue &lr(const TYPE value)const{ return this->lr().setResult(value);}
 
 class ResultValuePvt;
 //!
@@ -43,81 +61,6 @@ public:
 
 
     //!
-    //! \brief operator bool
-    //!
-    operator bool() const;
-
-    //!
-    //! \brief operator =
-    //! \param result
-    //! \return
-    //!
-    ResultValue &operator=(const bool &result);
-
-    //!
-    //! \brief operator =
-    //! \param error
-    //! \return
-    //!
-    ResultValue &operator=(const QSqlError &error);
-
-    //!
-    //! \brief operator <<
-    //! \param error
-    //! \return
-    //!
-    ResultValue &operator<<(const QSqlError &error);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator=(const QVariant &value);
-
-    //!
-    //! \brief operator <<
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator<<(const QVariant &value);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator=(const QString &value);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator=(void *value);
-
-    //!
-    //! \brief operator <<
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator<<(void *value);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator=(const ResultValue &value);
-
-    //!
-    //! \brief operator <<
-    //! \param value
-    //! \return
-    //!
-    ResultValue &operator<<(const ResultValue &value);
-
-    //!
     //! \brief operator ==
     //! \param value
     //! \return
@@ -132,24 +75,45 @@ public:
     bool operator!=(const ResultValue &value);
 
     //!
+    //! \brief operator bool
+    //!
+    operator bool() const;
+
+    //!
+    //! \brief operator =
+    //! \param value
+    //! \return
+    //!
+    __QSTM_DECLARE_RESULT_READ_OPERATOR(ResultValue&)
+    __QSTM_DECLARE_RESULT_READ_OPERATOR(QVariant&)
+
+    //!
+    //! \brief setResult
+    //! \param value
+    //! \return
+    //!
+    ResultValue &setResult(const ResultValue &value)const;
+    ResultValue &setResult(const QVariant &value)const;
+
+    //!
     //! \brief resultInfo
     //! \return
     //!
-    virtual QStm::ResultInfo &resultInfo();
+    virtual QStm::ResultInfo &resultInfo()const;
 
     //!
     //! \brief printInfo
     //! \param v
     //! \return
     //!
-    virtual ResultValue &printInfo(const QVariant &v = QVariant());
+    virtual ResultValue &printInfo(const QVariant &v = {});
 
     //!
     //! \brief printWarning
     //! \param v
     //! \return
     //!
-    virtual ResultValue &printWarning(const QVariant &v = QVariant());
+    virtual ResultValue &printWarning(const QVariant &v = {});
 
     //!
     //! \brief resultVariant
@@ -254,20 +218,13 @@ public:
     virtual QUrl resultUrl() const;
 
     //!
-    //! \brief resultPointer
-    //! \return
-    //!
-    virtual void *resultPointer() const;
-
-    //!
     //! \brief resultObject
     //! \return
     //!
-    template<class T=void*>
-    T resultObject()
+    template<class T=QObject>
+    T *resultObject()
     {
-        auto p = reinterpret_cast<T>(this->resultPointer());
-        return p;
+        return resultVariant().value<T*>();
     }
 
     //!
@@ -311,41 +268,6 @@ public:
     //! \return
     //!
     virtual QString &returnText() const;
-
-    //!
-    //! \brief setResult
-    //! \param result
-    //! \return
-    //!
-    ResultValue &setResult(void *result);
-
-    //!
-    //! \brief setResult
-    //! \param object
-    //! \return
-    //!
-    ResultValue &setResult(QObject &object);
-
-    //!
-    //! \brief setResult
-    //! \param result
-    //! \return
-    //!
-    ResultValue &setResult(const QVariant &result);
-
-    //!
-    //! \brief setResult
-    //! \param result
-    //! \return
-    //!
-    ResultValue &setResult(const ResultValue &result);
-
-    //!
-    //! \brief setResult
-    //! \param result
-    //! \return
-    //!
-    ResultValue &setResult(const QSqlError &result);
 
     //!
     //! \brief setMsg
@@ -543,17 +465,18 @@ public:
 
     //!
     //! \brief setCritical
-    //! \param value
-    //! \return
-    //!
-    ResultValue &setCritical(const QSqlError &value);
-
-    //!
-    //! \brief setCritical
     //! \param lr
     //! \return
     //!
     ResultValue &setCritical(const ResultValue &lr);
+
+    //!
+    //! \brief setCritical
+    //! \param code
+    //! \param message
+    //! \return
+    //!
+    ResultValue &setCritical(const QVariant &code, const QVariant &message);
 
     //!
     //! \brief isOk

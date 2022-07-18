@@ -1,8 +1,8 @@
 #pragma once
 
-#include "./qstm_global.h"
 #include <QObject>
 #include <QVariant>
+#include "./qstm_global.h"
 
 namespace QStm {
 

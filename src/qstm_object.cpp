@@ -16,7 +16,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QByteArray,__static_uuid_delimer,("|"))
 
 class ObjectPvt{
 public:
-    CachePool*_cachePool=nullptr;
+    CachePool *_cachePool=nullptr;
     QByteArray storedMd5;
     ResultValue result;
     QObject*parent=nullptr;
@@ -65,105 +65,14 @@ Object::~Object()
     delete p;
 }
 
-void Object::operator=(ResultValue &value)
-{
-    this->lastResult().setResult(value);
-}
-
-void Object::operator =(QSqlError &value)
-{
-    this->lastResult().setResult(value);
-}
-
-void Object::operator=(QVariant &value)
-{
-    this->lastResult().setResult(value);
-}
-
 CachePool &Object::cachePool()
 {
-
     return p->cachePool();
 }
 
-ResultValue &Object::lr()
+ResultValue &Object::lr()const
 {
-
     return p->result;
-}
-
-ResultValue &Object::lr(const ResultValue &value)
-{
-
-    p->result.setResult(value);
-    return p->result;
-}
-
-ResultValue &Object::lr(const QSqlError&value)
-{
-
-    if(p->result.returnType() == ResultValue::None)
-        p->result.setResult(value);
-    return p->result;
-}
-
-ResultValue &Object::lr(const QVariant &value)
-{
-
-    if(p->result.returnType() == ResultValue::None)
-        p->result.setResult(value);
-    return p->result;
-}
-
-ResultValue &Object::lr(const QString &value)
-{
-    return this->lr(QVariant(value));
-}
-
-ResultValue &Object::lastResult()
-{
-
-    return p->result;
-}
-
-ResultValue &Object::lastResult(const ResultValue &value)
-{
-    return this->lr(value);
-}
-
-ResultValue &Object::lastResult(const QSqlError&value)
-{
-    return this->lr(value);
-}
-
-ResultValue &Object::lastResult(const QVariant &value)
-{
-    return this->lr(value);
-}
-
-ResultValue &Object::lastResult(const QString &value)
-{
-    return this->lr(value);
-}
-
-ResultValue &Object::setResult(const ResultValue &value)
-{
-    return this->lastResult().setResult(value);
-}
-
-ResultValue &Object::setResult(const QSqlError&value)
-{
-    return this->lastResult().setResult(value);
-}
-
-ResultValue &Object::setResult(const QVariant &value)
-{
-    return this->lastResult().setResult(value);
-}
-
-ResultValue &Object::setResult(const QString &value)
-{
-    return this->lastResult().setResult(QVariant(value));
 }
 
 const QDateTime Object::now()
@@ -171,7 +80,7 @@ const QDateTime Object::now()
     return QDateTime::currentDateTime();
 }
 
-const QByteArray Object::toMd5(const QByteArray&value)
+const QByteArray Object::toMd5(const QByteArray &value)
 {
     return ObjectPvt::toMd5(value);
 }
@@ -188,13 +97,20 @@ const QByteArray Object::toMd5(const QVariant &value)
 
 const QUuid Object::uuidGenerator()
 {
-    auto __uuid_base_bytes=*__static_uuid_base_data+*__static_uuid_delimer+randomGenerator()+*__static_uuid_delimer+QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()).toUtf8()+*__static_uuid_delimer;
+    auto __uuid_base_bytes=*__static_uuid_base_data+
+            *__static_uuid_delimer+randomGenerator()+
+            *__static_uuid_delimer+
+            QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()).toUtf8()+
+            *__static_uuid_delimer;
     return QUuid::createUuidV5(QUuid::createUuid(), __uuid_base_bytes);
 }
 
 const QUuid Object::uuidGenerator(const QString &uuidBase)
 {
-    auto __uuid_base_bytes=*__static_uuid_base_data+*__static_uuid_delimer+randomGenerator()+*__static_uuid_delimer+QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()).toUtf8()+*__static_uuid_delimer+uuidBase;
+    auto __uuid_base_bytes=*__static_uuid_base_data+
+            *__static_uuid_delimer+randomGenerator()+
+            *__static_uuid_delimer+QString::number(QDateTime::currentDateTimeUtc().toMSecsSinceEpoch()).toUtf8()+
+            *__static_uuid_delimer+uuidBase;
     return QUuid::createUuidV5(QUuid::createUuid(), __uuid_base_bytes);
 }
 
@@ -217,14 +133,21 @@ const QByteArray Object::hashGenerator()
 const QString Object::makeObjectName(const QVariant &v)
 {
     static int seedRandon=1;
-    static const auto listChar=QStringList{qsl("("),qsl(")"),qsl("."),qsl(" "),qsl("{"),qsl("}"),qsl("-")};
+    static const auto listChar=QStringList{
+            QStringLiteral("("),
+            QStringLiteral(")"),
+            QStringLiteral("."),
+            QStringLiteral(" "),
+            QStringLiteral("{"),
+            QStringLiteral("}"),
+            QStringLiteral("-")};
     QString name=v.toString();
-    if(name.contains(qsl("_QMLTYPE_")))
-        name=name.split(qsl("_QMLTYPE_")).first().trimmed();
+    if(name.contains(QStringLiteral("_QMLTYPE_")))
+        name=name.split(QStringLiteral("_QMLTYPE_")).first().trimmed();
 
     if(name.isEmpty())
-        name=qsl("obj");
-    name+=qsl("_");
+        name=QStringLiteral("obj");
+    name+=QStringLiteral("_");
     {
         QRandomGenerator r;
         r.seed(++seedRandon);
@@ -232,10 +155,10 @@ const QString Object::makeObjectName(const QVariant &v)
         name+=QString::number(v);
     }
     for(auto &v:listChar){
-        name=name.replace(v,qsl("_"));
+        name=name.replace(v,QStringLiteral("_"));
     }
-    while(name.contains(qsl("__")))
-        name=name.replace(qsl("__"),qsl("_"));
+    while(name.contains(QStringLiteral("__")))
+        name=name.replace(QStringLiteral("__"),QStringLiteral("_"));
     return name;
 }
 
@@ -255,8 +178,8 @@ QVariantMap Object::toMap()const
     for(int col = 0; col < metaObject.propertyCount(); ++col) {
         auto property = metaObject.property(col);
         QVariant value;
-        switch (qTypeId(property)) {
-        case QMetaType_User:
+        switch (property.typeId()) {
+        case QMetaType::User:
             value=property.read(this).toInt();
             break;
         default:
@@ -274,8 +197,8 @@ QVariantHash Object::toHash() const
     for(int col = 0; col < metaObject.propertyCount(); ++col) {
         auto property = metaObject.property(col);
         QVariant value;
-        switch (qTypeId(property)) {
-        case QMetaType_User:
+        switch (property.typeId()) {
+        case QMetaType::User:
             value=property.read(this).toInt();
             break;
         default:
@@ -294,13 +217,13 @@ QVariant Object::toVar()const
 bool Object::fromVar(const QVariant &v)
 {
     QVariantHash vHash;
-    switch (qTypeId(v)) {
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    switch (v.typeId()) {
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
         vHash=QJsonDocument::fromJson(v.toByteArray()).toVariant().toHash();
         break;
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         vHash=v.toHash();
         break;
     default:
@@ -339,7 +262,7 @@ ResultValue &Object::storedProperty()
 {
 
     p->storedMd5=this->storedMd5Make();
-    return this->lr(QVariant(p->storedMd5));
+    return this->lr(p->storedMd5);
 }
 
 bool Object::storedIsChanged()const
@@ -351,7 +274,7 @@ bool Object::storedIsChanged()const
     return true;
 }
 
-QByteArray&Object::storedMd5()const
+QByteArray &Object::storedMd5()const
 {
 
     return p->storedMd5;

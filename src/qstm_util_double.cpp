@@ -10,7 +10,7 @@ DoubleUtil::~DoubleUtil()
 {
 }
 
-DoubleUtil&DoubleUtil::operator=(const QVariant &v)
+DoubleUtil &DoubleUtil::operator=(const QVariant &v)
 {
     this->setValue(v);
     return*this;

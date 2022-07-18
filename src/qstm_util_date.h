@@ -1,10 +1,12 @@
 #pragma once
 
-#include "./qstm_global.h"
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
 #include <QVariant>
+#include "./qstm_global.h"
+
+#define Q_DECLARE_DU QStm::DateUtil du
 
 namespace QStm {
 class DateUtilPvt;
@@ -17,7 +19,7 @@ public:
     //! \brief DateUtil
     //! \param v
     //!
-    explicit DateUtil(Q_CONST_V);
+    explicit DateUtil(const QVariant &v={});
 
     //!
     //! \brief ~DateUtil
@@ -36,56 +38,56 @@ public:
     //! \param v
     //! \return
     //! first day of month
-    QDateTime firstMonthDate(Q_CONST_V)const;
+    QDateTime firstMonthDate(const QVariant &v={})const;
 
     //!
     //! \brief lastMonthDate
     //! \param v
     //! \return
     //!
-    QDateTime lastMonthDate(Q_CONST_V)const;
+    QDateTime lastMonthDate(const QVariant &v={})const;
 
     //!
     //! \brief firstYearDate
     //! \param v
     //! \return
     //! returns first year day
-    QDateTime firstYearDate(Q_CONST_V)const;
+    QDateTime firstYearDate(const QVariant &v={})const;
 
     //!
     //! \brief lastYearDate
     //! \param v
     //! \return
     //!returns last year day
-    QDateTime lastYearDate(Q_CONST_V)const;
+    QDateTime lastYearDate(const QVariant &v={})const;
 
     //!
     //! \brief listMonthDaysToDate
     //! \param v
     //! \return
     //!list days in month to date
-    QVariantList listMonthDaysToDate(Q_CONST_V)const;
+    QVariantList listMonthDaysToDate(const QVariant &v={})const;
 
     //!
     //! \brief listMonthDays
     //! \param v
     //! \return
     //!full list month days
-    QVariantList listMonthDays(Q_CONST_V)const;
+    QVariantList listMonthDays(const QVariant &v={})const;
 
     //!
     //! \brief listYearDaysToDate
     //! \param v
     //! \return
     //!list days in year to date
-    QVariantList listYearDaysToDate(Q_CONST_V)const;
+    QVariantList listYearDaysToDate(const QVariant &v={})const;
 
     //!
     //! \brief listYearDays
     //! \param v
     //! \return
     //!full list year days
-    QVariantList listYearDays(Q_CONST_V)const;
+    QVariantList listYearDays(const QVariant &v={})const;
 
     //!
     //! \brief minTime
@@ -146,21 +148,21 @@ public:
     //! \param v
     //! \return
     //!convert to Datetime
-    const QDateTime toDateTime(Q_CONST_V);
+    const QDateTime toDateTime(const QVariant &v={});
 
     //!
     //! \brief toDate
     //! \param v
     //! \return
     //!convert to date
-    const QDate toDate(Q_CONST_V);
+    const QDate toDate(const QVariant &v={});
 
     //!
     //! \brief toTime
     //! \param v
     //! \return
     //!convert toDate
-    const QTime toTime(Q_CONST_V);
+    const QTime toTime(const QVariant &v={});
 
     //!
     //! \brief setNow

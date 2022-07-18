@@ -62,7 +62,7 @@ public:
     //! \param name
     //! \return
     //!return QMetaProperty by name
-    virtual QMetaProperty property(const QByteArray&name);
+    virtual QMetaProperty property(const QByteArray &name);
 
     //!
     //! \brief toMap
@@ -92,7 +92,7 @@ public:
     //! \param v
     //! \return
     //!write values in property using QVariantHash
-    virtual bool writeHash(QObject*object, const QVariantHash&v);
+    virtual bool writeHash(QObject*object, const QVariantHash &v);
 
     //!
     //! \brief toPropertyList

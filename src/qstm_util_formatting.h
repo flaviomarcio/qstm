@@ -8,6 +8,9 @@
 #include <QVariantHash>
 #include "./qstm_global.h"
 
+#define Q_DECLARE_FU \
+    QStm::FormattingUtil fu
+
 namespace QStm {
 class FormattingUtilPvt;
 //!
@@ -94,7 +97,7 @@ public:
     //! \brief FormattingUtil
     //! \param v
     //!
-    explicit FormattingUtil(Q_CONST_V);
+    explicit FormattingUtil(const QVariant &v={});
 
     //!
     //! \brief ~FormattingUtil
@@ -113,14 +116,14 @@ public:
     //! \param v
     //! \return
     //!
-    virtual const QString toDate(Q_CONST_V);
+    virtual const QString toDate(const QVariant &v={});
 
     //!
     //! \brief toTime
     //! \param v
     //! \return
     //!
-    virtual const QString toTime(Q_CONST_V);
+    virtual const QString toTime(const QVariant &v={});
 
     //!
     //! \brief toTimeShort
@@ -134,7 +137,7 @@ public:
     //! \param v
     //! \return
     //!
-    virtual const QString toDateTime(Q_CONST_V);
+    virtual const QString toDateTime(const QVariant &v={});
 
     //!
     //! \brief toCurrency
@@ -142,14 +145,14 @@ public:
     //! \param prec
     //! \return
     //!
-    virtual const QString toCurrency(Q_CONST_V, int prec=-1);
+    virtual const QString toCurrency(const QVariant &v={}, int prec=-1);
 
     //!
     //! \brief toInt
     //! \param v
     //! \return
     //!
-    virtual const QString toInt(Q_CONST_V);
+    virtual const QString toInt(const QVariant &v={});
 
     //!
     //! \brief toDouble
@@ -157,7 +160,7 @@ public:
     //! \param prec
     //! \return
     //!
-    virtual const QString toDouble(Q_CONST_V, int prec=-1);
+    virtual const QString toDouble(const QVariant &v={}, int prec=-1);
 
     //!
     //! \brief toPercent
@@ -165,14 +168,14 @@ public:
     //! \param prec
     //! \return
     //!
-    virtual const QString toPercent(Q_CONST_V, int prec=-1);
+    virtual const QString toPercent(const QVariant &v={}, int prec=-1);
 
     //!
     //! \brief toBool
     //! \param v
     //! \return
     //!
-    virtual const QString toBool(Q_CONST_V);
+    virtual const QString toBool(const QVariant &v={});
 
     //!
     //! \brief toString
@@ -186,14 +189,14 @@ public:
     //! \param prec
     //! \return
     //!
-    virtual const QString v(Q_CONST_V, int prec=-1);
+    virtual const QString v(const QVariant &v={}, int prec=-1);
 
     //!
     //! \brief currencySymbol
     //! \param v
     //! \return
     //!
-    static const QString currencySymbol(Q_CONST_V);
+    static const QString currencySymbol(const QVariant &v={});
 
     //!
     //! \brief masks

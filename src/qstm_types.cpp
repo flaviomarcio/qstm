@@ -1,6 +1,5 @@
 #include "./qstm_types.h"
 #include <QCoreApplication>
-#include "./qstm_startup.h"
 
 namespace QStm {
 namespace Private {

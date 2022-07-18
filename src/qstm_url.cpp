@@ -1,4 +1,5 @@
 #include "./qstm_url.h"
+#include "./qstm_result.h"
 #include "./qstm_util_variant.h"
 #include <QFile>
 
@@ -26,13 +27,13 @@ public:
         this->body.clear();
         QVariantHash vBody;
         if(!this->name.isEmpty())
-            vBody[qsl("name")]=this->name;
+            vBody[QStringLiteral("name")]=this->name;
         if(!this->outPutName.isEmpty())
-            vBody[qsl("outPutName")]=this->name;
+            vBody[QStringLiteral("outPutName")]=this->name;
         if(this->url.isValid() && !this->url.isEmpty()){
-            vBody[qsl_fy(url)]=this->url;
+            vBody[QT_STRINGIFY(url)]=this->url;
             if(!this->headers.isEmpty())
-                vBody[qsl_fy(headers)]=this->headers;
+                vBody[QT_STRINGIFY(headers)]=this->headers;
         }
         this->body=vBody;
         this->parent->setValue(vBody);
@@ -46,25 +47,25 @@ public:
             this->setData();
             return;
         }
-        if(qTypeId(v)==QMetaType_QUrl){
+        if(v.typeId()==QMetaType::QUrl){
             this->url=v.toUrl();
             this->setData();
             return;
         }
 
         auto vMap=this->vu.toHash(v);
-        this->name=vMap[qsl("name")].toString().trimmed();
-        this->outPutName=vMap[qsl("outPutName")].toString().trimmed();
+        this->name=vMap[QStringLiteral("name")].toString().trimmed();
+        this->outPutName=vMap[QStringLiteral("outPutName")].toString().trimmed();
         if(this->outPutName.isEmpty())
-            this->outPutName=vMap[qsl("outputname")].toString().trimmed();
-        if(vMap.contains(qsl_fy(url))){
-            this->url=this->vu.toUrl(vMap[qsl_fy(url)]);
-            if(vMap.contains(qsl_fy(headers)))
-                this->headers=this->vu.toHash(vMap[qsl_fy(headers)]);
+            this->outPutName=vMap[QStringLiteral("outputname")].toString().trimmed();
+        if(vMap.contains(QT_STRINGIFY(url))){
+            this->url=this->vu.toUrl(vMap[QT_STRINGIFY(url)]);
+            if(vMap.contains(QT_STRINGIFY(headers)))
+                this->headers=this->vu.toHash(vMap[QT_STRINGIFY(headers)]);
         }
-        else if(v.toString().toLower().startsWith(qsl("http")))
+        else if(v.toString().toLower().startsWith(QStringLiteral("http")))
             this->url=this->vu.toUrl(v);
-        else if(v.toString().toLower().startsWith(qsl("http")))
+        else if(v.toString().toLower().startsWith(QStringLiteral("http")))
             this->url=this->vu.toUrl(v);
         this->setData();
     }
@@ -77,10 +78,11 @@ Url::Url(const QVariant &v):QVariant{}
     p->setVar(v);
 }
 
-Url::Url(const ResultValue &v):QVariant{}
+Url::Url(const ResultValue *v):QVariant{}
 {
     this->p = new UrlPvt{this};
-    p->setVar(v.resultHash());
+    if(v)
+        p->setVar(v->resultHash());
 }
 
 Url::~Url()

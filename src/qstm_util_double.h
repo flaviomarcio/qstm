@@ -17,7 +17,7 @@ public:
     //! \brief DoubleUtil
     //! \param v
     //!
-    explicit DoubleUtil(Q_CONST_V);
+    explicit DoubleUtil(const QVariant &v={});
 
     //!
     //! \brief ~DoubleUtil
@@ -29,7 +29,7 @@ public:
     //! \param v
     //! \return
     //!
-    DoubleUtil&operator=(const QVariant &v);
+    DoubleUtil &operator=(const QVariant &v);
 
     //!
     //! \brief checkBetween

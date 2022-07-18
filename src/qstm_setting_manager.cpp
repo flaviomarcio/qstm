@@ -56,7 +56,7 @@ SettingManager &SettingManager::insert(const QVariantHash &value)
 
 SettingBase &SettingManager::setting()
 {
-    return this->setting(qsl_null);
+    return this->setting({});
 }
 
 SettingBase &SettingManager::setting(const QString &value)
@@ -123,19 +123,19 @@ const QVariantHash SettingManager::settingBody(const QString &value)
 
 QVariantHash SettingManager::arguments() const
 {
-    return p->variables.value(qsl("arguments")).toHash();
+    return p->variables.value(QStringLiteral("arguments")).toHash();
 }
 
 void SettingManager::setArguments(const QVariantHash &value)
 {
-    auto arguments = p->variables.value(qsl("arguments")).toHash();
+    auto arguments = p->variables.value(QStringLiteral("arguments")).toHash();
     QHashIterator<QString, QVariant> i(value);
     while (i.hasNext()) {
         i.next();
         auto v = SettingBase::staticParseVariables(i.value());
         arguments.insert(i.key(), v);
     }
-    p->variables.insert(qsl("arguments"), arguments);
+    p->variables.insert(QStringLiteral("arguments"), arguments);
 }
 
 QVariantHash SettingManager::variables() const
@@ -155,13 +155,13 @@ QVariantHash SettingManager::toHash() const
 
 QString SettingManager::rootDir() const
 {
-    auto v = p->variables.value(qsl("rootdir")).toString();
+    auto v = p->variables.value(QStringLiteral("rootdir")).toString();
     return v;
 }
 
 SettingManager &SettingManager::setRootDir(const QString &value)
 {
-    p->variables.insert(qsl("rootdir"), value);
+    p->variables.insert(QStringLiteral("rootdir"), value);
     return *this;
 }
 

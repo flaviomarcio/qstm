@@ -1,7 +1,8 @@
 #include "./qstm_result_info.h"
-#include "./qstm_meta_types.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
+//#include "./qstm_meta_types.h"
+//#include "./qstm_macro.h"
 
 namespace QStm {
 
@@ -178,8 +179,8 @@ void ResultInfo::setTotal_pages(int value)
 const QVariantHash ResultInfo::toRequestHash() const
 {
     QVariantHash v;
-    v[qsl_fy(page)]=this->page();
-    v[qsl_fy(per_page)]=this->per_page();
+    v[QT_STRINGIFY(page)]=this->page();
+    v[QT_STRINGIFY(per_page)]=this->per_page();
     return v;
 }
 
@@ -214,12 +215,12 @@ QVariant ResultInfo::toVar()const
 
 bool ResultInfo::fromVar(const QVariant &v)
 {
-    switch (qTypeId(v)) {
-    case QMetaType_QString:
-    case QMetaType_QByteArray:
+    switch (v.typeId()) {
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
         return this->fromHash(QJsonDocument::fromJson(v.toByteArray()).toVariant().toHash());
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         return this->fromHash(v.toHash());
     default:
         return false;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../qstm_setting_manager.h"
-#include "../qstm_util_variant.h"
 #include <QDebug>
 #include <QFile>
 #include <QSettings>
@@ -38,7 +37,7 @@ public:
 
     QByteArray settingNameAdjust(const QString &settingName);
 
-    SettingBase&settingGetCheck(const QByteArray&settingName);
+    SettingBase&settingGetCheck(const QByteArray &settingName);
 
     SettingBase*settingCreate(QObject*parent);
 

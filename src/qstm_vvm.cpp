@@ -1,19 +1,18 @@
 #include "./qstm_vvm.h"
 #include "./qstm_util_variant.h"
-#include "./qstm_meta_types.h"
 #include <QJsonDocument>
 
 const static QString toBytes(const QVariant &v)
 {
-    switch (qTypeId(v)) {
-    case QMetaType_QVariantList:
-    case QMetaType_QStringList:
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    switch (v.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         return QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
-    case QMetaType_QUuid:
+    case QMetaType::QUuid:
         return v.toUuid().toString();
-    case QMetaType_QUrl:
+    case QMetaType::QUrl:
         return v.toUrl().toString();
     default:
         return v.toByteArray();
@@ -33,11 +32,6 @@ QVVM::QVVM(const QVariant &key, const QVariant &value):QVariantHash()
     QVariantHash::insert(toBytes(key), toBytes(value));
 }
 
-QVVM::~QVVM()
-{
-
-}
-
 QVVM &QVVM::operator=(const QVariant &v)
 {
     Q_DECLARE_VU;
@@ -53,7 +47,6 @@ QVVM &QVVM::operator=(const QVariant &v)
 
 QVVM &QVVM::operator+=(const QVariantHash &v)
 {
-    Q_DECLARE_VU;
     QHashIterator<QString, QVariant> i(v);
     while (i.hasNext()) {
         i.next();

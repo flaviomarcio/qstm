@@ -1,10 +1,11 @@
 #pragma once
 
 #include "./qstm_global.h"
-#include "./qstm_result.h"
+#include <QVariant>
 #include <QVariantHash>
 #include <QUrl>
 
+class ResultValue;
 namespace QStm {
 class UrlPvt;
 //!
@@ -18,13 +19,13 @@ public:
     //! \brief Url
     //! \param v
     //!
-    Q_INVOKABLE explicit Url(const QVariant &v=QVariantHash());
+    Q_INVOKABLE explicit Url(const QVariant &v={});
 
     //!
     //! \brief Url
     //! \param v
     //!
-    Q_INVOKABLE explicit Url(const ResultValue &v);
+    Q_INVOKABLE explicit Url(const ResultValue *v);
 
     //!
     //! \brief ~Url

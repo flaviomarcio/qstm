@@ -1,5 +1,8 @@
 #include "./p_qstm_base_setting.h"
-#include "../qstm_startup.h"
+#include "../qstm_macro.h"
+#include "../qstm_util_variant.h"
+#include "../qstm_util_date.h"
+#include "../qstm_util_meta_object.h"
 
 namespace QStm {
 
@@ -18,38 +21,35 @@ static void make_static_variables()
     QProcess process;
     auto lst = process.environment();
     for (auto &v : lst) {
-        auto s = v.split(qsl("="));
+        auto s = v.split(QStringLiteral("="));
         auto env = s.first().trimmed();
         auto value = s.last().trimmed();
         d[env] = value;
     }
 #endif
-    d[qsl("$DesktopLocation")] = StdPaths::writableLocation(StdPaths::DesktopLocation);
-    d[qsl("$DocumentsLocation")] = StdPaths::writableLocation(StdPaths::DocumentsLocation);
-    d[qsl("$FontsLocation")] = StdPaths::writableLocation(StdPaths::FontsLocation);
-    d[qsl("$ApplicationsLocation")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
-    d[qsl("$MusicLocation")] = StdPaths::writableLocation(StdPaths::MusicLocation);
-    d[qsl("$MoviesLocation")] = StdPaths::writableLocation(StdPaths::MoviesLocation);
-    d[qsl("$PicturesLocation")] = StdPaths::writableLocation(StdPaths::PicturesLocation);
-    d[qsl("$TempLocation")] = StdPaths::writableLocation(StdPaths::TempLocation);
-    d[qsl("$HomeLocation")] = StdPaths::writableLocation(StdPaths::HomeLocation);
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    d[qsl("$DataLocation")] = StdPaths::writableLocation(StdPaths::DataLocation);
-#endif
-    d[qsl("$CacheLocation")] = StdPaths::writableLocation(StdPaths::CacheLocation);
-    d[qsl("$GenericDataLocation")] = StdPaths::writableLocation(StdPaths::GenericDataLocation);
-    d[qsl("$RuntimeLocation")] = StdPaths::writableLocation(StdPaths::RuntimeLocation);
-    d[qsl("$ConfigLocation")] = StdPaths::writableLocation(StdPaths::ConfigLocation);
-    d[qsl("$DownloadLocation")] = StdPaths::writableLocation(StdPaths::DownloadLocation);
-    d[qsl("$GenericCacheLocation")] = StdPaths::writableLocation(StdPaths::GenericCacheLocation);
-    d[qsl("$GenericConfigLocation")] = StdPaths::writableLocation(StdPaths::GenericConfigLocation);
-    d[qsl("$AppDataLocation")] = StdPaths::writableLocation(StdPaths::AppDataLocation);
-    d[qsl("$AppConfigLocation")] = StdPaths::writableLocation(StdPaths::AppConfigLocation);
-    d[qsl("$AppLocalDataLocation")] = StdPaths::writableLocation(StdPaths::AppLocalDataLocation);
-    d[qsl("$HOME")] = StdPaths::writableLocation(StdPaths::HomeLocation);
-    d[qsl("$TEMPDIR")] = StdPaths::writableLocation(StdPaths::TempLocation);
-    d[qsl("$APPDIR")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
-    d[qsl("$APPNAME")] = qApp->applicationName();
+    d[QStringLiteral("$DesktopLocation")] = StdPaths::writableLocation(StdPaths::DesktopLocation);
+    d[QStringLiteral("$DocumentsLocation")] = StdPaths::writableLocation(StdPaths::DocumentsLocation);
+    d[QStringLiteral("$FontsLocation")] = StdPaths::writableLocation(StdPaths::FontsLocation);
+    d[QStringLiteral("$ApplicationsLocation")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
+    d[QStringLiteral("$MusicLocation")] = StdPaths::writableLocation(StdPaths::MusicLocation);
+    d[QStringLiteral("$MoviesLocation")] = StdPaths::writableLocation(StdPaths::MoviesLocation);
+    d[QStringLiteral("$PicturesLocation")] = StdPaths::writableLocation(StdPaths::PicturesLocation);
+    d[QStringLiteral("$TempLocation")] = StdPaths::writableLocation(StdPaths::TempLocation);
+    d[QStringLiteral("$HomeLocation")] = StdPaths::writableLocation(StdPaths::HomeLocation);
+    d[QStringLiteral("$CacheLocation")] = StdPaths::writableLocation(StdPaths::CacheLocation);
+    d[QStringLiteral("$GenericDataLocation")] = StdPaths::writableLocation(StdPaths::GenericDataLocation);
+    d[QStringLiteral("$RuntimeLocation")] = StdPaths::writableLocation(StdPaths::RuntimeLocation);
+    d[QStringLiteral("$ConfigLocation")] = StdPaths::writableLocation(StdPaths::ConfigLocation);
+    d[QStringLiteral("$DownloadLocation")] = StdPaths::writableLocation(StdPaths::DownloadLocation);
+    d[QStringLiteral("$GenericCacheLocation")] = StdPaths::writableLocation(StdPaths::GenericCacheLocation);
+    d[QStringLiteral("$GenericConfigLocation")] = StdPaths::writableLocation(StdPaths::GenericConfigLocation);
+    d[QStringLiteral("$AppDataLocation")] = StdPaths::writableLocation(StdPaths::AppDataLocation);
+    d[QStringLiteral("$AppConfigLocation")] = StdPaths::writableLocation(StdPaths::AppConfigLocation);
+    d[QStringLiteral("$AppLocalDataLocation")] = StdPaths::writableLocation(StdPaths::AppLocalDataLocation);
+    d[QStringLiteral("$HOME")] = StdPaths::writableLocation(StdPaths::HomeLocation);
+    d[QStringLiteral("$TEMPDIR")] = StdPaths::writableLocation(StdPaths::TempLocation);
+    d[QStringLiteral("$APPDIR")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
+    d[QStringLiteral("$APPNAME")] = qApp->applicationName();
 
     *static_variables=d;
 }
@@ -83,40 +83,39 @@ public:
     {
     }
 
-    static QVariant staticReplaceString(const QVariantHash&static_variables, const QVariant &v)
+    static QVariant staticReplaceString(const QVariantHash &static_variables, const QVariant &v)
     {
         QString value;
-        auto typeId=qTypeId(v);
-        switch (typeId) {
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        switch (v.typeId()) {
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
             value=QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
             break;
         default:
             value=v.toByteArray();
         }
 
-        if(!value.contains(qsl("$")))
+        if(!value.contains(QStringLiteral("$")))
             return v;
 
         QHashIterator<QString, QVariant> i(static_variables);
         while (i.hasNext()) {
             i.next();
             auto key=i.key();
-            const auto k=QString(qsl("$")+key)
-                    .replace(qsl("$$"),qsl("$"))
-                    .replace(qsl("${%1}").arg(key), qsl("$%1").arg(key));
+            const auto k=QString(QStringLiteral("$")+key)
+                    .replace(QStringLiteral("$$"),QStringLiteral("$"))
+                    .replace(QStringLiteral("${%1}").arg(key), QStringLiteral("$%1").arg(key));
             const auto v=i.value().toString().trimmed();
             value=value.replace(k,v);
         }
 
-        switch (typeId) {
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        switch (v.typeId()) {
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
             return QJsonDocument::fromJson(value.toUtf8()).toVariant();
         default:
             return value;
@@ -141,7 +140,7 @@ public:
 
     static const QVariant getAlpha(const QVariant &v)
     {
-        static auto num=qsl("0123456789,.");
+        static auto num=QStringLiteral("0123456789,.");
         QString r;
         auto ss=v.toString();
         for(auto &v:ss){
@@ -153,17 +152,17 @@ public:
 
     static const QVariant getNumber(const QVariant &v)
     {
-        static auto num=qsl("0123456789,.");
+        static auto num=QStringLiteral("0123456789,.");
         QString r,ss;
 
-        switch (qTypeId(v)) {
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
-        case QMetaType_Int:
-        case QMetaType_UInt:
+        switch (v.typeId()) {
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+        case QMetaType::Int:
+        case QMetaType::UInt:
             ss=QString::number(v.toLongLong(),'f',0);
             break;
-        case QMetaType_Double:
+        case QMetaType::Double:
             ss=QString::number(v.toDouble(),'f',11);
             break;
         default:
@@ -192,12 +191,12 @@ public:
         if(v.isNull() || !v.isValid() || v.toLongLong()<0)
             return defaultV;
 
-        switch (qTypeId(v)) {
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
-        case QMetaType_Int:
-        case QMetaType_UInt:
-        case QMetaType_Double:
+        switch (v.typeId()) {
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::Double:
             return v;
         default:
             if(v.toLongLong()>0)
@@ -209,21 +208,21 @@ public:
         static qlonglong K=1024;
 
         auto a=getAlpha(v).toString().toLower();
-        if(a==qsl("kb"))
+        if(a==QStringLiteral("kb"))
             scale=1;
-        else if(a==qsl("mb"))
+        else if(a==QStringLiteral("mb"))
             scale=2;
-        else if(a==qsl("gb"))
+        else if(a==QStringLiteral("gb"))
             scale=3;
-        else if(a==qsl("tb"))
+        else if(a==QStringLiteral("tb"))
             scale=4;
-        else if(a==qsl("pb"))
+        else if(a==QStringLiteral("pb"))
             scale=5;
-        else if(a==qsl("eb"))
+        else if(a==QStringLiteral("eb"))
             scale=6;
-        else if(a==qsl("zb"))
+        else if(a==QStringLiteral("zb"))
             scale=7;
-        else if(a==qsl("yb"))
+        else if(a==QStringLiteral("yb"))
             scale=8;
         else
             scale=1;//ms
@@ -251,40 +250,40 @@ void SettingBaseTemplate::clear()
         if(QByteArray{property.name()}==QT_STRINGIFY2(objectName))
             continue;
 
-        switch (qTypeId(property)) {
-        case QMetaType_Int:
-        case QMetaType_UInt:
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
-        case QMetaType_Double:
+        switch (property.typeId()) {
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+        case QMetaType::Double:
             property.write(this,0);
             break;
-        case QMetaType_QDate:
+        case QMetaType::QDate:
             property.write(this,QDate());
             break;
-        case QMetaType_QTime:
+        case QMetaType::QTime:
             property.write(this,QTime());
             break;
-        case QMetaType_QDateTime:
+        case QMetaType::QDateTime:
             property.write(this,QDateTime());
             break;
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantHash:
             property.write(this,QVariantHash());
             break;
-        case QMetaType_QVariantMap:
+        case QMetaType::QVariantMap:
             property.write(this,QVariant());
             break;
-        case QMetaType_QVariantList:
+        case QMetaType::QVariantList:
             property.write(this,QVariantList());
             break;
-        case QMetaType_QStringList:
+        case QMetaType::QStringList:
             property.write(this,QStringList());
             break;
-        case QMetaType_QString:
-        case QMetaType_QByteArray:
-        case QMetaType_QChar:
-        case QMetaType_QBitArray:
-            property.write(this,qbl_null);
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        case QMetaType::QChar:
+        case QMetaType::QBitArray:
+            property.write(this,{});
             break;
         default:
             property.write(this,QVariant());
@@ -299,13 +298,13 @@ void SettingBaseTemplate::print() const
     if(vHash.isEmpty())
         return;
 
-    sInfo()<<qsl_fy(settings);
+    sInfo()<<QT_STRINGIFY(settings);
     QHashIterator<QString, QVariant> i(vHash);
     while (i.hasNext()){
         i.next();
-        sInfo()<<qsl("      %1:%2").arg(i.key(), vu.toByteArray(i.value()));
+        sInfo()<<QStringLiteral("      %1:%2").arg(i.key(), vu.toByteArray(i.value()));
     }
-    sInfo()<<qsl_space;
+    sInfo()<<QStringLiteral(" ");
 }
 
 QVariant SettingBaseTemplate::parseVariables(const QVariant &v) const
@@ -355,10 +354,10 @@ const QVariantHash &SettingBaseTemplate::staticVariables()
 bool SettingBaseTemplate::macth(const QString &name)
 {
     auto i_name=this->name();
-    auto startWith=i_name.contains(qbl("*"));
+    auto startWith=i_name.contains(QByteArrayLiteral("*"));
 
     if(startWith)
-        i_name=i_name.split(qbl("*")).first();
+        i_name=i_name.split(QByteArrayLiteral("*")).first();
 
     if(startWith && name.startsWith(i_name))
         return true;
@@ -380,36 +379,36 @@ bool SettingBaseTemplate::isValid() const
         if(!vGet.isValid())
             continue;
 
-        auto t=qTypeId(vGet);
+        auto t=vGet.typeId();
         switch (t) {
-        case QMetaType_QString:
-        case QMetaType_QByteArray:
-        case QMetaType_QChar:
-        case QMetaType_QBitArray:
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        case QMetaType::QChar:
+        case QMetaType::QBitArray:
         {
             if(vGet.toString().trimmed().isEmpty())
                 continue;
             break;
         }
-        case QMetaType_Double:
-        case QMetaType_Int:
-        case QMetaType_UInt:
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
+        case QMetaType::Double:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
         {
             if(vGet.toLongLong()<=0)
                 continue;
             break;
         }
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
         {
             if(vGet.toHash().isEmpty())
                 continue;
             break;
         }
-        case QMetaType_QVariantList:
-        case QMetaType_QStringList:
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
         {
             if(vGet.toList().isEmpty())
                 continue;
@@ -491,28 +490,28 @@ bool SettingBaseTemplate::fromHash(const QVariantHash &v)
         if(property.write(this,value))
             continue;
 
-        switch (qTypeId(property)) {
-        case QMetaType_Int:
-        case QMetaType_UInt:
+        switch (property.typeId()) {
+        case QMetaType::Int:
+        case QMetaType::UInt:
             property.write(this,value.toInt());
             break;
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
             property.write(this,value.toLongLong());
             break;
-        case QMetaType_Double:
+        case QMetaType::Double:
             property.write(this,value.toDouble());
             break;
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantHash:
             property.write(this, vu.toHash(value));
             break;
-        case QMetaType_QVariantMap:
+        case QMetaType::QVariantMap:
             property.write(this, vu.toMap(value));
             break;
-        case QMetaType_QVariantList:
+        case QMetaType::QVariantList:
             property.write(this, vu.toList(value));
             break;
-        case QMetaType_QStringList:
+        case QMetaType::QStringList:
             property.write(this, vu.toStringList(value));
             break;
         default:
@@ -531,11 +530,11 @@ bool SettingBaseTemplate::fromVariant(const QVariant &v)
 {
     Q_DECLARE_VU;
     auto vv=vu.toVariantObject(v);
-    switch (qTypeId(vv)) {
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    switch (vv.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         return this->fromHash(vv.toHash());
-    case QMetaType_QVariantList:{
+    case QMetaType::QVariantList:{
         for(auto &h:vv.toList())
             if(!this->fromHash(h.toHash()))
                 return false;
@@ -582,45 +581,45 @@ bool SettingBaseTemplate::mergeHash(const QVariantHash &v)
             continue;
         }
 
-        switch (qTypeId(property)) {
-        case QMetaType_Int:
-        case QMetaType_UInt:
+        switch (property.typeId()) {
+        case QMetaType::Int:
+        case QMetaType::UInt:
         {
             property.write(this,value.toInt());
             break;
         }
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
         {
             if(property.write(this,value.toLongLong()))
                 __return=true;
             break;
         }
-        case QMetaType_Double:
+        case QMetaType::Double:
         {
             if(property.write(this,value.toDouble()))
                 __return=true;
             break;
         }
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantHash:
         {
             if(property.write(this, vu.toHash(value)))
                 __return=true;
             break;
         }
-        case QMetaType_QVariantMap:
+        case QMetaType::QVariantMap:
         {
             if(property.write(this, vu.toMap()))
                 __return=true;
             break;
         }
-        case QMetaType_QVariantList:
+        case QMetaType::QVariantList:
         {
             if(property.write(this, vu.toList()))
                 __return=true;
             break;
         }
-        case QMetaType_QStringList:{
+        case QMetaType::QStringList:{
             if(property.write(this, vu.toStringList()))
                 __return=true;
             break;
@@ -641,11 +640,11 @@ bool SettingBaseTemplate::mergeVariant(const QVariant &v)
 {
     Q_DECLARE_VU;
     auto vv=vu.toVariantObject(v);
-    switch (qTypeId(vv)) {
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    switch (vv.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
         return this->mergeHash(vv.toHash());
-    case QMetaType_QVariantList:
+    case QMetaType::QVariantList:
     {
         for(auto &h:vv.toList())
             if(!this->mergeHash(h.toHash()))

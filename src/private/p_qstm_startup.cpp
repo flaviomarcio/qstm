@@ -1,5 +1,6 @@
 #include "./p_qstm_startup.h"
 #include "../qstm_log.h"
+#include <algorithm>
 
 namespace QStm{
 
@@ -54,15 +55,15 @@ void StartUpRunner::runnerStart()
 
     int max=0;
     QHash<int, StartUp*> hash;
-    for(auto&v:*startUpList){
+    for(auto &v:*startUpList){
         max=(v->number()>max)?v->number():max;
         hash.insert(v->number(), v);
     }
     for(int i=0; i<=max; i++){
         auto v=hash.value(i);
-        qInfo()<<QT_STRINGIFY2(QStm::StartUp)<<qsl(": module[%1]==%2").arg(i).arg(v->metaObject()->className());
+        qInfo()<<QT_STRINGIFY2(QStm::StartUp)<<QStringLiteral(": module[%1]==%2").arg(i).arg(v->metaObject()->className());
         if(v){
-            for(auto&func:v->methods())
+            for(auto &func:v->methods())
                 func();
         }
     }

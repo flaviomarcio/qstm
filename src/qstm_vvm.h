@@ -29,11 +29,6 @@ public:
     explicit QVVM(const QVariant &key, const QVariant &value);
 
     //!
-    //! \brief ~QVVM
-    //!
-    virtual ~QVVM();
-
-    //!
     //! \brief operator =
     //! \param v
     //! \return

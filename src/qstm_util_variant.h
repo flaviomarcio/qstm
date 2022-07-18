@@ -8,9 +8,10 @@
 #include <QVariantList>
 #include <QVariantHash>
 #include "./qstm_global.h"
-#include "./qstm_types.h"
 #include "./qstm_meta_types.h"
 #include "./qstm_vvm.h"
+
+#define Q_DECLARE_VU QStm::VariantUtil vu
 
 namespace QStm {
 class VariantUtilPvt;
@@ -19,7 +20,7 @@ class VariantUtilPvt;
 //!
 class Q_STM_EXPORT VariantUtil:public QVariant{
 public:
-    explicit VariantUtil(Q_CONST_V);
+    explicit VariantUtil(const QVariant &v={});
     virtual ~VariantUtil();
 
     //!
@@ -69,7 +70,7 @@ public:
     //! \param v
     //! \return
     //!
-    virtual bool isUuid(Q_CONST_V) const;
+    virtual bool isUuid(const QVariant &v={}) const;
 
     //!
     //! \brief isUuid
@@ -84,35 +85,35 @@ public:
     //! \param v
     //! \return
     //!
-    virtual bool isHex(Q_CONST_V) const;
+    virtual bool isHex(const QVariant &v={}) const;
 
     //!
     //! \brief isBase64
     //! \param v
     //! \return
     //!
-    virtual bool isBase64(Q_CONST_V) const;
+    virtual bool isBase64(const QVariant &v={}) const;
 
     //!
     //! \brief toStr
     //! \param v
     //! \return
     //!
-    virtual const QString toStr(Q_CONST_V);
+    virtual const QString toStr(const QVariant &v={});
 
     //!
     //! \brief toAlphaNumber
     //! \param v
     //! \return
     //!
-    virtual const QByteArray toAlphaNumber(Q_CONST_V);
+    virtual const QByteArray toAlphaNumber(const QVariant &v={});
 
     //!
     //! \brief toAlphaNumeric
     //! \param v
     //! \return
     //!
-    virtual const QByteArray toAlphaNumeric(Q_CONST_V);
+    virtual const QByteArray toAlphaNumeric(const QVariant &v={});
 
 
     //!
@@ -120,77 +121,77 @@ public:
     //! \param v
     //! \return
     //!
-    virtual const QString toAlphaText(Q_CONST_V);
+    virtual const QString toAlphaText(const QVariant &v={});
 
     //!
     //! \brief toByteArray
     //! \param v
     //! \return
     //!
-    virtual const QByteArray toByteArray(Q_CONST_V);
+    virtual const QByteArray toByteArray(const QVariant &v={});
 
     //!
     //! \brief toChar
     //! \param v
     //! \return
     //!
-    virtual const QChar toChar(Q_CONST_V);
+    virtual const QChar toChar(const QVariant &v={});
 
     //!
     //! \brief toInt
     //! \param v
     //! \return
     //!
-    virtual int toInt(Q_CONST_V);
+    virtual int toInt(const QVariant &v={});
 
     //!
     //! \brief toLongLong
     //! \param v
     //! \return
     //!
-    virtual qlonglong toLongLong(Q_CONST_V);
+    virtual qlonglong toLongLong(const QVariant &v={});
 
     //!
     //! \brief toDate
     //! \param v
     //! \return
     //!
-    virtual const QDate toDate(Q_CONST_V);
+    virtual const QDate toDate(const QVariant &v={});
 
     //!
     //! \brief toTime
     //! \param v
     //! \return
     //!
-    virtual const QTime toTime(Q_CONST_V);
+    virtual const QTime toTime(const QVariant &v={});
 
     //!
     //! \brief toDateTime
     //! \param v
     //! \return
     //!
-    virtual const QDateTime toDateTime(Q_CONST_V);
+    virtual const QDateTime toDateTime(const QVariant &v={});
 
     //!
     //! \brief toDouble
     //! \param v
     //! \return
     //!
-    virtual double toDouble(Q_CONST_V);
+    virtual double toDouble(const QVariant &v={});
 
     //!
     //! \brief toBool
     //! \param v
     //! \return
     //!
-    virtual bool toBool(Q_CONST_V);
+    virtual bool toBool(const QVariant &v={});
 
     //!
     //! \brief canConvertJson
     //! \param v
     //! \return
     //!
-    virtual bool canConvertJson(Q_CONST_V)const;
+    virtual bool canConvertJson(const QVariant &v={})const;
 
     //!
     //! \brief canConvertJson
@@ -208,14 +209,14 @@ public:
     //! se nao for md5 sera tirado o md5 dos bytes
     //! se nao for uuid um md5 sera convertido em string para md5
     //! se a string enviada for um md ou md5uui entao nada ocorrera retornando o md5 ja existe nao gerando outro
-    virtual const QByteArray toMd5(Q_CONST_V);
+    virtual const QByteArray toMd5(const QVariant &v={});
 
     //!
     //! \brief toHex
     //! \param v
     //! \return
     //!
-    virtual const QByteArray toHex(Q_CONST_V);
+    virtual const QByteArray toHex(const QVariant &v={});
 
     //!
     //! \brief toUuid
@@ -223,21 +224,21 @@ public:
     //! \return
     //! se for md5 sera convertido para uuidMd5
     //! se for uuid nada ocorrera retornando o uuid
-    virtual const QUuid toUuid(Q_CONST_V);
+    virtual const QUuid toUuid(const QVariant &v={});
 
     //!
     //! \brief toUuidSimple
     //! \param v
     //! \return
     //! remove {} do uuid gerado pelo qt
-    virtual const QString toUuidSimple(Q_CONST_V);
+    virtual const QString toUuidSimple(const QVariant &v={});
 
     //!
     //! \brief toMd5Uuid
     //! \param v
     //! \return
     //!se a string enviada for um md ou mduui entao nada ocorrera retornando o md5 ja existe nao gerando outro
-    virtual const QUuid toMd5Uuid(Q_CONST_V);
+    virtual const QUuid toMd5Uuid(const QVariant &v={});
 
     //!
     //! \brief toVVM
@@ -386,18 +387,11 @@ public:
     virtual const QVariant toVariantJson(const QVariant &v);
 
     //!
-    //! \brief toVariantCBor
-    //! \param v
-    //! \return
-    //!
-    virtual const QVariant toVariantCBor(const QVariant &v);
-
-    //!
     //! \brief toUrl
     //! \param v
     //! \return
     //!
-    virtual const QUrl toUrl(Q_CONST_V);
+    virtual const QUrl toUrl(const QVariant &v={});
 
     //!
     //! \brief makeVVM
@@ -516,35 +510,35 @@ public:
     //! \param v
     //! \return
     //!
-    virtual bool vIsEmpty(Q_CONST_V);
+    virtual bool vIsEmpty(const QVariant &v={});
 
     //!
     //! \brief vIsObject
     //! \param v
     //! \return
     //!
-    virtual bool vIsObject(Q_CONST_V);
+    virtual bool vIsObject(const QVariant &v={});
 
     //!
     //! \brief vIsList
     //! \param v
     //! \return
     //!
-    virtual bool vIsList(Q_CONST_V);
+    virtual bool vIsList(const QVariant &v={});
 
     //!
     //! \brief vIsMap
     //! \param v
     //! \return
     //!
-    virtual bool vIsMap(Q_CONST_V);
+    virtual bool vIsMap(const QVariant &v={});
 
     //!
     //! \brief vIsString
     //! \param v
     //! \return
     //!
-    virtual bool vIsString(Q_CONST_V);
+    virtual bool vIsString(const QVariant &v={});
 
     //!
     //! \brief convertTo

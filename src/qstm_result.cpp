@@ -1,8 +1,8 @@
 #include "./qstm_result.h"
 #include "./qstm_macro.h"
 #include "./qstm_object.h"
+#include "./qstm_util_meta_object.h"
 #include "./qstm_util_variant.h"
-#include "./qstm_meta_types.h"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QMutex>
@@ -10,41 +10,111 @@
 
 using namespace QStm;
 
-typedef QHash<ResultValue::MessageType, int> MakeArStats;
+class ResultValuePvt;
+//struct QStmConstsResult
+//{
+//public:
+//    QHash<QThread *, QByteArray> staticThreadError;
+//    QMutex staticThreadLocker;
+//};
 
-static const MakeArStats &__makeArStats()
-{
-    static const MakeArStats __makeArStats({{ResultValue::None, 0},
-                                            {ResultValue::Information, 0},
-                                            {ResultValue::Warning, 406},
-                                            {ResultValue::Validation, 406},
-                                            {ResultValue::Notfound, 404},
-                                            {ResultValue::UnsupportedMediaType, 415},
-                                            {ResultValue::Critical, 500},
-                                            {ResultValue::Unauthorized, 401},
-                                            {ResultValue::NoContent, 204},
-                                            {ResultValue::BadRequest, 400}});
-    return __makeArStats;
-}
 
-static const auto &__makeStatusCodeSuccessList()
-{
-    static auto vList=QVector<int>{0, 200, 201, 202};
-    return vList;
-}
-
-static const auto &makeArStats = __makeArStats();
-static const auto &statusCodeSuccessList = __makeStatusCodeSuccessList();
-
-struct QStmConstsResult
-{
+struct QStmThreadResultItem{
 public:
-    QHash<QThread *, QByteArray> staticThreadError;
-    QMutex staticThreadLocker;
+    ResultValue::MessageType returnType = ResultValue::None;
+    QVariant returnCode;
+    QByteArray returnHash;
+    QString returnText;
+    QVariant resultVariant;
+
+    void operator=(const QStmThreadResultItem&item)
+    {
+        this->returnCode=item.returnCode;
+        this->returnHash=item.returnHash;
+        this->returnText=item.returnText;
+        this->resultVariant=item.resultVariant;
+    }
+
+
+    void clear()
+    {
+        this->returnType = ResultValue::None;
+        this->returnHash = {};
+        this->returnCode = {};
+        this->returnText.clear();
+        this->resultVariant = {};
+    }
+
+    bool isOk()
+    {
+        if(this->returnType==ResultValue::Information || this->returnType==ResultValue::None)
+            return true;
+
+        if (this->returnCode.isValid())
+            return false;
+
+        if (this->returnCode.isValid())
+            return false;
+
+        return this->returnHash.trimmed().isEmpty();
+    }
+
+    QString toString() const
+    {
+        if (this->returnCode.isValid()) {
+            if (this->returnCode.toString() == this->returnText)
+                return this->returnText;
+            return this->returnCode.toString() + QStringLiteral(":") + this->returnText;
+        }
+        return this->returnText;
+    }
 };
 
-Q_GLOBAL_STATIC(QStmConstsResult, consts)
-auto &qapp = *QCoreApplication::instance();
+struct QStmResults{
+public:
+    QMutex mutex;
+    QHash<QThread*, QStmThreadResultItem> results;
+
+    bool insert(QStmThreadResultItem &newItem)
+    {
+        QMutexLocker<QMutex> locker(&mutex);
+        if (newItem.returnHash.trimmed().isEmpty())
+            return {};
+
+        auto&item=results[QThread::currentThread()];
+        if(item.returnHash==newItem.returnHash){
+            newItem=item;
+            return false;
+        }
+        item=newItem;
+        return true;
+    }
+
+    void clear()
+    {
+        QMutexLocker<QMutex> locker(&mutex);
+        auto thread=QThread::currentThread();
+        if(results.contains(thread))
+            results.remove(thread);
+    }
+};
+
+typedef QHash<ResultValue::MessageType, int> MakeArStats;
+typedef QVector<int> StatusCodeSuccessList;
+
+//Q_GLOBAL_STATIC(QStmConstsResult, staticConsts)
+Q_GLOBAL_STATIC(QStmResults, staticResults)
+Q_GLOBAL_STATIC_WITH_ARGS(StatusCodeSuccessList, statusCodeSuccessList, ({0, 200, 201, 202}))
+Q_GLOBAL_STATIC_WITH_ARGS(MakeArStats, staticMakeArStats, ({{ResultValue::None, 0},
+                                                      {ResultValue::Information, 0},
+                                                      {ResultValue::Warning, 406},
+                                                      {ResultValue::Validation, 406},
+                                                      {ResultValue::Notfound, 404},
+                                                      {ResultValue::UnsupportedMediaType, 415},
+                                                      {ResultValue::Critical, 500},
+                                                      {ResultValue::Unauthorized, 401},
+                                                      {ResultValue::NoContent, 204},
+                                                      {ResultValue::BadRequest, 400}}))
 
 class ResultValuePvt
 {
@@ -54,12 +124,7 @@ public:
     QStm::ResultInfo resultInfo;
     ResultValue *parent = nullptr;
     QVariantHash data;
-    QVariant returnCode;
-    QByteArray returnHash;
-    ResultValue::MessageType returnType = ResultValue::None;
-    QString returnText;
-    QVariant resultVariant;
-    void *resultVoid = nullptr;
+    QStmThreadResultItem resultItem;
 
     explicit ResultValuePvt(ResultValue *parent)
     {
@@ -67,21 +132,73 @@ public:
     }
     virtual ~ResultValuePvt()
     {
+    }
 
+    ResultValue &setMessage(ResultValue::MessageType msgType, const QVariant &code, const QVariant &message)
+    {
+        this->clear();
+        if (message.isValid()) {
+            resultItem.returnType = msgType;
+            resultItem.returnCode = this->variantConvertToCode(code.isValid()?code:message);
+            resultItem.returnText = this->variantConvertToText(message);
+            this->makeResult();
+        }
+        return *parent;
+    }
+
+    ResultValue &setResult(const ResultValue &value)
+    {
+        this->readFull(value.p);
+        return *this->parent;
+    }
+
+    ResultValue &setResult(const QVariant &value)
+    {
+        this->clearReturn();
+
+        switch (value.typeId()) {
+        case QMetaType::Bool:
+            this->resultBool = value.toBool();
+            break;
+        case QMetaType::QObjectStar:
+        {
+            {
+                ResultValue *object=value.value<ResultValue*>();
+                if(object){
+                    this->readFull(object->p);
+                    break;
+                }
+            }
+
+            {
+                QObject *object=value.value<QObject*>();
+                if(object){
+                    MetaObjectUtil util;
+                    resultItem.resultVariant=util.toHash(object);
+                    break;
+                }
+            }
+            break;
+        }
+        default:
+            resultItem.resultVariant=value;
+        };
+        return *parent;
     }
 
     ResultValue &setCritical(const QVariant &code, const QVariant &value)
     {
-        auto v = value.toString().trimmed().isEmpty() ? QVariant() : value.toString();
+        auto v = value.toString().trimmed().isEmpty() ? QVariant{} : value.toString();
         this->clear();
-        if (code.isValid() || v.isValid()) {
-            this->returnType = ResultValue::Critical;
-            this->returnCode = this->variantConvertToCode(code);
-            this->returnText = this->variantConvertToText(v);
-            if (!this->returnCode.isValid())
-                this->returnCode = this->toMd5(this->returnText);
-            this->makeResult();
-        }
+        if (!code.isValid() &&  !v.isValid())
+            return *this->parent;
+
+        resultItem.returnType = ResultValue::Critical;
+        resultItem.returnCode = this->variantConvertToCode(code);
+        resultItem.returnText = this->variantConvertToText(v);
+        if (!resultItem.returnCode.isValid())
+            resultItem.returnCode = this->toMd5(resultItem.returnText);
+        this->makeResult();
         return *this->parent;
     }
 
@@ -96,82 +213,62 @@ public:
             return;
         }
         this->data = this->toHash();
-        this->returnHash = this->toMd5(this->variantConvertToCode(data));
-        this->data = this->toHash();
-        {
-            if (this->returnCode.isValid())
-                sWarning() << this->toString();
+        resultItem.returnHash = this->toMd5(this->variantConvertToCode(data));
 
-            consts->staticThreadLocker.lock();
-            consts->staticThreadError[QThread::currentThread()]=this->returnHash;
-            consts->staticThreadLocker.unlock();
-        }
+
+        if(!staticResults->insert(resultItem))
+            return;
+
         if(!this->parent->returnText().isEmpty()){
             resultInfo.setSuccess(false);
             auto &msgs=resultInfo.errors();
             msgs.clear();
             msgs.append(this->parent->returnText());
         }
+
         QList<ResultValue *> listParentResultValue;
         auto pp = dynamic_cast<QStm::Object *>(this->parent->parent());
-        while (pp != nullptr) {
-            listParentResultValue.insert(0, &pp->lastResult());
+
+        if(pp && pp==this->parent->parent())
+            pp=dynamic_cast<QStm::Object *>(pp->parent());
+
+        while (pp) {
+            const auto&lr=&pp->lr();
+            listParentResultValue.insert(0, lr);
             pp = dynamic_cast<QStm::Object *>(pp->parent());
         }
-        for (auto &result : listParentResultValue) {
-            auto pvt = static_cast<ResultValuePvt *>(result->p);
-            if (pvt == nullptr)
-                continue;
-            pvt->read(this);
+        sWarning() << this->resultItem.toString();
+        for(int i=listParentResultValue.count()-1; i>0;i--){
+            parent=listParentResultValue.at(i);
+            if(parent->parent())
+                sWarning() << parent->parent()->metaObject()->className();
+            parent->p->read(this);
         }
-
     }
+
     bool isOk()
     {
         if (QThread::currentThread()->isInterruptionRequested())
             return false;
 
-        if(this->returnType==ResultValue::Information || this->returnType==ResultValue::None)
-            return true;
-
-        if (this->returnCode.isValid())
-            return false;
-
-        if (this->returnCode.isValid())
-            return false;
-
-        return this->returnHash.trimmed().isEmpty();
-    }
-
-    const QString toString()
-    {
-        if (this->isOk())
-            return {};
-
-        if (this->returnCode.isValid()) {
-            if (this->returnCode.toString() == this->returnText)
-                return this->returnText;
-            return this->returnCode.toString() + qsl(":") + this->returnText;
-        }
-
-        return this->returnText;
+        return this->resultItem.isOk();
     }
 
     const QVariantHash &toHash()
     {
         this->data.clear();
-        this->data.insert(qbl("resultBool"), this->resultBool);
-        data.insert(qbl("returnType"), this->returnType);
-        if (this->returnCode.isValid())
-            data.insert(qbl("returnCode"), this->returnCode);
-        if (!this->returnHash.isEmpty())
-            data.insert(qbl("returnHash"), this->returnHash);
-        if (!this->returnText.isEmpty())
-            data.insert(qbl("returnText"), this->returnText);
-        if (this->resultVariant.isValid())
-            data.insert(qbl("resultVariant"), this->resultVariant);
-        if (this->resultVariant.isValid())
-            data.insert(qbl("resultInfo"), this->resultInfo.toHash());
+        this->data.insert(QByteArrayLiteral("resultBool"), this->resultBool);
+        data.insert(QByteArrayLiteral("returnType"), this->resultItem.returnType);
+        if (this->resultItem.returnCode.isValid())
+            data.insert(QByteArrayLiteral("returnCode"), this->resultItem.returnCode);
+        if (!this->resultItem.returnHash.isEmpty())
+            data.insert(QByteArrayLiteral("returnHash"), this->resultItem.returnHash);
+        if (!this->resultItem.returnText.isEmpty())
+            data.insert(QByteArrayLiteral("returnText"), this->resultItem.returnText);
+        if (this->resultItem.resultVariant.isValid())
+            data.insert(QByteArrayLiteral("resultVariant"), this->resultItem.resultVariant);
+        if (this->resultItem.resultVariant.isValid())
+            data.insert(QByteArrayLiteral("resultInfo"), this->resultInfo.toHash());
         return data;
     }
 
@@ -179,13 +276,10 @@ public:
     {
         this->data.clear();
         this->resultBool = true;
-        this->returnType = ResultValue::None;
-        this->returnHash = QByteArray();
-        this->returnCode = QVariant();
-        this->returnText.clear();
-        this->resultVariant = QVariant();
-        this->resultVoid = nullptr;
+        this->resultItem.clear();
+
         this->resultInfo.clear();
+        staticResults->clear();
     }
 
     void clearReturn()
@@ -204,14 +298,11 @@ public:
 
         this->data = this->toHash();
         this->resultBool = pvt->resultBool;
-        this->returnHash = pvt->returnHash;
-        this->returnCode = pvt->returnCode;
-        this->returnText = pvt->returnText;
-        this->returnType = pvt->returnType;
+        this->resultItem = pvt->resultItem;
         this->resultInfo.fromHash(pvt->resultInfo.toHash());
     }
 
-    void readFull(ResultValuePvt *pvt)
+    void readFull(const ResultValuePvt *pvt)
     {
         if (pvt == nullptr) {
             this->clear();
@@ -220,13 +311,8 @@ public:
 
         auto aux = (!this->isOk()) ? false : this->resultBool;
         this->data = pvt->data;
-        this->returnType = pvt->returnType;
+        this->resultItem = pvt->resultItem;
         this->resultBool = pvt->resultBool;
-        this->returnHash = pvt->returnHash;
-        this->returnCode = pvt->returnCode;
-        this->returnText = pvt->returnText;
-        this->resultVariant = pvt->resultVariant;
-        this->resultVoid = pvt->resultVoid;
         this->resultBool = (aux && this->resultBool) ? aux : false;
         this->resultInfo.fromHash(pvt->resultInfo.toHash());
     }
@@ -241,18 +327,18 @@ public:
         if (!value.isValid())
             return {};
 
-        auto typeId=qTypeId(value);
+        auto typeId=value.typeId();
         switch (typeId) {
-        case QMetaType_Double:
-        case QMetaType_Int:
-        case QMetaType_UInt:
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
+        case QMetaType::Double:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
             return value.toByteArray();
-        case QMetaType_QString:
-        case QMetaType_QByteArray:
-        case QMetaType_QChar:
-        case QMetaType_QBitArray:
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        case QMetaType::QChar:
+        case QMetaType::QBitArray:
         {
             auto code = value.toByteArray().trimmed();
             if ((code.isEmpty()))
@@ -265,24 +351,26 @@ public:
 
         QStringList list;
         switch (typeId) {
-        case QMetaType_QStringList:
+        case QMetaType::QStringList:
             list = value.toStringList();
             break;
-        case QMetaType_QVariantList:
+        case QMetaType::QVariantList:
         {
             for (auto &v : value.toList())
                 list.append(v.toByteArray());
             break;
         }
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
         {
             Q_DECLARE_VU;
             auto vHash = vu.toHash(value);
             QStringList list;
             Q_V_HASH_ITERATOR(vHash){
                 i.next();
-                list << i.key() << qbl(".") << i.value().toByteArray();
+                list.append(i.key());
+                list.append(QByteArrayLiteral("."));
+                list.append(i.value().toByteArray());
             }
             break;
         }
@@ -297,31 +385,31 @@ public:
         if (!value.isValid())
             return {};
 
-        auto typeId=qTypeId(value);
+        auto typeId=value.typeId();
 
         QStringList list;
         switch (typeId) {
-        case QMetaType_Double:
-        case QMetaType_Int:
-        case QMetaType_UInt:
-        case QMetaType_LongLong:
-        case QMetaType_ULongLong:
-            return qsl("%1: %2").arg(QObject::tr("Error value"), value.toString());
-        case QMetaType_QStringList:
+        case QMetaType::Double:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+            return QStringLiteral("%1: %2").arg(QObject::tr("Error value"), value.toString());
+        case QMetaType::QStringList:
             list = value.toStringList();
             break;
-        case QMetaType_QVariantList:
+        case QMetaType::QVariantList:
         {
             for (auto &v : value.toList())
                 list.append(v.toByteArray());
             break;
         }
-        case QMetaType_QVariantMap:
-        case QMetaType_QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
             {
                 Q_V_HASH_ITERATOR(value.toHash()){
                     i.next();
-                    list << i.key() << qbl("==") << i.value().toByteArray();
+                    list.append(QStringLiteral("%1==%2").arg(i.key(), i.value().toByteArray()));
                 }
                 break;
             }
@@ -329,7 +417,7 @@ public:
             list.append(value.toString().trimmed());
             break;
         }
-        return list.join(qbl("\n")).toUtf8();
+        return list.join(QByteArrayLiteral("\n")).toUtf8();
     }
 };
 
@@ -343,71 +431,22 @@ ResultValue::~ResultValue()
     delete p;
 }
 
-ResultValue &ResultValue::operator=(const bool &result)
-{
-
-    p->resultBool = result;
-    return *this;
-}
-
 ResultValue::operator bool() const
 {
-
     auto __isOK = p->isOk();
     bool __return = (p->resultBool & p->isOk());
     p->resultBool = __isOK;
     return __return;
 }
 
-ResultValue &ResultValue::operator=(const QSqlError &error)
+ResultValue &ResultValue::setResult(const ResultValue &value)const
 {
-    this->setCritical(error);
-    return *this;
+    return p->setResult(value);
 }
 
-ResultValue &ResultValue::operator<<(const QSqlError &error)
+ResultValue &ResultValue::setResult(const QVariant &value)const
 {
-    this->setCritical(error);
-    return *this;
-}
-
-ResultValue &ResultValue::operator=(const QVariant &value)
-{
-    return this->setResult(value);
-}
-
-ResultValue &ResultValue::operator<<(const QVariant &value)
-{
-    return this->setResult(value);
-}
-
-ResultValue &ResultValue::operator=(const QString &value)
-{
-    return this->setResult(QVariant(value));
-}
-
-ResultValue &ResultValue::operator=(void *value)
-{
-    return this->setResult(value);
-}
-
-ResultValue &ResultValue::operator<<(void *value)
-{
-    return this->setResult(value);
-}
-
-ResultValue &ResultValue::operator=(const ResultValue &value)
-{
-
-    p->readFull(static_cast<ResultValuePvt *>(value.p));
-    return *this;
-}
-
-ResultValue &ResultValue::operator<<(const ResultValue &value)
-{
-
-    p->readFull(static_cast<ResultValuePvt *>(value.p));
-    return *this;
+    return p->setResult(value);
 }
 
 bool ResultValue::operator==(const ResultValue &value)
@@ -424,9 +463,8 @@ bool ResultValue::operator!=(const ResultValue &value)
     return (uuidA != uuidB);
 }
 
-QStm::ResultInfo &ResultValue::resultInfo()
+QStm::ResultInfo &ResultValue::resultInfo()const
 {
-
     return p->resultInfo;
 }
 
@@ -447,75 +485,74 @@ ResultValue &ResultValue::printWarning(const QVariant &v)
 QVariant &ResultValue::resultVariant() const
 {
 
-    return p->resultVariant;
+    return p->resultItem.resultVariant;
 }
 
 QVariant ResultValue::resultVariantInfo() const
 {
-
-
-    if(p->resultVariant.isNull() || !p->resultVariant.isValid()){
-        auto vHash=p->resultVariant.toHash();
-        vHash[qsl("resultInfo")]=p->resultInfo.toHash();
+    if(p->resultItem.resultVariant.isNull() || !p->resultItem.resultVariant.isValid()){
+        auto vHash=p->resultItem.resultVariant.toHash();
+        vHash[QStringLiteral("resultInfo")]=p->resultInfo.toHash();
         return vHash;
     }
 
-    if (QMetaTypeUtilVariantDictionary.contains(qTypeId(p->resultVariant))){
-        auto vHash=p->resultVariant.toHash();
-        vHash[qsl("resultInfo")]=p->resultInfo.toHash();
+    switch (p->resultItem.resultVariant.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:{
+        auto vHash=p->resultItem.resultVariant.toHash();
+        vHash[QStringLiteral("resultInfo")]=p->resultInfo.toHash();
         return vHash;
     }
-    return p->resultVariant;
+    default:
+        return p->resultItem.resultVariant;
+    }
 }
 
 QVariantMap ResultValue::resultMap() const
 {
-
-    return p->resultVariant.toMap();
+    return p->resultItem.resultVariant.toMap();
 }
 
 QVariantHash ResultValue::resultHash() const
 {
-
-    return p->resultVariant.toHash();
+    return p->resultItem.resultVariant.toHash();
 }
 
 QVariantList ResultValue::resultList() const
 {
 
-    auto &v=p->resultVariant;
-    switch (qTypeId(v)) {
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
-        return qvl{v};
+    auto &v=p->resultItem.resultVariant;
+    switch (v.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
+        return QVariantList{v};
     default:
-        return p->resultVariant.toList();
+        return p->resultItem.resultVariant.toList();
     }
 }
 
 QStringList ResultValue::resultStringList() const
 {
-
-    auto &v=p->resultVariant;
-    switch (qTypeId(v)) {
-    case QMetaType_QStringList:
+    auto &v=p->resultItem.resultVariant;
+    switch (v.typeId()) {
+    case QMetaType::QStringList:
         return v.toStringList();
-    case QMetaType_QVariantList:
+    case QMetaType::QVariantList:
     {
         Q_DECLARE_VU;
         QStringList __return;
         for(auto &row:v.toList()){
-            switch (qTypeId(row)) {
-            case QMetaType_QVariantHash:
-            case QMetaType_QVariantMap:
-            case QMetaType_QVariantList:
-            case QMetaType_QStringList:
+            switch (row.typeId()) {
+            case QMetaType::QVariantHash:
+            case QMetaType::QVariantMap:
+            case QMetaType::QVariantList:
+            case QMetaType::QStringList:
                 __return.append(vu.toStr(row));
                 break;
-            case QMetaType_QUrl:
+            case QMetaType::QUrl:
                 __return.append(row.toUrl().toString());
                 break;
-            case QMetaType_QUuid:
+            case QMetaType::QUuid:
                 __return.append(row.toUuid().toString());
                 break;
             default:
@@ -531,243 +568,142 @@ QStringList ResultValue::resultStringList() const
 
 QVariantList ResultValue::resultToList() const
 {
-
-    auto &v=p->resultVariant;
-    switch (qTypeId(v)) {
-    case QMetaType_QVariantList:
-    case QMetaType_QStringList:
+    auto &v=p->resultItem.resultVariant;
+    switch (v.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
         return v.toList();
     default:
         if (v.isValid())
-            return qvl{v};
+            return QVariantList{v};
         return {};
     }
 }
 
 QString ResultValue::resultString() const
 {
-
-    return p->resultVariant.toString();
+    return p->resultItem.resultVariant.toString();
 }
 
 QByteArray ResultValue::resultByteArray() const
 {
-
-    return p->resultVariant.toByteArray();
+    return p->resultItem.resultVariant.toByteArray();
 }
 
 QUuid ResultValue::resultUuid() const
 {
-
-    return p->resultVariant.toUuid();
+    return p->resultItem.resultVariant.toUuid();
 }
 
 qlonglong ResultValue::resultInt() const
 {
-
-    auto r = p->resultVariant.toLongLong();
-    return r;
+    return p->resultItem.resultVariant.toLongLong();
 }
 
 qlonglong ResultValue::resultLongLong() const
 {
-
-    auto r = p->resultVariant.toLongLong();
-    return r;
+    return p->resultItem.resultVariant.toLongLong();
 }
 
 double ResultValue::resultDouble() const
 {
-
-    auto r = p->resultVariant.toDouble();
-    return r;
+    return p->resultItem.resultVariant.toDouble();
 }
 
 QDate ResultValue::resultDate() const
 {
-
-    return p->resultVariant.toDate();
+    return p->resultItem.resultVariant.toDate();
 }
 
 QDateTime ResultValue::resultDateTime() const
 {
-
-    return p->resultVariant.toDateTime();
+    return p->resultItem.resultVariant.toDateTime();
 }
 
 QTime ResultValue::resultTime() const
 {
-
-    return p->resultVariant.toTime();
+    return p->resultItem.resultVariant.toTime();
 }
 
 QUrl ResultValue::resultUrl() const
 {
-
-    return p->resultVariant.toUrl();
-}
-
-void *ResultValue::resultPointer() const
-{
-    return this->p;
+    return p->resultItem.resultVariant.toUrl();
 }
 
 ResultValue &ResultValue::clear()
 {
-
     p->clear();
     return *this;
 }
 
 const QVariantMap ResultValue::toMap()
 {
-
     return QVariant(p->toHash()).toMap();
 }
 
 const QVariantHash &ResultValue::toHash()
 {
-
     return p->toHash();
 }
 
 QByteArray &ResultValue::returnHash() const
 {
-
-    return p->returnHash;
+    return p->resultItem.returnHash;
 }
 
 ResultValue::MessageType ResultValue::returnType() const
 {
-
-    return p->returnType;
+    return p->resultItem.returnType;
 }
 
 QVariant &ResultValue::returnCode() const
 {
-
-    return p->returnCode;
+    return p->resultItem.returnCode;
 }
 
 QString &ResultValue::returnText() const
 {
-
-    return p->returnText;
-}
-
-ResultValue &ResultValue::setResult(void *result)
-{
-
-    p->clearReturn();
-    p->resultVariant = QVariant::fromValue<void *>(result);
-    p->resultVoid = result;
-    return *this;
-}
-
-ResultValue &ResultValue::setResult(QObject &object)
-{
-
-    p->clearReturn();
-    p->resultVariant = QVariant::fromValue<QObject *>(&object);
-    p->resultVoid = &object;
-    return *this;
-}
-
-ResultValue &ResultValue::setResult(const QVariant &result)
-{
-
-    p->clearReturn();
-    p->resultVariant = result;
-    p->resultVoid = &p->resultVariant;
-    return *this;
-}
-
-ResultValue &ResultValue::setResult(const ResultValue &result)
-{
-
-    auto pp = static_cast<ResultValuePvt *>(result.p);
-    p->readFull(pp);
-    return *this;
-}
-
-ResultValue &ResultValue::setResult(const QSqlError &result)
-{
-
-    return p->setCritical(result.nativeErrorCode(), result.text());
+    return p->resultItem.returnText;
 }
 
 ResultValue &ResultValue::setMsg(const QVariant &value)
 {
-
-    p->clear();
-    if (value.isValid()) {
-        p->returnType = MessageType::None;
-        p->returnCode = QVariant();
-        p->returnText = p->variantConvertToText(value);
-        p->makeResult();
-    }
-    return *this;
+   return p->setMessage(MessageType::None, {}, value);
 }
 
 ResultValue &ResultValue::setInformation(const QVariant &value)
 {
-
-    p->clear();
-    if (value.isValid()) {
-        p->returnType = Information;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
-        p->makeResult();
-    }
-    return *this;
+    return p->setMessage(MessageType::Information, {}, value);
 }
 
 ResultValue &ResultValue::setWarning()
 {
     if (this->isOk())
         return this->setWarning(tr("Unknow error"));
-
     return *this;
 }
 
 ResultValue &ResultValue::setWarning(const QVariant &value)
 {
-
-    p->clear();
-    if (value.isValid()) {
-        p->returnType = Warning;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
-        p->makeResult();
-    }
-    return *this;
+    return p->setMessage(MessageType::Warning, {}, value);
 }
 
 ResultValue &ResultValue::setValidation()
 {
     if (this->isOk())
         return this->setValidation(tr("Invalid information"));
-
     return *this;
 }
 
 ResultValue &ResultValue::setValidation(const QVariant &value)
 {
-
-    p->clear();
-    if (value.isValid()) {
-        p->returnType = Validation;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
-        p->makeResult();
-    }
-    return *this;
+    return p->setMessage(MessageType::Validation, {}, value);
 }
 
 ResultValue &ResultValue::setValidation(const ResultValue &lr)
 {
     if(!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setValidation();
@@ -775,29 +711,28 @@ ResultValue &ResultValue::setValidation(const ResultValue &lr)
 
 ResultValue &ResultValue::setResponse(const QVariant &value)
 {
-
-    switch (qTypeId(value)) {
-    case QMetaType_QVariantHash:
-    case QMetaType_QVariantMap:
+    switch (value.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
     {
         auto vHash=value.toHash();
-        //auto qt_status_code=vHash.value(qsl("qt_status_code")).toInt();
-        auto status_code=vHash.value(qsl("status_code")).toInt();
-        auto response_body=vHash.value(qsl("response_body"));
-        auto reason_phrase=vHash.value(qsl("reason_phrase")).toString().trimmed();
-        if(!statusCodeSuccessList.contains(status_code)){
+        //auto qt_status_code=vHash.value(QStringLiteral("qt_status_code")).toInt();
+        auto status_code=vHash.value(QStringLiteral("status_code")).toInt();
+        auto response_body=vHash.value(QStringLiteral("response_body"));
+        auto reason_phrase=vHash.value(QStringLiteral("reason_phrase")).toString().trimmed();
+        if(!statusCodeSuccessList->contains(status_code)){
             QStm::ResultInfo resultInfo;
             QVariant vResultInfo;
-            switch (qTypeId(response_body)) {
-            case QMetaType_QVariantHash:
-            case QMetaType_QVariantMap:
+            switch (response_body.typeId()) {
+            case QMetaType::QVariantHash:
+            case QMetaType::QVariantMap:
             {
                 auto vHash=response_body.toHash();
-                vResultInfo=vHash.value(qsl("resultInfo"));
+                vResultInfo=vHash.value(QStringLiteral("resultInfo"));
                 break;
             }
             default:
-                vResultInfo=vHash.value(qsl("resultInfo"));
+                vResultInfo=vHash.value(QStringLiteral("resultInfo"));
                 break;
             }
 
@@ -809,7 +744,7 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
             if(!resultInfo.errors().isEmpty())
                 reason_phrase=resultInfo.errors().first().toString().trimmed();
             this->setCode(status_code, reason_phrase);
-            p->resultVariant=response_body;
+            p->resultItem.resultVariant=response_body;
             p->resultInfo.fromResultInfo(resultInfo);
         }
         break;
@@ -822,17 +757,17 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
 
 ResultValue &ResultValue::setUnauthorized()
 {
-    return this->setUnauthorized(tr("Unauthorized"));
+    static auto msg=tr("Unauthorized");
+    return this->setUnauthorized(msg);
 }
 
 ResultValue &ResultValue::setUnauthorized(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = Unauthorized;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = Unauthorized;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -841,7 +776,7 @@ ResultValue &ResultValue::setUnauthorized(const QVariant &value)
 ResultValue &ResultValue::setUnauthorized(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setUnauthorized();
@@ -849,17 +784,17 @@ ResultValue &ResultValue::setUnauthorized(const ResultValue &lr)
 
 ResultValue &ResultValue::setNotImplemented()
 {
-    return this->setBadRequest(tr("Not implemented"));
+    static auto msg=tr("Not implemented");
+    return this->setNotImplemented(msg);
 }
 
 ResultValue &ResultValue::setNotImplemented(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = NotImplemented;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = NotImplemented;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -868,7 +803,7 @@ ResultValue &ResultValue::setNotImplemented(const QVariant &value)
 ResultValue &ResultValue::setNotImplemented(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setNotImplemented();
@@ -876,17 +811,17 @@ ResultValue &ResultValue::setNotImplemented(const ResultValue &lr)
 
 ResultValue &ResultValue::setBadRequest()
 {
-    return this->setBadRequest(tr("Bad format"));
+    static auto msg=tr("Bad format");
+    return this->setBadRequest(msg);
 }
 
 ResultValue &ResultValue::setBadRequest(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = BadRequest;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = BadRequest;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -895,7 +830,7 @@ ResultValue &ResultValue::setBadRequest(const QVariant &value)
 ResultValue &ResultValue::setBadRequest(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setBadRequest();
@@ -903,17 +838,17 @@ ResultValue &ResultValue::setBadRequest(const ResultValue &lr)
 
 ResultValue &ResultValue::setNoContent()
 {
-    return this->setNoContent(tr("Not found"));
+    static auto msg=tr("No content");
+    return this->setNoContent(msg);
 }
 
 ResultValue &ResultValue::setNoContent(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = NoContent;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = NoContent;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -921,17 +856,17 @@ ResultValue &ResultValue::setNoContent(const QVariant &value)
 
 ResultValue &ResultValue::setNotFound()
 {
-    return this->setNotFound(tr("Not found"));
+    static auto msg=tr("Not found");
+    return this->setNotFound(msg);
 }
 
 ResultValue &ResultValue::setNotFound(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = Notfound;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = Notfound;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -940,7 +875,7 @@ ResultValue &ResultValue::setNotFound(const QVariant &value)
 ResultValue &ResultValue::setNotFound(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setNotFound();
@@ -948,17 +883,17 @@ ResultValue &ResultValue::setNotFound(const ResultValue &lr)
 
 ResultValue &ResultValue::setUnsupportedMediaType()
 {
-    return this->setCritical(tr("Unsupported Media Type"));
+    static auto msg=tr("Unsupported Media Type");
+    return this->setCritical(msg);
 }
 
 ResultValue &ResultValue::setUnsupportedMediaType(const QVariant &value)
 {
-
     p->clear();
     if (value.isValid()) {
-        p->returnType = UnsupportedMediaType;
-        p->returnCode = p->variantConvertToCode(value);
-        p->returnText = p->variantConvertToText(value);
+        p->resultItem.returnType = UnsupportedMediaType;
+        p->resultItem.returnCode = p->variantConvertToCode(value);
+        p->resultItem.returnText = p->variantConvertToText(value);
         p->makeResult();
     }
     return *this;
@@ -967,7 +902,7 @@ ResultValue &ResultValue::setUnsupportedMediaType(const QVariant &value)
 ResultValue &ResultValue::setUnsupportedMediaType(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setUnsupportedMediaType();
@@ -975,64 +910,46 @@ ResultValue &ResultValue::setUnsupportedMediaType(const ResultValue &lr)
 
 ResultValue &ResultValue::setCritical()
 {
-
     if (!this->isCritical()) {
-        auto msg = p->returnText.trimmed();
-        msg = msg.isEmpty() ? tr("Critical error").toUtf8() : msg;
-        this->setCritical(msg);
+        static auto msg=tr("Critical error").toUtf8();
+        auto message = p->resultItem.returnText.trimmed();
+        message = message.isEmpty() ? msg : message;
+        this->setCritical(message);
     }
     return *this;
 }
 
 ResultValue &ResultValue::setCritical(const QString &value)
 {
-
-    return p->setCritical(QVariant(), value);
+    return p->setCritical(QVariant{}, value);
 }
 
 ResultValue &ResultValue::setCritical(const QVariantHash &value)
 {
-
-    return p->setCritical(QVariant(), value);
+    return p->setCritical(QVariant{}, value);
 }
 
 ResultValue &ResultValue::setCritical(const QVariantList &value)
 {
-
-    return p->setCritical(QVariant(), value);
-}
-
-ResultValue &ResultValue::setCritical(const QSqlError &value)
-{
-
-    p->clear();
-    if (value.isValid()) {
-        auto nc = value.nativeErrorCode().toUtf8().trimmed();
-        auto nt = value.text().toUtf8().trimmed();
-        if (!(nc.isEmpty() && nt.isEmpty())) {
-            p->returnType = ResultValue::Critical;
-            p->returnCode = p->variantConvertToCode(value.nativeErrorCode());
-            p->returnText = value.text().toUtf8().trimmed();
-            if (!p->returnCode.isValid())
-                p->returnCode = p->toMd5(p->returnText);
-            p->makeResult();
-        }
-    }
-    return *this;
+    return p->setCritical(QVariant{}, value);
 }
 
 ResultValue &ResultValue::setCritical(const ResultValue &lr)
 {
     if (!lr){
-        (*this) << lr;
+        (*this) = lr;
         return *this;
     }
     return this->setCritical();
 }
 
+ResultValue &ResultValue::setCritical(const QVariant &code, const QVariant &message)
+{
+    return p->setCritical(code, message);
+}
+
 bool ResultValue::isOk() const
 {
-
     return p->isOk();
 }
 
@@ -1043,61 +960,51 @@ bool ResultValue::isNotOk() const
 
 bool ResultValue::isInformation() const
 {
-
-    return p->returnType == Information;
+    return p->resultItem.returnType == Information;
 }
 
 bool ResultValue::isUnauthorized() const
 {
-
-    return p->returnType == Unauthorized;
+    return p->resultItem.returnType == Unauthorized;
 }
 
 bool ResultValue::isNotfound() const
 {
-
-    return p->returnType == Notfound;
+    return p->resultItem.returnType == Notfound;
 }
 
 bool ResultValue::isBadRequest() const
 {
-
-    return p->returnType;
+    return p->resultItem.returnType;
 }
 
 bool ResultValue::isWarning() const
 {
-
-    return p->returnCode.isValid();
+    return p->resultItem.returnCode.isValid();
 }
 
 bool ResultValue::isValidation() const
 {
-
-    return p->returnCode.isValid();
+    return p->resultItem.returnCode.isValid();
 }
 
 bool ResultValue::isCritical() const
 {
-
-    return p->returnType == Critical;
+    return p->resultItem.returnType == Critical;
 }
 
 bool ResultValue::isNoContent() const
 {
-
-    return p->returnType == NoContent;
+    return p->resultItem.returnType == NoContent;
 }
 
 QVariantHash ResultValue::data() const
 {
-
     return p->data;
 }
 
 void ResultValue::setData(const QVariantHash &data)
 {
-
     p->data = data;
 }
 
@@ -1108,19 +1015,19 @@ QVariant ResultValue::stateCode() const
     QVariant phrase;
     if (QThread::currentThread()->isInterruptionRequested())
         code = 500; //InternalServerError
-    else if (makeArStats.contains(this->returnType()))
-        code = makeArStats.value(this->returnType());
+    else if (staticMakeArStats->contains(this->returnType()))
+        code = staticMakeArStats->value(this->returnType());
     else
         code = 500; //InternalServerError
 
-    phrase = this->returnText().isEmpty() ? QVariant() : this->returnText();
+    phrase = this->returnText().isEmpty() ? QVariant{} : this->returnText();
 
     if (code.isValid())
-        v.insert(qbl("code"), code);
+        v.insert(QByteArrayLiteral("code"), code);
     if (phrase.isValid())
-        v.insert(qbl("phrase"), phrase);
+        v.insert(QByteArrayLiteral("phrase"), phrase);
 
-    return v.isEmpty() ? QVariant() : v;
+    return v.isEmpty() ? QVariant{} : v;
 }
 
 QVariant ResultValue::sc() const
@@ -1130,19 +1037,19 @@ QVariant ResultValue::sc() const
 
 ResultValue &ResultValue::setCode(const QVariant &statusCode, const QVariant &reasonPhrase)
 {
-    if (statusCodeSuccessList.contains(statusCode.toInt())){
-        this->setInformation(QVariant());
+    if (statusCodeSuccessList->contains(statusCode.toInt())){
+        this->setInformation(QVariant{});
         return*this;
     }
 
-    const auto &returnType = makeArStats.key(statusCode.toInt());
-    if (makeArStats.contains(returnType)) {
+    const auto &returnType = staticMakeArStats->key(statusCode.toInt());
+    if (staticMakeArStats->contains(returnType)) {
 
-        p->returnType = returnType;
-        p->returnCode = p->variantConvertToCode(returnType);
-        p->returnText = reasonPhrase.toByteArray();
-        if (!p->returnCode.isValid())
-            p->returnCode = p->toMd5(p->returnText);
+        p->resultItem.returnType = returnType;
+        p->resultItem.returnCode = p->variantConvertToCode(returnType);
+        p->resultItem.returnText = reasonPhrase.toByteArray();
+        if (!p->resultItem.returnCode.isValid())
+            p->resultItem.returnCode = p->toMd5(p->resultItem.returnText);
         p->makeResult();
     }
     return *this;

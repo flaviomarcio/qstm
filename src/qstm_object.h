@@ -1,9 +1,29 @@
 #pragma once
 
+#include <QObject>
+#include <QVariant>
+#include <QVariantHash>
+#include <QVariantMap>
+#include <QVariantList>
+#include <QStringList>
 #include "./qstm_global.h"
 #include "./qstm_result.h"
 #include "./qstm_cache_pool.h"
-#include "./qstm_object_macro.h"
+
+#define Q_DECLARE_INSTANCE(ClassName)\
+public:\
+static ClassName&instance()\
+{\
+    static ClassName*static_##ClassName=nullptr;\
+    if(static_##ClassName==nullptr)\
+    static_##ClassName=new ClassName(nullptr);\
+    return*static_##ClassName;\
+}\
+static ClassName&i()\
+{\
+    return instance();\
+}
+
 
 namespace QStm {
 class ObjectPvt;
@@ -18,126 +38,20 @@ public:
     Q_INVOKABLE explicit Object(QObject*parent=nullptr);
     ~Object();
 
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //!
-    void operator=(ResultValue &value);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //!
-    void operator=(QSqlError &value);
-
-    //!
-    //! \brief operator =
-    //! \param value
-    //!
-    void operator=(QVariant &value);
-
-    //!
-    //! \brief cachePool
-    //! \return
-    //!
-    CachePool&cachePool();
-
     //!
     //! \brief lr
     //! \return
     //! result value class
-    virtual ResultValue &lr();
+    virtual ResultValue &lr() const;
+    __QSTM_DECLARE_RESULT_READ_LR(ResultValue&)
+    __QSTM_DECLARE_RESULT_READ_LR(QVariant&)
 
+public:
     //!
-    //! \brief lr
-    //! \param value
+    //! \brief cachePool
     //! \return
-    //!result value class
-    virtual ResultValue &lr(const ResultValue &value);
-
     //!
-    //! \brief lr
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lr(const QSqlError&value);
-
-    //!
-    //! \brief lr
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lr(const QVariant &value);
-
-    //!
-    //! \brief lr
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lr(const QString &value);
-
-    //!
-    //! \brief lastResult
-    //! \return
-    //!result value class
-    virtual ResultValue &lastResult();
-
-    //!
-    //! \brief lastResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lastResult(const ResultValue &value);
-
-    //!
-    //! \brief lastResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lastResult(const QSqlError&value);
-
-    //!
-    //! \brief lastResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lastResult(const QVariant &value);
-
-    //!
-    //! \brief lastResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &lastResult(const QString &value);
-
-    //!
-    //! \brief setResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &setResult(const ResultValue &value);
-
-    //!
-    //! \brief setResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &setResult(const QSqlError&value);
-
-    //!
-    //! \brief setResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &setResult(const QVariant &value);
-
-    //!
-    //! \brief setResult
-    //! \param value
-    //! \return
-    //!result value class
-    virtual ResultValue &setResult(const QString &value);
+    CachePool &cachePool();
 
     //!
     //! \brief now
@@ -150,7 +64,7 @@ public:
     //! \param value
     //! \return
     //!
-    static const QByteArray toMd5(const QByteArray&value);
+    static const QByteArray toMd5(const QByteArray &value);
 
     //!
     //! \brief toMd5
@@ -184,7 +98,7 @@ public:
     //! \param uuid
     //! \return
     //!
-    static const QUuid uuidGenCheck(const QUuid&uuid);
+    static const QUuid uuidGenCheck(const QUuid &uuid);
 
     //!
     //! \brief uuidGenCheck
@@ -192,7 +106,7 @@ public:
     //! \param uuidDefault
     //! \return
     //!
-    static const QUuid uuidGenCheck(const QUuid&uuid, const QUuid&uuidDefault);
+    static const QUuid uuidGenCheck(const QUuid &uuid, const QUuid &uuidDefault);
 
     //!
     //! \brief hashGenerator

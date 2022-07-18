@@ -10,13 +10,13 @@ namespace QStm {
 class PathUtilPvt;
 class Q_STM_EXPORT PathUtil{
 public:
-    explicit PathUtil(Q_CONST_V);
+    explicit PathUtil(const QVariant &v={});
     virtual ~PathUtil();
 
-    PathUtil&operator=(const QVariant &v);
-    PathUtil&operator+=(const QVariant &v);
-    PathUtil&operator-=(const QVariant &v);
-    PathUtil&operator<<(const QVariant &v);
+    PathUtil &operator=(const QVariant &v);
+    PathUtil &operator+=(const QVariant &v);
+    PathUtil &operator-=(const QVariant &v);
+    PathUtil &operator<<(const QVariant &v);
 
     //!
     //! \brief exists
@@ -29,48 +29,48 @@ public:
     //! \param v
     //! \return
     //!
-    bool exists(Q_CONST_V)const;
+    bool exists(const QVariant &v={})const;
 
     //!
     //! \brief isValid
     //! \param v
     //! \return
     //!
-    bool isValid(Q_CONST_V)const;
+    bool isValid(const QVariant &v={})const;
 
     //!
     //! \brief clear
     //! \return
     //!
-    PathUtil&clear();
+    PathUtil &clear();
 
     //!
     //! \brief setPath
     //! \param v
     //! \return
     //!
-    PathUtil&setPath(Q_CONST_V);
+    PathUtil &setPath(const QVariant &v={});
 
     //!
     //! \brief append
     //! \param v
     //! \return
     //!
-    PathUtil&append(Q_CONST_V);
+    PathUtil &append(const QVariant &v={});
 
     //!
     //! \brief remove
     //! \param v
     //! \return
     //!
-    PathUtil&remove(Q_CONST_V);
+    PathUtil &remove(const QVariant &v={});
 
     //!
     //! \brief mkPath
     //! \param v
     //! \return
     //!
-    bool mkPath(Q_CONST_V);
+    bool mkPath(const QVariant &v={});
 
     //!
     //! \brief toLower

@@ -22,7 +22,7 @@ void ObjectWrapper::printProperties()
 {
     auto propList=this->toPropList();
     qInfo()<<"Properties of "<<this->metaObject()->className();
-    for(auto&p:propList){
+    for(auto &p:propList){
         qInfo()<<"  "<<p.name()<<"=="<<p.read(this);
     }
 }
@@ -131,7 +131,7 @@ bool ObjectWrapper::setValues(const QVariant &v)
     bool __return=false;
     auto propList=this->toPropList();
 
-    for(auto&property:propList) {
+    for(auto &property:propList) {
 
         if(!property.isWritable())
             continue;

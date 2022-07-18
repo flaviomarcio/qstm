@@ -58,31 +58,12 @@ public:
     //!
     explicit QMetaTypeUtil(const QVector<int>&list);
 
-    //!
-    //! \brief ~QMetaTypeUtil
-    //!
-    virtual ~QMetaTypeUtil();
-
-    //!
-    //! \brief qTypeId
-    //! \param v
-    //! \return
-    //!
-    static int qTypeId(const QVariant &v);
-
-    //!
-    //! \brief qTypeId
-    //! \param p
-    //! \return
-    //!
-    static int qTypeId(const QMetaProperty&p);
-
-    //!
-    //! \brief qIsNumeric
-    //! \param v
-    //! \return
-    //!
-    static bool qIsNumeric(const QVariant &v);
+//    //!
+//    //! \brief qIsNumeric
+//    //! \param v
+//    //! \return
+//    //!
+//    static bool qIsNumeric(const QVariant &v);
 
     //!
     //! \brief QMetaTypeUtilString
@@ -166,26 +147,26 @@ public:
 }
 
 
-//!
-//! \brief qTypeId
-//! \param v
-//! \return
-//!
-int qTypeId(const QVariant &v);
+////!
+////! \brief qTypeId
+////! \param v
+////! \return
+////!
+//int qTypeId(const QVariant &v);
 
-//!
-//! \brief qTypeId
-//! \param p
-//! \return
-//!
-int qTypeId(const QMetaProperty&p);
+////!
+////! \brief qTypeId
+////! \param p
+////! \return
+////!
+//int qTypeId(const QMetaProperty&p);
 
 //!
 //! \brief qIsNumeric
 //! \param v
 //! \return
 //!
-bool qIsNumeric(const QVariant &v);
+//bool qIsNumeric(const QVariant &v);
 
 //!
 //! \brief QMetaTypeUtilString
