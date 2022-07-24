@@ -46,7 +46,7 @@ public :
     }
 };
 
-ResultInfo::ResultInfo(QObject *parent):QObject{parent}
+ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}
 {
     this->p=new ResultInfoPvt{this};
 }
@@ -58,121 +58,101 @@ ResultInfo::~ResultInfo()
 
 void ResultInfo::clear()
 {
-
     p->clear();
 }
 
 void ResultInfo::clearErrors()
 {
-
     p->clearErrors();
 }
 
 bool ResultInfo::enabled()
 {
-
     return p->enabled;
 }
 
 void ResultInfo::setEnabled(bool value)
 {
-
     p->enabled=value;
 }
 
 QVariantList &ResultInfo::errors()
 {
-
     return p->errors;
 }
 
 void ResultInfo::setErrors(const QVariantList &value)
 {
-
     p->errors=value;
 }
 
 QVariantList &ResultInfo::messages()
 {
-
     return p->messages;
 }
 
 void ResultInfo::setMessages(const QVariantList &value)
 {
-
     p->messages=value;
 }
 
 int ResultInfo::success() const
 {
-
     return p->success;
 }
 
 void ResultInfo::setSuccess(bool value)
 {
-
     p->success=value;
 }
 
 int ResultInfo::page() const
 {
-
     return p->page;
 }
 
 void ResultInfo::setPage(int value)
 {
-
     p->page = value;
 }
 
-int ResultInfo::per_page() const
+int ResultInfo::perPage() const
 {
-
     return p->per_page;
 }
 
-void ResultInfo::setPer_page(int value)
+void ResultInfo::setPerPage(int value)
 {
-
     p->per_page = value;
 }
 
 int ResultInfo::count() const
 {
-
     return p->count;
 }
 
 void ResultInfo::setCount(int value)
 {
-
     p->count = value;
 }
 
-int ResultInfo::total_count() const
+int ResultInfo::totalCount() const
 {
-
     return p->total_count;
 }
 
-void ResultInfo::setTotal_count(int value)
+void ResultInfo::setTotalCount(int value)
 {
-
     p->total_count = value;
 }
 
-int ResultInfo::total_pages() const
+int ResultInfo::totalPages() const
 {
-
     return p->total_pages;
 }
 
-void ResultInfo::setTotal_pages(int value)
+void ResultInfo::setTotalPages(int value)
 {
-
     p->total_pages = value;
 }
 
@@ -180,31 +160,31 @@ const QVariantHash ResultInfo::toRequestHash() const
 {
     QVariantHash v;
     v[QT_STRINGIFY(page)]=this->page();
-    v[QT_STRINGIFY(per_page)]=this->per_page();
+    v[QT_STRINGIFY(per_page)]=this->perPage();
     return v;
 }
 
-QVariantMap ResultInfo::toMap()const
-{
-    QVariantMap __return;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        __return.insert(property.name(), property.read(this));
-    }
-    return __return;
-}
+//QVariantMap ResultInfo::toMap()const
+//{
+//    QVariantMap __return;
+//    auto &metaObject = *this->metaObject();
+//    for(int col = 0; col < metaObject.propertyCount(); ++col) {
+//        auto property = metaObject.property(col);
+//        __return.insert(property.name(), property.read(this));
+//    }
+//    return __return;
+//}
 
-QVariantHash ResultInfo::toHash() const
-{
-    QVariantHash __return;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        __return.insert(property.name(), property.read(this));
-    }
-    return __return;
-}
+//QVariantHash ResultInfo::toHash() const
+//{
+//    QVariantHash __return;
+//    auto &metaObject = *this->metaObject();
+//    for(int col = 0; col < metaObject.propertyCount(); ++col) {
+//        auto property = metaObject.property(col);
+//        __return.insert(property.name(), property.read(this));
+//    }
+//    return __return;
+//}
 
 QVariant ResultInfo::toVar()const
 {

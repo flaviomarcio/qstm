@@ -45,7 +45,7 @@ public:
         this->resultVariant = {};
     }
 
-    bool isOk()
+    bool isOk()const
     {
         if(this->returnType==ResultValue::Information || this->returnType==ResultValue::None)
             return true;
@@ -154,8 +154,6 @@ public:
 
     ResultValue &setResult(const QVariant &value)
     {
-        this->clearReturn();
-
         switch (value.typeId()) {
         case QMetaType::Bool:
             this->resultBool = value.toBool();
@@ -173,6 +171,7 @@ public:
             {
                 QObject *object=value.value<QObject*>();
                 if(object){
+                    this->clearReturn();
                     MetaObjectUtil util;
                     resultItem.resultVariant=util.toHash(object);
                     break;
@@ -181,6 +180,7 @@ public:
             break;
         }
         default:
+            this->clearReturn();
             resultItem.resultVariant=value;
         };
         return *parent;
@@ -204,6 +204,8 @@ public:
 
     void makeResult()
     {
+        static auto __resultInfo="resultInfo";
+        this->resultBool=true;
         if (this->isOk()) {
             this->resultInfo.clearErrors();
             resultInfo.setSuccess(true);
@@ -222,10 +224,10 @@ public:
         if(!this->parent->returnText().isEmpty()){
             resultInfo.setSuccess(false);
             auto &msgs=resultInfo.errors();
-            msgs.clear();
             msgs.append(this->parent->returnText());
         }
-
+        this->resultItem.resultVariant=QVariantHash{{__resultInfo,this->resultInfo.toHash()}};
+        this->resultBool=false;
         QList<ResultValue *> listParentResultValue;
         auto pp = dynamic_cast<QStm::Object *>(this->parent->parent());
 
@@ -233,11 +235,11 @@ public:
             pp=dynamic_cast<QStm::Object *>(pp->parent());
 
         while (pp) {
-            const auto&lr=&pp->lr();
+            const auto &lr = &pp->lr();
             listParentResultValue.insert(0, lr);
             pp = dynamic_cast<QStm::Object *>(pp->parent());
         }
-        sWarning() << this->resultItem.toString();
+        sWarning() << this->resultItem.toString();//TODO INCLUIR DIRECTIVA PARA OCULTAR O ERRO
         for(int i=listParentResultValue.count()-1; i>0;i--){
             parent=listParentResultValue.at(i);
             if(parent->parent())
@@ -246,7 +248,7 @@ public:
         }
     }
 
-    bool isOk()
+    bool isOk()const
     {
         if (QThread::currentThread()->isInterruptionRequested())
             return false;
@@ -299,7 +301,7 @@ public:
         this->data = this->toHash();
         this->resultBool = pvt->resultBool;
         this->resultItem = pvt->resultItem;
-        this->resultInfo.fromHash(pvt->resultInfo.toHash());
+        this->resultInfo.readFrom(pvt->resultInfo.toHash());
     }
 
     void readFull(const ResultValuePvt *pvt)
@@ -309,7 +311,7 @@ public:
             return;
         }
 
-        auto aux = (!this->isOk()) ? false : this->resultBool;
+        auto aux = (!pvt->isOk()) ? false : this->resultBool;
         this->data = pvt->data;
         this->resultItem = pvt->resultItem;
         this->resultBool = pvt->resultBool;
@@ -1039,7 +1041,7 @@ ResultValue &ResultValue::setCode(const QVariant &statusCode, const QVariant &re
 {
     if (statusCodeSuccessList->contains(statusCode.toInt())){
         this->setInformation(QVariant{});
-        return*this;
+        return *this;
     }
 
     const auto &returnType = staticMakeArStats->key(statusCode.toInt());

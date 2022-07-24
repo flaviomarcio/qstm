@@ -19,15 +19,15 @@ const static QString toBytes(const QVariant &v)
     }
 }
 
-QVVM::QVVM():QVariantHash()
+QVVM::QVVM():QVariantHash{}
 {
 }
 
-QVVM::QVVM(const QVariant &other):QVariantHash(other.toHash())
+QVVM::QVVM(const QVariant &other):QVariantHash{other.toHash()}
 {
 }
 
-QVVM::QVVM(const QVariant &key, const QVariant &value):QVariantHash()
+QVVM::QVVM(const QVariant &key, const QVariant &value):QVariantHash{}
 {
     QVariantHash::insert(toBytes(key), toBytes(value));
 }
@@ -42,7 +42,7 @@ QVVM &QVVM::operator=(const QVariant &v)
         i.next();
         this->insert(i.key(), i.value());
     }
-    return*this;
+    return *this;
 }
 
 QVVM &QVVM::operator+=(const QVariantHash &v)
@@ -52,7 +52,7 @@ QVVM &QVVM::operator+=(const QVariantHash &v)
         i.next();
         this->insert(i.key(), i.value());
     }
-    return*this;
+    return *this;
 }
 
 QVVM &QVVM::operator+=(const QVariantMap &v)
@@ -62,7 +62,7 @@ QVVM &QVVM::operator+=(const QVariantMap &v)
         i.next();
         this->insert(i.key(), i.value());
     }
-    return*this;
+    return *this;
 }
 
 QVVM QVVM::from(const QVariantHash &v)

@@ -227,7 +227,7 @@ Message &Message::operator=(const QVariant &v)
 {
 
     p->setVar(v);
-    return*this;
+    return *this;
 }
 
 Message &Message::operator<<(const QStm::Url &v)
@@ -257,14 +257,14 @@ Message &Message::setVariables(const QVariant &v)
 
     p->variables=v.toHash();
     p->setVar(p->body);
-    return*this;
+    return *this;
 }
 
 Message &Message::read(const QVariant &v)
 {
 
     p->setVar(v);
-    return*this;
+    return *this;
 }
 
 bool Message::isValid() const
@@ -308,14 +308,14 @@ Message &Message::name(const QVariant &value)
 {
 
     p->name=value.toString();
-    return*this;
+    return *this;
 }
 
 Message &Message::setName(const QVariant &value)
 {
 
     p->name=value.toString();
-    return*this;
+    return *this;
 }
 
 QString Message::attachmentName() const
@@ -328,14 +328,14 @@ Message &Message::attachmentName(const QVariant &value)
 {
 
     p->attachmentName=value.toString();
-    return*this;
+    return *this;
 }
 
 Message &Message::setAttachmentName(const QVariant &value)
 {
 
     p->attachmentName=value.toString();
-    return*this;
+    return *this;
 }
 
 QString Message::typeId() const

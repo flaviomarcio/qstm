@@ -95,7 +95,7 @@ public:
     //! \brief toHash
     //! \return
     //!
-    Q_INVOKABLE const virtual QVariantHash toHash();
+    Q_INVOKABLE const virtual QVariantHash toHash()const;
 
     //!
     //! \brief toMd5

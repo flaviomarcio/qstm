@@ -77,7 +77,7 @@ CachePool &CachePool::instance(QThread*currentThread)
 CachePool &CachePool::clear()
 {
     p->clear();
-    return*this;
+    return *this;
 }
 
 bool CachePool::get(const QVariant &key, QVariant &value) const

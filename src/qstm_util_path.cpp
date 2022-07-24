@@ -48,7 +48,7 @@ PathUtil::~PathUtil()
 PathUtil &PathUtil::operator=(const QVariant &v)
 {
     this->setPath(v);
-    return*this;
+    return *this;
 }
 
 PathUtil &PathUtil::operator+=(const QVariant &v)
@@ -66,7 +66,7 @@ PathUtil &PathUtil::operator<<(const QVariant &v)
 {
 
     this->setPath(p->v+q_dir_separator+v.toString());
-    return*this;
+    return *this;
 }
 
 bool PathUtil::exists(const QVariant &v) const
@@ -89,14 +89,14 @@ PathUtil &PathUtil::clear()
 {
 
     p->clear();
-    return*this;
+    return *this;
 }
 
 PathUtil &PathUtil::setPath(const QVariant &v)
 {
 
     p->v=p->format(v.toString());
-    return*this;
+    return *this;
 }
 
 PathUtil &PathUtil::append(const QVariant &v)

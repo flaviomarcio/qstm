@@ -96,7 +96,7 @@ const QString ObjectWrapper::toJson()
     return QJsonDocument::fromVariant(hash).toJson(QJsonDocument::Compact);
 }
 
-const QVariantHash ObjectWrapper::toHash()
+const QVariantHash ObjectWrapper::toHash()const
 {
     auto __return=extractHash(this);
     return __return;

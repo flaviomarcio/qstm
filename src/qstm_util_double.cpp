@@ -13,7 +13,7 @@ DoubleUtil::~DoubleUtil()
 DoubleUtil &DoubleUtil::operator=(const QVariant &v)
 {
     this->setValue(v);
-    return*this;
+    return *this;
 }
 
 bool DoubleUtil::checkBetween(double &vMin, double &vMax)

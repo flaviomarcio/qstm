@@ -177,7 +177,7 @@ FormattingUtil::~FormattingUtil()
 FormattingUtil &FormattingUtil::operator=(const QVariant &v)
 {
     QVariant::setValue(v);
-    return*this;
+    return *this;
 }
 
 const QString FormattingUtil::toDate(const QVariant &v)

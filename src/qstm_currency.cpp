@@ -65,42 +65,42 @@ QCurrency &QCurrency::operator +(const QCurrency &o)
 
     p->qbcmath+o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 QCurrency &QCurrency::operator -(const QCurrency &o) {
 
     p->qbcmath-o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 QCurrency &QCurrency::operator *(const QCurrency &o) {
 
     p->qbcmath*o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 QCurrency &QCurrency::operator /(const QCurrency &o) {
 
     p->qbcmath/o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 QCurrency &QCurrency::operator %(const QCurrency &o) {
 
     p->qbcmath%o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 QCurrency &QCurrency::operator ^(const QCurrency &o) {
 
     p->qbcmath^o.toDouble();
     p->setValue(p->qbcmath.toDouble());
-    return*this;
+    return *this;
 }
 
 void QCurrency::operator+=(const QVariant &o) {

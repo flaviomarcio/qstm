@@ -109,7 +109,7 @@ QString SettingBase::service() const
 SettingBase &SettingBase::setService(const QString &value)
 {
     this->setIdentification(value);
-    return*this;
+    return *this;
 }
 
 QVariantHash SettingBase::headers() const
@@ -120,7 +120,7 @@ QVariantHash SettingBase::headers() const
 SettingBase &SettingBase::setHeaders(const QVariantHash &value)
 {
     p->headers = value;
-    return*this;
+    return *this;
 }
 
 QVariant SettingBase::protocol() const
@@ -141,7 +141,7 @@ SettingBase &SettingBase::setProtocol(const QVariant &value)
     default:
         p->protocol=value;
     }
-    return*this;
+    return *this;
 }
 
 QString SettingBase::method() const
@@ -152,7 +152,7 @@ QString SettingBase::method() const
 SettingBase &SettingBase::setMethod(const QString &value)
 {
     p->method=value;
-    return*this;
+    return *this;
 }
 
 QString SettingBase::driverName() const
@@ -163,7 +163,7 @@ QString SettingBase::driverName() const
 SettingBase &SettingBase::setDriverName(const QString &value)
 {
     p->driverName=value;
-    return*this;
+    return *this;
 }
 
 QString SettingBase::hostName() const
@@ -174,7 +174,7 @@ QString SettingBase::hostName() const
 SettingBase &SettingBase::setHostName(const QString &value)
 {
     p->hostName = value.trimmed();
-    return*this;
+    return *this;
 }
 
 QString SettingBase::userName() const
@@ -185,7 +185,7 @@ QString SettingBase::userName() const
 SettingBase &SettingBase::setUserName(const QString &value)
 {
     p->userName = value.trimmed();
-    return*this;
+    return *this;
 }
 
 QString SettingBase::password() const
@@ -196,7 +196,7 @@ QString SettingBase::password() const
 SettingBase &SettingBase::setPassword(const QString &value)
 {
     p->password = value.trimmed();
-    return*this;
+    return *this;
 }
 
 int SettingBase::port() const
@@ -207,7 +207,7 @@ int SettingBase::port() const
 SettingBase &SettingBase::setPort(int value)
 {
     p->port = value;
-    return*this;
+    return *this;
 }
 
 QVariant SettingBase::route() const
@@ -232,7 +232,7 @@ QVariantList SettingBase::routeList() const
 SettingBase &SettingBase::setRoute(const QVariant &value)
 {
     p->route = value;
-    return*this;
+    return *this;
 }
 
 QString SettingBase::path() const
@@ -243,7 +243,7 @@ QString SettingBase::path() const
 SettingBase &SettingBase::setPath(const QString &value)
 {
     p->path = value.trimmed();
-    return*this;
+    return *this;
 }
 
 QVariantHash SettingBase::parameters() const
@@ -254,7 +254,7 @@ QVariantHash SettingBase::parameters() const
 SettingBase &SettingBase::setParameters(const QVariantHash &value)
 {
     p->parameters=value;
-    return*this;
+    return *this;
 }
 
 QVariant SettingBase::body() const
@@ -265,7 +265,7 @@ QVariant SettingBase::body() const
 SettingBase &SettingBase::setBody(const QVariant &value)
 {
     p->body=value;
-    return*this;
+    return *this;
 }
 
 int SettingBase::cacheInterval() const
@@ -276,7 +276,7 @@ int SettingBase::cacheInterval() const
 SettingBase &SettingBase::setCacheInterval(const QVariant &value)
 {
     p->cacheInterval=value.toInt();
-    return*this;
+    return *this;
 }
 
 bool SettingBase::cacheCleanup() const
@@ -287,7 +287,7 @@ bool SettingBase::cacheCleanup() const
 SettingBase &SettingBase::setCacheCleanup(const QVariant &value)
 {
     p->cacheCleanup=value.toBool();
-    return*this;
+    return *this;
 }
 
 int SettingBase::cacheCleanupInterval() const
@@ -298,7 +298,7 @@ int SettingBase::cacheCleanupInterval() const
 SettingBase &SettingBase::setCacheCleanupInterval(const QVariant &value)
 {
     p->cacheCleanupInterval=value.toInt();
-    return*this;
+    return *this;
 }
 
 }

@@ -4,7 +4,7 @@
 #include <QVariant>
 #include <QVariantList>
 #include <QVariantHash>
-#include "./qstm_global.h"
+#include "./qstm_object_wrapper.h"
 
 namespace QStm {
 class ResultInfoPvt;
@@ -12,7 +12,7 @@ class ResultInfoPvt;
 //! \brief The ResultInfo class
 //!
 //! class page navigator
-class Q_STM_EXPORT ResultInfo:public QObject
+class Q_STM_EXPORT ResultInfo:public ObjectWrapper
 {
     Q_OBJECT
 
@@ -20,10 +20,10 @@ class Q_STM_EXPORT ResultInfo:public QObject
     Q_PROPERTY(QVariantList messages READ messages WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
     Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged)
-    Q_PROPERTY(int per_page READ per_page WRITE setPer_page NOTIFY per_pageChanged)
+    Q_PROPERTY(int per_page READ perPage WRITE setPerPage NOTIFY perPageChanged)
     Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
-    Q_PROPERTY(int total_count READ total_count WRITE setTotal_count NOTIFY total_countChanged)
-    Q_PROPERTY(int total_pages READ total_pages WRITE setTotal_pages NOTIFY total_pagesChanged)
+    Q_PROPERTY(int total_count READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
+    Q_PROPERTY(int total_pages READ totalPages WRITE setTotalPages NOTIFY totalPagesChanged)
 
 public:
     //!
@@ -67,13 +67,13 @@ public:
     //! \brief errors
     //! \return
     //! return errors to server
-    virtual QVariantList&errors();
+    virtual QVariantList &errors();
 
     //!
     //! \brief setErrors
     //! \param value
     //!
-    virtual void setErrors(const QVariantList&value);
+    virtual void setErrors(const QVariantList &value);
 
     //!
     //! \brief messages
@@ -81,13 +81,13 @@ public:
     //!
     //!
     //! return message to server
-    virtual QVariantList&messages();
+    virtual QVariantList &messages();
 
     //!
     //! \brief setMessages
     //! \param value
     //!
-    void setMessages(const QVariantList&value);
+    void setMessages(const QVariantList &value);
 
     //!
     //! \brief success
@@ -116,17 +116,17 @@ public:
     void setPage(int value);
 
     //!
-    //! \brief per_page
+    //! \brief perPage
     //! \return
     //!
     //! rows per page
-    int per_page() const;
+    int perPage() const;
 
     //!
-    //! \brief setPer_page
+    //! \brief setPerPage
     //! \param value
     //!
-    void setPer_page(int value);
+    void setPerPage(int value);
 
     //!
     //! \brief count
@@ -142,25 +142,23 @@ public:
     void setCount(int value);
 
     //!
-    //! \brief total_count
+    //! \brief totalCount
     //! \return
-    //!
     //! total rows to all pages
-    int total_count() const;
+    int totalCount() const;
 
     //!
-    //! \brief setTotal_count
+    //! \brief setTotalCount
     //! \param value
     //!
-    void setTotal_count(int value);
+    void setTotalCount(int value);
 
     //!
-    //! \brief total_pages
+    //! \brief totalPages
     //! \return
-    //!
     //! total pages
-    int total_pages() const;
-    void setTotal_pages(int value);
+    int totalPages() const;
+    void setTotalPages(int value);
 
     //!
     //! \brief toRequestHash
@@ -168,17 +166,17 @@ public:
     //!
     virtual const QVariantHash toRequestHash() const;
 
-    //!
-    //! \brief toMap
-    //! \return
-    //!
-    virtual QVariantMap toMap() const;
+//    //!
+//    //! \brief toMap
+//    //! \return
+//    //!
+//    virtual QVariantMap toMap() const;
 
-    //!
-    //! \brief toHash
-    //! \return
-    //!
-    virtual QVariantHash toHash() const;
+//    //!
+//    //! \brief toHash
+//    //! \return
+//    //!
+//    virtual QVariantHash toHash() const;
 
     //!
     //! \brief toVar
@@ -221,10 +219,10 @@ signals:
     void messagesChanged();
     void successChanged();
     void pageChanged();
-    void per_pageChanged();
+    void perPageChanged();
     void countChanged();
-    void total_countChanged();
-    void total_pagesChanged();
+    void totalCountChanged();
+    void totalPagesChanged();
 };
 
 }

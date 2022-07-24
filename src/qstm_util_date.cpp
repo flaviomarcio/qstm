@@ -128,7 +128,7 @@ DateUtil::~DateUtil()
 DateUtil&DateUtil::operator=(const QVariant &v)
 {
     this->setValue(v);
-    return*this;
+    return *this;
 }
 
 QDateTime DateUtil::firstMonthDate(const QVariant &v) const

@@ -202,7 +202,7 @@ MetaObjectUtil &MetaObjectUtil::operator=(const QMetaObject &v)
 
     p->metaObjectList.clear();
     p->metaObjectList.append(&v);
-    return*this;
+    return *this;
 }
 
 MetaObjectUtil &MetaObjectUtil::operator+=(const QMetaObject &v)
@@ -210,7 +210,7 @@ MetaObjectUtil &MetaObjectUtil::operator+=(const QMetaObject &v)
 
     p->metaObjectList.clear();
     p->metaObjectList.append(&v);
-    return*this;
+    return *this;
 }
 
 MetaObjectUtil &MetaObjectUtil::operator-=(const QMetaObject &v)
@@ -219,7 +219,7 @@ MetaObjectUtil &MetaObjectUtil::operator-=(const QMetaObject &v)
     Q_UNUSED(v)
     p->metaObjectList.clear();
     p->metaObjectList<<&QObject::staticMetaObject;
-    return*this;
+    return *this;
 }
 
 MetaObjectUtil &MetaObjectUtil::operator<<(const QMetaObject &v)
@@ -227,7 +227,7 @@ MetaObjectUtil &MetaObjectUtil::operator<<(const QMetaObject &v)
 
     p->metaObjectList.clear();
     p->metaObjectList.append(&v);
-    return*this;
+    return *this;
 }
 
 QObject *MetaObjectUtil::newInstance(QObject*parent){

@@ -94,7 +94,7 @@ Url &Url::operator=(const QVariant &v)
 {
 
     p->setVar(v);
-    return*this;
+    return *this;
 }
 
 Url Url::from(const QVariant &v)
@@ -107,7 +107,7 @@ Url &Url::read(const QVariant &v)
 {
 
     p->setVar(v);
-    return*this;
+    return *this;
 }
 
 QVariantHash &Url::headers() const

@@ -384,7 +384,7 @@ VariantUtil::~VariantUtil()
 VariantUtil&VariantUtil::operator=(const QVariant &v)
 {
     this->setValue(v);
-    return*this;
+    return *this;
 }
 
 bool VariantUtil::isUuid(const QVariant &v) const
@@ -906,7 +906,7 @@ VariantUtil &VariantUtil::makeVVM(const QVariant &key, const QVariant &value)
 {
     p->vvm.insert(key, value);
     this->setValue({});
-    return*this;
+    return *this;
 }
 
 VariantUtil &VariantUtil::mVVM(const QVariant &key, const QVariant &value)
@@ -920,7 +920,7 @@ VariantUtil &VariantUtil::makeMap(const QVariant &key, const QVariant &value)
     auto map=QVariant::toMap();
     map[key.toString()]=value;
     this->setValue(map);
-    return*this;
+    return *this;
 }
 
 VariantUtil &VariantUtil::mMap(const QVariant &key, const QVariant &value)
@@ -934,7 +934,7 @@ VariantUtil &VariantUtil::makeHash(const QVariant &key, const QVariant &value)
     auto map=QVariant::toHash();
     map[key.toString()]=value;
     this->setValue(map);
-    return*this;
+    return *this;
 }
 
 VariantUtil &VariantUtil::mHash(const QVariant &key, const QVariant &value)
@@ -948,7 +948,7 @@ VariantUtil &VariantUtil::makeList(const QVariant &value)
     auto list=QVariant::toList();
     list.append(value);
     this->setValue(list);
-    return*this;
+    return *this;
 }
 
 VariantUtil &VariantUtil::mList(const QVariant &value)
@@ -1027,7 +1027,7 @@ const QUuid VariantUtil::toUuidCompuser(const QVariant &value)
 VariantUtil &VariantUtil::clear()
 {
     p->clear();
-    return*this;
+    return *this;
 }
 
 QVariant VariantUtil::vUnion(const QVariant &v)
