@@ -105,6 +105,7 @@ static const auto vtInputComboBox="inputcombobox";
 static const auto vtInputCurrency="inputcurrency";
 static const auto vtInputDate="inputdate";
 static const auto vtInputDateTime="inputdatetime";
+static const auto vtInputWeight="inputweight";
 static const auto vtInputDouble="inputdouble";
 static const auto vtInputInt="inputint";
 static const auto vtInputMail="inputemail";
