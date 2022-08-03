@@ -53,7 +53,7 @@ void QStm::SettingManagerPvt::clear()
 QVariantHash QStm::SettingManagerPvt::toHash()
 {
     QVariantHash vHash, vServices;
-    auto vList=QList<SettingBase*>()<<&this->settingsDefault;
+    auto vList=QList<SettingBase*>{&this->settingsDefault};
     vList=vList+this->settings.values();
     for(auto &v:vList)
         vServices.insert(v->name(), v->toHash());
@@ -203,7 +203,7 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
         }
         auto map=doc.object().toVariantHash();
         if(!map.isEmpty())
-            vList<<map;
+            vList.append(map);
     }
     Q_DECLARE_VU;
     auto vMap=vu.vMerge(vList).toHash();

@@ -54,8 +54,6 @@
 
 #define qvm_null QVariantMap{}
 
-#define qvl_null QVariantList{}
-
 #define qvsl_null QStringList{}
 
 #define qsl_pipe QStringLiteral("|")
