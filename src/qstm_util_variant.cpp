@@ -789,6 +789,56 @@ const QMultiHash<QString, QVariant> VariantUtil::toMultiHash(const QVariant &key
     return QMultiHash<QString, QVariant>{this->toHash(key, value)};
 }
 
+const QVariantHash VariantUtil::toAttributes(const QString &attributeName, const QVariant &v)
+{
+    QVariant value;
+    switch (v.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
+    case QMetaType::QVariantList:
+        value=v;
+        break;
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+        value=QJsonDocument::fromJson(v.toByteArray()).toVariant();
+        break;
+    default:
+        return {};
+    }
+
+    QVariantList vList;
+    switch (value.typeId()) {
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
+        vList.append(value);
+        break;
+    case QMetaType::QVariantList:
+        vList=value.toList();
+        break;
+    default:
+        return {};
+    }
+    QVariantHash __return;
+    for(auto&vItem:vList){
+        auto vHash=vItem.toHash();
+        if(vHash.isEmpty())
+            continue;
+        QHashIterator<QString, QVariant> i(vHash);
+        auto key1=attributeName.trimmed().toLower();
+        while(i.hasNext()){
+            i.next();
+            auto key2=i.key().trimmed().toLower();
+            if(key1.isEmpty() || (key1!=key2))
+                continue;
+            auto row=__return.value(key2).toList();
+            if(!row.contains(i.value()))
+                row.append(i.value());
+            __return.insert(key2,row);
+        }
+    }
+    return __return;
+}
+
 const QVariant VariantUtil::toType(int typeId, const QVariant &v)
 {
     __setValue(v);

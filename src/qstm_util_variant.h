@@ -358,6 +358,14 @@ public:
     const virtual QMultiHash<QString, QVariant> toMultiHash(const QVariant &key, const QVariant &value);
 
     //!
+    //! \brief toAttributes
+    //! \param attributeName
+    //! \param v
+    //! \return
+    //!
+    const QVariantHash toAttributes(const QString &attributeName, const QVariant &v);
+
+    //!
     //! \brief toType
     //! \param type
     //! \param v

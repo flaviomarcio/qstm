@@ -103,7 +103,7 @@ void StartUp::setInterval(int newInterval)
 
 void StartUp::resetInterval()
 {
-    setInterval({}); // TODO: Adapt to use your actual default value
+    setInterval({}); 
 }
 
 bool StartUp::enabled() const
@@ -121,7 +121,7 @@ void StartUp::setEnabled(bool newEnabled)
 
 void StartUp::resetEnabled()
 {
-    setEnabled({}); // TODO: Adapt to use your actual default value
+    setEnabled({}); 
 }
 
 } // namespace QStm
