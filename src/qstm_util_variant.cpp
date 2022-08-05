@@ -54,6 +54,11 @@ public:
         case QMetaType::QVariantMap:
         case QMetaType::QVariantHash:
             return v.toHash();
+        case QMetaType::QVariantList:
+        {
+            auto list=v.toList();
+            return list.isEmpty()?QVariantHash{}:list.first().toHash();
+        }
         case QMetaType::QString:
         case QMetaType::QByteArray:
             return makeFromJson();
