@@ -117,6 +117,7 @@ static const auto vtInputText="inputtext";
 static const auto vtInputTextArea="inputtextarea";
 static const auto vtInputTextMask="inputtextmask";
 static const auto vtInputTextSearch="inputtextsearch";
+static const auto vtInputTextWeight="inputtextweight";
 static const auto vtInputTime="inputtime";
 static const auto vtInputUuid="inputuuid";
 
