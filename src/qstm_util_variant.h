@@ -359,11 +359,11 @@ public:
 
     //!
     //! \brief toAttributes
-    //! \param attributeName
     //! \param v
+    //! \param attributeName
     //! \return
     //!
-    const QVariantHash toAttributes(const QString &attributeName, const QVariant &v);
+    const QVariantHash toAttributes(const QVariant &v, const QVariant &attributeNames={});
 
     //!
     //! \brief toType
