@@ -11,7 +11,7 @@ Q_INVOKABLE explicit Manager(const QString &settingFileName, QObject *parent = n
 Setting &setting(){ auto setting=&QStm::SettingManager::setting(); return*dynamic_cast<Setting*>(setting); } \
 Setting &setting(const QString &value){ auto setting=&QStm::SettingManager::setting(value); return*dynamic_cast<Setting*>(setting); } \
 Setting *settingClone(const QString &value){ auto setting=QStm::SettingManager::settingClone(value); return dynamic_cast<Setting*>(setting); } \
-virtual QObject*settingCreate(QObject*parent){ return new Setting(parent); }
+virtual QObject*settingCreate(QObject *parent){ return new Setting(parent); }
 
 
 namespace QStm {
@@ -90,7 +90,7 @@ public:
     //! \param parent
     //! \return
     //!
-    virtual QObject *settingCreate(QObject*parent);
+    virtual QObject *settingCreate(QObject *parent);
 
     //!
     //! \brief load

@@ -22,7 +22,7 @@ class Q_STM_EXPORT Network:public QObject
     Q_PROPERTY(QByteArray APPLICATION_X_WWW_FORT_URLENCODED MEMBER APPLICATION_X_WWW_FORT_URLENCODED CONSTANT)
 public:
 
-    explicit Network(QObject*parent=nullptr);
+    explicit Network(QObject *parent=nullptr);
 
     const int HTTP_PORT_DEFAULT=80;
     const int HTTP_PORT_DEBUG=8080;

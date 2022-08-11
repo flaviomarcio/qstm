@@ -18,7 +18,7 @@ namespace QStm {
 
 class SettingBasePvt{
 public:
-    QObject*parent=nullptr;
+    QObject *parent=nullptr;
     QVariantHash headers;
     QVariantHash parameters;
     QVariant body;
@@ -35,7 +35,7 @@ public:
     bool cacheCleanup=false;
     int cacheCleanupInterval=0;
 
-    explicit SettingBasePvt(QObject*parent)
+    explicit SettingBasePvt(QObject *parent)
     {
         this->parent=parent;
     }

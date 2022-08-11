@@ -93,7 +93,7 @@ public:
     //! \brief SettingBaseTemplate
     //! \param parent
     //!
-    explicit SettingBaseTemplate(QObject*parent=nullptr);
+    explicit SettingBaseTemplate(QObject *parent=nullptr);
 
     //!
     //! \brief clear

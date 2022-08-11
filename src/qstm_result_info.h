@@ -30,7 +30,7 @@ public:
     //! \brief ResultInfo constructor
     //! \param parent
     //!
-    Q_INVOKABLE explicit ResultInfo(QObject*parent=nullptr);
+    Q_INVOKABLE explicit ResultInfo(QObject *parent=nullptr);
 
     //! \brief ResultInfo destructor
     //!

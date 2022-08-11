@@ -230,7 +230,7 @@ MetaObjectUtil &MetaObjectUtil::operator<<(const QMetaObject &v)
     return *this;
 }
 
-QObject *MetaObjectUtil::newInstance(QObject*parent){
+QObject *MetaObjectUtil::newInstance(QObject *parent){
 
     auto &__metaObject=*p->metaObjectList.first();
     auto object=__metaObject.newInstance(Q_ARG(QObject*, parent));

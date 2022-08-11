@@ -64,7 +64,7 @@ Q_COREAPP_STARTUP_FUNCTION(init);
 class SettingBaseTemplatePrv: public QObject
 {
 public:
-    QObject*parent=nullptr;
+    QObject *parent=nullptr;
     QString identification;
     QVariantHash variables;
     QString name;
@@ -74,7 +74,7 @@ public:
     int activityThread=0;
     QVariant memoryLimit=0;
 
-    explicit SettingBaseTemplatePrv(QObject*parent=nullptr):QObject{parent}
+    explicit SettingBaseTemplatePrv(QObject *parent=nullptr):QObject{parent}
     {
         this->parent=parent;
     }

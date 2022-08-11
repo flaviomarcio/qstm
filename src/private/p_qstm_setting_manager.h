@@ -21,7 +21,7 @@ public:
     QVariantHash variables;
     QHash<QString, SettingBase*> settings;
     SettingManager*parent=nullptr;
-    QObject*parentParent=nullptr;
+    QObject *parentParent=nullptr;
 
     explicit SettingManagerPvt(SettingManager*parent);
 
@@ -39,7 +39,7 @@ public:
 
     SettingBase&settingGetCheck(const QByteArray &settingName);
 
-    SettingBase*settingCreate(QObject*parent);
+    SettingBase*settingCreate(QObject *parent);
 
     SettingManager &insert(const QVariantHash &value);
 

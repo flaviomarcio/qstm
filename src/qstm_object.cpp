@@ -19,8 +19,8 @@ public:
     CachePool *_cachePool=nullptr;
     QByteArray storedMd5;
     ResultValue result;
-    QObject*parent=nullptr;
-    explicit ObjectPvt(QObject*parent)
+    QObject *parent=nullptr;
+    explicit ObjectPvt(QObject *parent)
     {
         this->parent=parent;
         result.setParent(parent);

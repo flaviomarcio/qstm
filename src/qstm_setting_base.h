@@ -18,7 +18,7 @@ public:
     //! \brief SettingBase
     //! \param parent
     //!
-    Q_INVOKABLE explicit SettingBase(QObject*parent=nullptr);
+    Q_INVOKABLE explicit SettingBase(QObject *parent=nullptr);
 
     //!
     //! \brief ~SettingBase

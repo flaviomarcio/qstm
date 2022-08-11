@@ -35,7 +35,7 @@ class Q_STM_EXPORT Object: public QObject
 {
     Q_OBJECT
 public:
-    Q_INVOKABLE explicit Object(QObject*parent=nullptr);
+    Q_INVOKABLE explicit Object(QObject *parent=nullptr);
     ~Object();
 
     //!
