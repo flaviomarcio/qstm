@@ -15,7 +15,7 @@ class ResultInfoPvt;
 class Q_STM_EXPORT ResultInfo:public ObjectWrapper
 {
     Q_OBJECT
-
+    QSTM_OBJECT_WRAPPER(ResultInfo)
     Q_PROPERTY(QVariantList errors READ errors WRITE setErrors NOTIFY errorsChanged)
     Q_PROPERTY(QVariantList messages READ messages WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)

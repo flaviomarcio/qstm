@@ -719,7 +719,14 @@ const QStringList VariantUtil::toStringList(const QVariant &v)
 const QVariantList VariantUtil::toList(const QVariant &v)
 {
     __setValue(v);
-    return this->toVariantObject(v).toList();
+    auto newV=this->toVariantObject(v);
+    switch (newV.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
+        return v.toList();
+    default:
+        return QVariantList{{v}};
+    }
 }
 
 QVariantMap VariantUtil::toMap() const

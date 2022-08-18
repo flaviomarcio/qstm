@@ -24,3 +24,4 @@
 #include "../src/qstm_object_wrapper.h"
 #include "../src/qstm_startup.h"
 #include "../src/qstm_types_const.h"
+#include "../src/qstm_meta_enum.h"

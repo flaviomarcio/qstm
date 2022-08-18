@@ -31,7 +31,7 @@ class ResultValuePvt;
 class Q_STM_EXPORT ResultValue : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantHash data READ data WRITE setData NOTIFY dataChanged)
+    Q_PROPERTY(QVariantHash data READ data NOTIFY dataChanged)
 public:
     enum MessageType {
         None = 1,
@@ -53,12 +53,6 @@ public:
     //!
     //! constructor
     Q_INVOKABLE explicit ResultValue(QObject *parent = nullptr);
-
-    //!
-    //! \brief ~ResultValue
-    //!
-    ~ResultValue();
-
 
     //!
     //! \brief operator ==
@@ -234,10 +228,16 @@ public:
     virtual ResultValue &clear();
 
     //!
+    //! \brief clearScope
+    //! \return
+    //!
+    virtual ResultValue &clearScope();
+
+    //!
     //! \brief toMap
     //! \return
     //!
-    virtual const QVariantMap toMap();
+    virtual const QVariantMap &toMap();
 
     //!
     //! \brief toHash
@@ -261,7 +261,7 @@ public:
     //! \brief returnCode
     //! \return
     //!
-    virtual QVariant &returnCode() const;
+    virtual QByteArray &returnCode() const;
 
     //!
     //! \brief returnText
@@ -543,12 +543,6 @@ public:
     //! \return
     //!
     virtual QVariantHash data() const;
-
-    //!
-    //! \brief setData
-    //! \param data
-    //!
-    virtual void setData(const QVariantHash &data);
 
     //!
     //! \brief stateCode

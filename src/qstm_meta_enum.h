@@ -2,6 +2,7 @@
 
 #include "./qstm_global.h"
 #include <QMetaEnum>
+#include <QVariant>
 
 namespace QStm {
 

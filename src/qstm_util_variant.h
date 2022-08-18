@@ -292,7 +292,7 @@ public:
     //! \param v
     //! \return
     //!
-    virtual const QVariantList toList(const QVariant &v=QVariant());
+    virtual const QVariantList toList(const QVariant &v={});
 
     //!
     //! \brief toMap
@@ -371,7 +371,7 @@ public:
     //! \param v
     //! \return
     //!
-    const QVariant toType(int typeId, const QVariant &v=QVariant());
+    const QVariant toType(int typeId, const QVariant &v={});
 
     //!
     //! \brief toVariant
