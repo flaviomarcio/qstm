@@ -37,13 +37,12 @@ class Q_STM_EXPORT ObjectWrapper : public QObject
     Q_OBJECT
     QSTM_OBJECT_WRAPPER(ObjectWrapper)
     QSTM_OBJECT_WRAPPER_MD5_IGNORE()
-
 public:
     //!
     //! \brief ObjectWrapper
     //! \param parent
     //!
-    explicit ObjectWrapper(QObject *parent = nullptr);
+    Q_INVOKABLE explicit ObjectWrapper(QObject *parent = nullptr);
 
     //!
     //! \brief printProperties
