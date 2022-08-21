@@ -78,7 +78,7 @@ public:
     //! \param uuidSet
     //! \return
     //!
-    virtual bool isUuid(const QVariant &v, QUuid&uuidSet) const;
+    virtual bool isUuid(const QVariant &v, QUuid &uuidSet) const;
 
     //!
     //! \brief isHex
