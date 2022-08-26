@@ -885,7 +885,7 @@ const QVariantHash VariantUtil::toAttributes(const QVariant &v, const QVariant &
             if(!row.contains(i.value()))
                 row.append(i.value());
 
-            __return.insert(key,row);
+            __return.insert(key,row.size()==1?row.first():row);
         }
     }
     return __return;
@@ -980,7 +980,7 @@ const QVariant VariantUtil::toVariantJson(const QVariant &v)
     case QMetaType::QString:
     case QMetaType::QByteArray:
     {
-        auto vv=QJsonDocument::fromJson((*this).toByteArray()).toVariant();
+        auto vv=QJsonDocument::fromJson(p->toByteArray(*this)).toVariant();
         return vv.isValid()?vv:v;
     }
     default:
