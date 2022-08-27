@@ -1,8 +1,10 @@
 #include "./qstm_result.h"
 #include "./qstm_macro.h"
 #include "./qstm_object.h"
+#include "./qstm_meta_enum.h"
 #include "./qstm_util_meta_object.h"
 #include "./qstm_util_variant.h"
+#include "./private/p_qstm_result_info.h"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QMutex>
@@ -77,7 +79,6 @@ static QString variantConvertToText(const QVariant &value)
 
 class QStmThreadReturnItem{
 public:
-    ResultValue::MessageType returnType = ResultValue::None;
     QUuid uuid = QUuid::createUuid();
     QVariantHash dataHash;
     QVariantMap dataMap;
@@ -106,7 +107,6 @@ public:
         this->uuid=item->uuid;
         this->dataHash=item->dataHash;
         this->dataMap=item->dataMap;
-        this->returnType = ResultValue::None;
         this->returnBool=item->returnBool;
         this->returnCode=item->returnCode;
         this->returnHash=item->returnHash;
@@ -121,7 +121,6 @@ public:
         this->uuid=QUuid::createUuid();
         this->dataHash.clear();
         this->dataMap.clear();
-        this->returnType = ResultValue::None;
         this->returnBool = true;
         this->returnHash = {};
         this->returnCode = {};
@@ -150,26 +149,25 @@ public:
         }
         this->resultVariant=QVariantHash{{__resultInfo, this->resultInfo.toHash()}};
         this->returnBool=false;
+        this->resultInfo.setSuccess(false);
         return {};
     }
 
     bool isOkCodes()const
     {
-        if(this->returnType!=ResultValue::Information && this->returnType!=ResultValue::None)
-            return {};
-
-        if (!this->returnCode.isEmpty() && this->returnCode.isNull() && !this->returnText.trimmed().isEmpty())
-            return {};
-
+        if(!this->resultInfo.p->messageType.equal(ResultValue::Information) && !this->resultInfo.p->messageType.equal(ResultValue::None)){
+            if (this->returnCode.isEmpty() || !this->returnText.trimmed().isEmpty())
+                return {};
+        }
         return true;
     }
 
-    bool isOk()const
+    bool isOkResult()const
     {
         if (QThread::currentThread()->isInterruptionRequested())
             return {};
 
-        if(this->returnType!=ResultValue::Information && this->returnType!=ResultValue::None)
+        if(!this->resultInfo.p->messageType.equal(ResultValue::Information) && !this->resultInfo.p->messageType.equal(ResultValue::None))
             return {};
 
         if (!this->returnCode.isEmpty() || !this->returnText.trimmed().isEmpty())
@@ -195,7 +193,7 @@ public:
     {
         dataHash.clear();
         dataHash.insert(__returnBool, this->returnBool);
-        dataHash.insert(__returnType, this->returnType);
+        dataHash.insert(__returnType, this->resultInfo.messageType());
         dataHash.insert(__returnCode, this->returnCode);
         dataHash.insert(__returnHash, this->returnHash);
         dataHash.insert(__returnText, this->returnText);
@@ -359,7 +357,7 @@ public:
         Q_DECLARE_VU;
         this->clear();
         if (message.isValid()) {
-            returnItem.returnType = msgType;
+            returnItem.resultInfo.setMessageType(msgType);
             returnItem.returnCode = vu.toByteArray(code);
             returnItem.returnText = variantConvertToText(message);
             if(!returnItem.makeResult()){
@@ -373,7 +371,7 @@ public:
 
     void makeParentResult()
     {
-        if(this->returnItem.isOk())
+        if(this->returnItem.isOkResult())
             return;
         {//set results parent's
             QList<ResultValue *> listParentResultValue;
@@ -423,7 +421,7 @@ public:
             this->clear();
             return;
         }
-        this->returnItem = &pvt->returnItem;
+        this->returnItem.read(&pvt->returnItem);
     }
 
     static QByteArray toMd5(const QVariant &v)
@@ -440,7 +438,7 @@ ResultValue::ResultValue(QObject *parent) : QObject{parent}
 
 ResultValue::operator bool() const
 {
-    return p->returnItem.isOk();
+    return p->returnItem.isOkResult();
 }
 
 ResultValue &ResultValue::setResult(const ResultValue &value)const
@@ -662,7 +660,8 @@ QByteArray &ResultValue::returnHash() const
 
 ResultValue::MessageType ResultValue::returnType() const
 {
-    return p->returnItem.returnType;
+    int m=p->returnItem.resultInfo.messageType();
+    return ResultValue::MessageType(m);
 }
 
 QByteArray &ResultValue::returnCode() const
@@ -753,7 +752,7 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
                     resultInfo.errors().append(reason_phrase);
             }
             if(!resultInfo.errors().isEmpty())
-                reason_phrase=resultInfo.errors().first().toString().trimmed();
+                reason_phrase=resultInfo.errors().first().trimmed();
             this->setCode(status_code, reason_phrase);
             p->returnItem.resultVariant=response_body;
             p->returnItem.resultInfo=&resultInfo;
@@ -937,52 +936,60 @@ ResultValue &ResultValue::setCritical(const QVariant &code, const QVariant &mess
 
 bool ResultValue::isOk() const
 {
-    return p->returnItem.isOk();
+    return p->returnItem.isOkCodes();
 }
 
 bool ResultValue::isNotOk() const
 {
-    return !this->isOk();
+    return !p->returnItem.isOkCodes();
 }
 
 bool ResultValue::isInformation() const
 {
-    return p->returnItem.returnType == Information;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Information;
 }
 
 bool ResultValue::isUnauthorized() const
 {
-    return p->returnItem.returnType == Unauthorized;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Unauthorized;
 }
 
 bool ResultValue::isNotfound() const
 {
-    return p->returnItem.returnType == Notfound;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Notfound;
 }
 
 bool ResultValue::isBadRequest() const
 {
-    return p->returnItem.returnType;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==BadRequest;
 }
 
 bool ResultValue::isWarning() const
 {
-    return p->returnItem.returnType==Warning;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Warning;
 }
 
 bool ResultValue::isValidation() const
 {
-    return p->returnItem.returnType==Validation;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Validation;
 }
 
 bool ResultValue::isCritical() const
 {
-    return p->returnItem.returnType==Critical;
+    int m=p->returnItem.resultInfo.messageType();
+    return m==Critical;
 }
 
 bool ResultValue::isNoContent() const
 {
-    return p->returnItem.returnType == NoContent;
+    int m=p->returnItem.resultInfo.messageType();
+    return m == NoContent;
 }
 
 QVariantHash ResultValue::data() const

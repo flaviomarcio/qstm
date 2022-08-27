@@ -1,61 +1,14 @@
-#include "./qstm_result_info.h"
+#include "./private/p_qstm_result_info.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
-//#include "./qstm_meta_types.h"
-//#include "./qstm_macro.h"
+#include "./qstm_util_variant.h"
 
 namespace QStm {
-
-class ResultInfoPvt{
-public :
-    ResultInfo *parent=nullptr;
-    bool enabled=false;
-    QVariantList errors;
-    QVariantList messages;
-    bool success=true;
-    int page=0;
-    int per_page=9999999;
-    int count=0;
-    int total_count=0;
-    int total_pages=0;
-
-    explicit ResultInfoPvt(ResultInfo *parent)
-    {
-        this->parent=parent;
-    }
-    virtual ~ResultInfoPvt()
-    {
-    }
-
-    void clear()
-    {
-        success=false;
-        page=0;
-        per_page=9999999;
-        count=0;
-        total_count=0;
-        total_pages=0;
-        this->messages.clear();
-        this->clearErrors();
-    }
-
-    void clearErrors()
-    {
-        this->errors.clear();
-        this->success=true;
-    }
-};
 
 ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}
 {
     this->p=new ResultInfoPvt{this};
 }
-
-ResultInfo::~ResultInfo()
-{
-    delete p;
-}
-
 void ResultInfo::clear()
 {
     p->clear();
@@ -76,27 +29,47 @@ void ResultInfo::setEnabled(bool value)
     p->enabled=value;
 }
 
-QVariantList &ResultInfo::errors()
+ResultInfo::MessageType ResultInfo::messageType() const
+{
+    return p->messageType.type();
+}
+
+void ResultInfo::setMessageType(const QVariant &value)
+{
+    if (p->messageType == value)
+        return;
+    p->messageType = value;
+    emit messageTypeChanged();
+}
+
+void ResultInfo::resetMessageType()
+{
+    setMessageType(None);
+}
+
+QStringList &ResultInfo::errors()
 {
     return p->errors;
 }
 
-void ResultInfo::setErrors(const QVariantList &value)
+void ResultInfo::setErrors(const QVariant &value)
 {
-    p->errors=value;
+    Q_DECLARE_VU;
+    p->errors=vu.toStringList(value);
 }
 
-QVariantList &ResultInfo::messages()
+QStringList &ResultInfo::messages()
 {
     return p->messages;
 }
 
-void ResultInfo::setMessages(const QVariantList &value)
+void ResultInfo::setMessages(const QVariant &value)
 {
-    p->messages=value;
+    Q_DECLARE_VU;
+    p->messages=vu.toStringList(value);
 }
 
-int ResultInfo::success() const
+bool ResultInfo::success() const
 {
     return p->success;
 }
@@ -158,40 +131,13 @@ void ResultInfo::setTotalPages(int value)
 
 const QVariantHash ResultInfo::toRequestHash() const
 {
-    QVariantHash v;
-    v[QT_STRINGIFY(page)]=this->page();
-    v[QT_STRINGIFY(per_page)]=this->perPage();
-    return v;
+    return {{QT_STRINGIFY(page),this->page()},{QT_STRINGIFY(per_page), this->perPage()}};
 }
-
-//QVariantMap ResultInfo::toMap()const
-//{
-//    QVariantMap __return;
-//    auto &metaObject = *this->metaObject();
-//    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-//        auto property = metaObject.property(col);
-//        __return.insert(property.name(), property.read(this));
-//    }
-//    return __return;
-//}
-
-//QVariantHash ResultInfo::toHash() const
-//{
-//    QVariantHash __return;
-//    auto &metaObject = *this->metaObject();
-//    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-//        auto property = metaObject.property(col);
-//        __return.insert(property.name(), property.read(this));
-//    }
-//    return __return;
-//}
 
 QVariant ResultInfo::toVar()const
 {
     return this->toHash();
 }
-
-
 
 bool ResultInfo::fromVar(const QVariant &v)
 {
@@ -244,5 +190,6 @@ bool ResultInfo::fromResultInfo(const ResultInfo &resultInfo)
     }
     return __return;
 }
+
 
 }

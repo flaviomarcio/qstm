@@ -5,6 +5,7 @@
 #include <QVariantList>
 #include <QVariantHash>
 #include "./qstm_object_wrapper.h"
+#include "./qstm_types.h"
 
 namespace QStm {
 class ResultInfoPvt;
@@ -15,9 +16,13 @@ class ResultInfoPvt;
 class Q_STM_EXPORT ResultInfo:public ObjectWrapper
 {
     Q_OBJECT
-    QSTM_OBJECT_WRAPPER(ResultInfo)
-    Q_PROPERTY(QVariantList errors READ errors WRITE setErrors NOTIFY errorsChanged)
-    Q_PROPERTY(QVariantList messages READ messages WRITE setMessages NOTIFY messagesChanged)
+    Q_STM_OBJECT_WRAPPER(ResultInfo)
+
+    Q_STM_DECLARE_MESSAGE_TYPE
+
+    Q_PROPERTY(QVariant messageType READ messageType WRITE setMessageType RESET resetMessageType NOTIFY messageTypeChanged)
+    Q_PROPERTY(QVariant errors READ errors WRITE setErrors NOTIFY errorsChanged)
+    Q_PROPERTY(QVariant messages READ messages WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
     Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged)
     Q_PROPERTY(int per_page READ perPage WRITE setPerPage NOTIFY perPageChanged)
@@ -31,10 +36,6 @@ public:
     //! \param parent
     //!
     Q_INVOKABLE explicit ResultInfo(QObject *parent=nullptr);
-
-    //! \brief ResultInfo destructor
-    //!
-    ~ResultInfo();
 
     //!
     //! \brief clear
@@ -64,16 +65,24 @@ public:
     virtual void setEnabled(bool value);
 
     //!
+    //! \brief messageType
+    //! \return
+    //!
+    QStm::ResultInfo::MessageType messageType() const;
+    void setMessageType(const QVariant &value);
+    void resetMessageType();
+
+    //!
     //! \brief errors
     //! \return
     //! return errors to server
-    virtual QVariantList &errors();
+    virtual QStringList &errors();
 
     //!
     //! \brief setErrors
     //! \param value
     //!
-    virtual void setErrors(const QVariantList &value);
+    virtual void setErrors(const QVariant &value);
 
     //!
     //! \brief messages
@@ -81,20 +90,20 @@ public:
     //!
     //!
     //! return message to server
-    virtual QVariantList &messages();
+    virtual QStringList &messages();
 
     //!
     //! \brief setMessages
     //! \param value
     //!
-    void setMessages(const QVariantList &value);
+    void setMessages(const QVariant &value);
 
     //!
     //! \brief success
     //! \return
     //!
     //! return success true ou false to request
-    int success() const;
+    bool success() const;
 
     //!
     //! \brief setSuccess
@@ -166,18 +175,6 @@ public:
     //!
     virtual const QVariantHash toRequestHash() const;
 
-//    //!
-//    //! \brief toMap
-//    //! \return
-//    //!
-//    virtual QVariantMap toMap() const;
-
-//    //!
-//    //! \brief toHash
-//    //! \return
-//    //!
-//    virtual QVariantHash toHash() const;
-
     //!
     //! \brief toVar
     //! \return
@@ -212,7 +209,7 @@ public:
     //!
     virtual bool fromResultInfo(const ResultInfo &resultInfo);
 
-private:
+public:
     ResultInfoPvt *p=nullptr;
 signals:
     void errorsChanged();
@@ -223,6 +220,7 @@ signals:
     void countChanged();
     void totalCountChanged();
     void totalPagesChanged();
+    void messageTypeChanged();
 };
 
 }

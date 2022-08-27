@@ -6,12 +6,12 @@
 
 namespace QStm {
 
-#define QSTM_OBJECT_WRAPPER_MD5_IGNORE(IGNORE)\
+#define Q_STM_OBJECT_WRAPPER_MD5_IGNORE(IGNORE)\
 public:\
 virtual QVariant __md5IgnoreProperties(){return QVariant{IGNORE};}
 
 
-#define QSTM_OBJECT_WRAPPER(CLASS)\
+#define Q_STM_OBJECT_WRAPPER(CLASS)\
 public:\
 void operator=(const CLASS *object)\
 {\
@@ -35,8 +35,8 @@ static CLASS *from(const QVariant &v, QObject *parent)\
 class Q_STM_EXPORT ObjectWrapper : public QObject
 {
     Q_OBJECT
-    QSTM_OBJECT_WRAPPER(ObjectWrapper)
-    QSTM_OBJECT_WRAPPER_MD5_IGNORE()
+    Q_STM_OBJECT_WRAPPER(ObjectWrapper)
+    Q_STM_OBJECT_WRAPPER_MD5_IGNORE()
 public:
     //!
     //! \brief ObjectWrapper

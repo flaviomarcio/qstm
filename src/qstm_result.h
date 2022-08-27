@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include "./qstm_global.h"
 #include "./qstm_result_info.h"
+#include "./qstm_types.h"
 
 #define __QSTM_DECLARE_RESULT_READ_OPERATOR(TYPE) \
     ResultValue &operator = (const TYPE value){ return this->setResult(value);}\
@@ -31,21 +32,13 @@ class ResultValuePvt;
 class Q_STM_EXPORT ResultValue : public QObject
 {
     Q_OBJECT
+
+    friend class QStmThreadReturnItem;
+
+    Q_STM_DECLARE_MESSAGE_TYPE
+
     Q_PROPERTY(QVariantHash data READ data NOTIFY dataChanged)
 public:
-    enum MessageType {
-        None = 1,
-        Information = 2,
-        Warning = 4,
-        Validation = 8,
-        Critical = 16,
-        Unauthorized = 32,
-        Notfound = 64,
-        BadRequest = 128,
-        UnsupportedMediaType = 256,
-        NoContent = 512,
-        NotImplemented = 1024,
-    };
 
     //!
     //! \brief ResultValue

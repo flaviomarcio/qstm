@@ -37,14 +37,14 @@ public:
         return this->_type;
     }
 
-    bool operator == (const ENUM &value)
-    {
-        return this->_type==value;
-    }
-
     bool operator == (const QVariant &value)
     {
         return this->_type==this->type(value);
+    }
+
+    bool operator != (const QVariant &value)
+    {
+        return this->_type!=this->type(value);
     }
 
     ENUM type()const
