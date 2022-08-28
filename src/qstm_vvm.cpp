@@ -19,6 +19,23 @@ const static QString toBytes(const QVariant &v)
     }
 }
 
+const static QVariant toVariant(const QVariant &v)
+{
+    switch (v.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
+        return QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
+    case QMetaType::QUuid:
+        return v.toUuid().toString();
+    case QMetaType::QUrl:
+        return v.toUrl().toString();
+    default:
+        return v;
+    }
+}
+
 QVVM::QVVM():QVariantHash{}
 {
 }
@@ -29,7 +46,7 @@ QVVM::QVVM(const QVariant &other):QVariantHash{other.toHash()}
 
 QVVM::QVVM(const QVariant &key, const QVariant &value):QVariantHash{}
 {
-    QVariantHash::insert(toBytes(key), toBytes(value));
+    QVariantHash::insert(toBytes(key), toVariant(value));
 }
 
 QVVM &QVVM::operator=(const QVariant &v)
@@ -81,7 +98,7 @@ QVVM QVVM::from(const QVariantMap &v)
 
 QVVM &QVVM::insert(const QVariant &key, const QVariant &value)
 {
-    QVariantHash::insert(toBytes(key), toBytes(value));
+    QVariantHash::insert(toBytes(key), toVariant(value));
     return *this;
 }
 

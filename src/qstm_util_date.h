@@ -326,7 +326,7 @@ public:
     //! \param defaultV
     //! \return
     //!parse text to interval ms
-    QVariant parseInterval(const QVariant &v, const QVariant &defaultV=QVariant());
+    QVariant parseInterval(const QVariant &v, const QVariant &defaultV={});
 
 private:
     DateUtilPvt *p=nullptr;
