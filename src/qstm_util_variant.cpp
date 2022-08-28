@@ -723,7 +723,7 @@ const QVariantList VariantUtil::toList(const QVariant &v)
     switch (newV.typeId()) {
     case QMetaType::QVariantList:
     case QMetaType::QStringList:
-        return v.toList();
+        return newV.toList();
     default:
         return QVariantList{{v}};
     }
