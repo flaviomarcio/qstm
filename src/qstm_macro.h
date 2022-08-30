@@ -120,6 +120,8 @@ while (i.hasNext())
 QHashIterator<QString, QSqlDatabase> i(v);\
 while (i.hasNext())
 
+#define Q_LOOP_LIMIT(var,loops) auto var=0; while(loops<=loop++)
+
 #define qtr QObject::tr
 
 #define __FUNCTION_UUID__\
