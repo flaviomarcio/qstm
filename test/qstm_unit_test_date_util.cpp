@@ -10,10 +10,10 @@ class Q_STM_DateUtilTestUnit : public SDKGoogleTestUnit {
 public:
     DateUtil u;
 
-    const QTime minTime=QTime(0,0,0,0);
-    const QTime maxTime=QTime(23,59,59,999);
-    const QDate minDate=QDate(1901,1,1);
-    const QDate maxDate=QDate(2500,1,1);
+    const QTime minTime=QTime{0,0,0,0};
+    const QTime maxTime=QTime{23,59,59,999};
+    const QDate minDate=QDate{1901,1,1};
+    const QDate maxDate=QDate{2500,1,1};
 };
 
 TEST_F(Q_STM_DateUtilTestUnit, CheckLists)
