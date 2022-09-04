@@ -20,6 +20,13 @@ public:
     Q_INVOKABLE explicit Log(QObject *parent = nullptr);
 
     //!
+    //! \brief qLogEnabled
+    //! \return
+    //!
+    //! it is loaded using env Q_LOG_ENABLED
+    static bool qLogEnabled();
+
+    //!
     //! \brief enabled
     //!
     static void enabled();

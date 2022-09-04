@@ -11,6 +11,13 @@ Q_GLOBAL_STATIC(MsgTypeMap, msgTypeMap)
 
 static const QtMessageHandler qtMessageHandlerDefault = qInstallMessageHandler(0);
 
+#ifdef QT_DEBUG
+static bool staticQ_LOG_ENABLED=false;
+#endif
+static bool staticLogRegister=false;
+//Q_GLOBAL_STATIC(QString, static_log_dir);
+
+
 static void initMsg()
 {
     auto &vHash=*msgTypeMap;
@@ -48,6 +55,14 @@ static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext 
 
 static void init()
 {
+#ifdef QT_DEBUG
+    staticLogRegister = true;
+#else
+    staticQ_LOG_ENABLED = QVariant{QString{getenv(QByteArrayLiteral("Q_LOG_ENABLED"))}.trimmed()}.toBool();
+    staticLogRegister = staticQ_LOG_ENABLED;
+#endif
+    if(!staticLogRegister)
+        return;
     initMsg();
     QStm::Log::enabled();
 }
@@ -57,6 +72,11 @@ Q_COREAPP_STARTUP_FUNCTION(init);
 Log::Log(QObject *parent) : QObject{parent}
 {
 
+}
+
+bool Log::qLogEnabled()
+{
+    return staticQ_LOG_ENABLED;
 }
 
 void Log::enabled()
