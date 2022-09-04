@@ -167,12 +167,10 @@ bool ObjectWrapper::setValues(const QVariant &v)
             switch(value.typeId()){
             case QMetaType::UnknownType:
             {
-                {
-                    auto obj=dynamic_cast<ObjectWrapper*>(objReady);
-                    if(obj && this->_clearOnSetFail){
-                        obj->clear();
-                        break;
-                    }
+                auto obj=dynamic_cast<ObjectWrapper*>(objReady);
+                if(obj && this->_clearOnSetFail){
+                    obj->clear();
+                    break;
                 }
 
                 property.reset(this);
@@ -183,14 +181,11 @@ bool ObjectWrapper::setValues(const QVariant &v)
             case QMetaType::QVariantList:
             case QMetaType::QStringList:
             {
-                {
-                    auto obj=dynamic_cast<ObjectWrapper*>(objReady);
-                    if(obj){
-                        obj->setValues(value);
-                        break;
-                    }
+                auto obj=dynamic_cast<ObjectWrapper*>(objReady);
+                if(obj){
+                    obj->setValues(value);
+                    break;
                 }
-
                 break;
             }
             default:
