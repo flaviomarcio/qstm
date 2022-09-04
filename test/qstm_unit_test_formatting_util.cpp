@@ -23,15 +23,15 @@ TEST_F(Q_STM_FormattingUtilTestUnit, checkMasks)
     auto check_mask_booleanTrue = u.masks().boolean(true);
     auto check_mask_booleanFalse = u.masks().boolean(false);
 
-    auto expected_mask_date = qsl("dd/MM/yyyy");
-    auto expected_mask_time = qsl("hh:mm:ss");
-    auto expected_mask_dateTime = qsl("dd/MM/yyyy hh:mm:ss");
+    auto expected_mask_date = QStringLiteral("dd/MM/yyyy");
+    auto expected_mask_time = QStringLiteral("hh:mm:ss");
+    auto expected_mask_dateTime = QStringLiteral("dd/MM/yyyy hh:mm:ss");
     auto expected_mask_currency = qsl_null;
     auto expected_mask_number = qsl_null;
     auto expected_mask_numeric = qsl_null;
     auto expected_mask_percent = qsl_null;
-    auto expected_mask_booleanTrue = qsl("Sim");
-    auto expected_mask_booleanFalse = qsl("Não");
+    auto expected_mask_booleanTrue = QStringLiteral("Sim");
+    auto expected_mask_booleanFalse = QStringLiteral("Não");
 
     EXPECT_EQ( expected_mask_date, check_mask_date )<<"Invalid mask mask_date";
     EXPECT_EQ( expected_mask_time, check_mask_time )<<"Invalid mask mask_time";

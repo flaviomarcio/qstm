@@ -79,10 +79,10 @@ TEST_F(Q_STM_ResultValueTestUnit, checkResult)
     vListValues<<double(1);
     vListValues<<1.0;
     vListValues<<QCurrency(1.2);
-    vListValues<<qbl("bytearray");
-    vListValues<<qsl("string");
+    vListValues<<QByteArrayLiteral("bytearray");
+    vListValues<<QStringLiteral("string");
     vListValues<<QVariantList{1,2,3};
-    vListValues<<QVariantHash{{qsl("A"),QDate::currentDate()}, {"B",QDateTime::currentDateTime()}};
+    vListValues<<QVariantHash{{QStringLiteral("A"),QDate::currentDate()}, {"B",QDateTime::currentDateTime()}};
     vListValues<<QDate::currentDate();
 
     Q_DECLARE_VU;
