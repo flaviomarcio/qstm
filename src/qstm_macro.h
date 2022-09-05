@@ -86,7 +86,7 @@
 
 #define Q_V_DATABASE_ITERATOR(v)QHashIterator<QString, QSqlDatabase> i(v); while (i.hasNext())
 
-#define Q_LOOP_LIMIT(counter,loops) auto counter=0; while(loops<=counter++)
+#define Q_LOOP_LIMIT(counter,loops) auto counter=0; while(loops>=counter++)
 
 #define qtr QObject::tr
 
