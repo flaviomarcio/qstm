@@ -24,11 +24,6 @@ StartUpPvt::StartUpPvt(StartUp *parent):QObject{parent}
     startUpMutex->unlock();
 }
 
-StartUpPvt::~StartUpPvt()
-{
-
-}
-
 StartUp &StartUpPvt::i()
 {
     return *staticStartUp;
@@ -46,13 +41,6 @@ void StartUpRunner::run()
 
 void StartUpRunner::runnerStart()
 {
-//    StartUpList list=*startUpList;
-//    staticStartUp->setNumber(0);
-//    struct EntryCompare {
-//        bool operator()(const StartUp *a, const StartUp *b) {return(a < b);}
-//    };
-//    std::sort(list.begin(), list.end(), EntryCompare());
-
     int max=0;
     QHash<int, StartUp*> hash;
     for(auto &v:*startUpList){

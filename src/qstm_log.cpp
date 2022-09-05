@@ -45,7 +45,7 @@ static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext 
     static auto logFormat=QStringLiteral("#%1-%2:%3");
     static auto printFormat=QByteArrayLiteral("%s\n");
 
-    const static auto replaceText=QStringList{QT_STRINGIFY(ResultValue &),QT_STRINGIFY(ResultValue &),QT_STRINGIFY(ServerService::),QStringLiteral("\"")};
+    const static auto replaceText=QStringList{QT_STRINGIFY(ResultValue &),QT_STRINGIFY(ResultValue &),QT_STRINGIFY(QApp::),QStringLiteral("\"")};
     auto line = context.line<=0?QTime::currentTime().toString(timeFormat):QString::number(context.line).rightJustified(5,'0');
     auto message=logFormat.arg(msgTypeMap->value(type),line,msg);
     for(auto &key:replaceText)

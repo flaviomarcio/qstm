@@ -46,7 +46,6 @@ public:
     //! \param parent
     //!
     explicit StartUp(QObject *parent = nullptr);
-    ~StartUp();
 
     bool operator<(const StartUp *object) const;
 

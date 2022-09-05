@@ -36,8 +36,6 @@ public:
     QVector<StartUpFunction> list;
     explicit StartUpPvt(StartUp *parent);
 
-    virtual ~StartUpPvt();
-
     static StartUp &i();
 
 signals:

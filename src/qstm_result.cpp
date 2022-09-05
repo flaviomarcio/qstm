@@ -144,7 +144,7 @@ public:
             this->returnCode=this->returnHash;
 
         if(!this->returnText.trimmed().isEmpty()){
-            this->resultInfo.clear();
+            this->resultInfo.errors().clear();
             this->resultInfo.errors().append(this->returnText);
         }
         this->resultVariant=QVariantHash{{__resultInfo, this->resultInfo.toHash()}};
@@ -357,9 +357,9 @@ public:
         Q_DECLARE_VU;
         this->clear();
         if (message.isValid()) {
-            returnItem.resultInfo.setMessageType(msgType);
             returnItem.returnCode = vu.toByteArray(code);
             returnItem.returnText = variantConvertToText(message);
+            returnItem.resultInfo.setMessageType(msgType);
             if(!returnItem.makeResult()){
                 if(!staticResults->insert(returnItem))
                     return *this->parent;
@@ -999,9 +999,9 @@ QVariantHash ResultValue::data() const
 
 QVariant ResultValue::stateCode() const
 {
-    QVariantHash v;
+
     QVariant code;
-    QVariant phrase;
+
     if (QThread::currentThread()->isInterruptionRequested())
         code = 500; //InternalServerError
     else if (staticMakeArStats->contains(this->returnType()))
@@ -1009,14 +1009,7 @@ QVariant ResultValue::stateCode() const
     else
         code = 500; //InternalServerError
 
-    phrase = this->returnText().isEmpty() ? QVariant{} : this->returnText();
-
-    if (code.isValid())
-        v.insert(QByteArrayLiteral(__code), code);
-    if (phrase.isValid())
-        v.insert(QByteArrayLiteral(__phrase), phrase);
-
-    return v.isEmpty() ? QVariant{} : v;
+    return code;
 }
 
 QVariant ResultValue::sc() const

@@ -2,15 +2,10 @@
 
 namespace QStm {
 
-
 StartUp::StartUp(QObject *parent)
     : QObject{parent}
 {
     this->p=new StartUpPvt{this};
-}
-
-StartUp::~StartUp()
-{
 }
 
 bool StartUp::operator<(const StartUp *object) const
@@ -51,11 +46,11 @@ void StartUp::run()
         this->p->runner.start();
         emit this->p->runnerStart();
         this->p->runner.wait(1000);
+        return;
     }
-    else{
-        for(auto &func : p->list)
-            func();
-    }
+
+    for(auto &func : p->list)
+        func();
 }
 
 StartUpFunction StartUp::at(int index)
