@@ -3,22 +3,28 @@
 #include <QObject>
 #include "./qstm_global.h"
 
-#define Q_STM_STARTUP_APPEND(MODULE, FUNC)\
+#define Q_STM_STARTUP_APPEND_BASE(MODULE, CLASS, FUNC)\
 static void qstm_startup_init_##FUNC(){\
-    MODULE::StartUp::i().append(FUNC);\
+    MODULE::CLASS::i().append(FUNC);\
 }\
 Q_COREAPP_STARTUP_FUNCTION(qstm_startup_init_##FUNC)
 
+
+#define Q_STM_STARTUP_APPEND(MODULE, FUNC) Q_STM_STARTUP_APPEND_BASE(MODULE, StartUp, FUNC)
 
 #define Q_STM_STARTUP_FUNCTION(FUNC) Q_STM_STARTUP_APPEND(QStm, FUNC)
 
 #define Q_STM_STARTUP_NUMBER(NUMBER) public: virtual int number() const { return NUMBER;}
 #define Q_STM_STARTUP_INSTANCE(NUMBER) static StartUp &i(){ static StartUp _i; return _i;}
-#define Q_STM_STARTUP_CONSTUCTOR(NUMBER) \
+
+#define Q_STM_STARTUP_CONSTUCTOR_BASE(CLASS, NUMBER ) \
 public: \
 Q_STM_STARTUP_NUMBER(NUMBER) \
 Q_STM_STARTUP_INSTANCE(1) \
-Q_INVOKABLE explicit StartUp(QObject *parent = nullptr):QStm::StartUp{parent}{}
+Q_INVOKABLE explicit CLASS(QObject *parent = nullptr):QStm::StartUp{parent}{}
+
+
+#define Q_STM_STARTUP_CONSTUCTOR(NUMBER) Q_STM_STARTUP_CONSTUCTOR_BASE(StartUp, NUMBER)
 
 namespace QStm {
 
