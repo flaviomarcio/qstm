@@ -19,7 +19,7 @@ public:
     //! \param v
     //! \param settingName
     //!
-    explicit Message(const QVariant &v=QVariantHash(), const QString &settingName=QString());
+    explicit Message(const QVariant &v=QVariantHash(), const QString &settingName={});
     explicit Message(const ResultValue &v);
     virtual ~Message();
 

@@ -1011,7 +1011,7 @@ VariantUtil &VariantUtil::makeVVM(const QVariant &key, const QVariant &value)
     return *this;
 }
 
-VariantUtil &VariantUtil::mVVM(const QVariant &key, const QVariant &value)
+VariantUtil &VariantUtil::insert(const QVariant &key, const QVariant &value)
 {
     return this->makeVVM(key, value);
 }

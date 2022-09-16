@@ -415,7 +415,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual VariantUtil &mVVM(const QVariant &key, const QVariant &value);
+    virtual VariantUtil &insert(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief makeMap
