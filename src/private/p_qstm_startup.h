@@ -19,8 +19,9 @@ public:
     void run();
 
 public slots:
-
     void runnerStart();
+signals:
+    void runnerTerminate();
 };
 
 class StartUpPvt:public QObject
@@ -37,9 +38,11 @@ public:
     explicit StartUpPvt(StartUp *parent);
 
     static StartUp &i();
-
+private slots:
+    void runnerTerminate();
 signals:
     void runnerStart();
+    void runnerQuit();
 };
 
 

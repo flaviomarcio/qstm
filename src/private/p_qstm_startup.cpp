@@ -19,6 +19,8 @@ Q_COREAPP_STARTUP_FUNCTION(init)
 StartUpPvt::StartUpPvt(StartUp *parent):QObject{parent}
 {
     QObject::connect(this, &StartUpPvt::runnerStart, &this->runner, &StartUpRunner::runnerStart);
+    QObject::connect(this, &StartUpPvt::runnerQuit, &this->runner, &StartUpRunner::quit);
+    QObject::connect(&this->runner, &StartUpRunner::runnerTerminate, this, &StartUpPvt::runnerTerminate);
     startUpMutex->lock();
     startUpList->append(parent);
     startUpMutex->unlock();
@@ -27,6 +29,11 @@ StartUpPvt::StartUpPvt(StartUp *parent):QObject{parent}
 StartUp &StartUpPvt::i()
 {
     return *staticStartUp;
+}
+
+void StartUpPvt::runnerTerminate()
+{
+    this->runner.quit();
 }
 
 StartUpRunner::StartUpRunner():QThread{nullptr}
@@ -55,7 +62,7 @@ void StartUpRunner::runnerStart()
                 func();
         }
     }
-    //this->quit();
+    emit runnerTerminate();
 }
 
 }
