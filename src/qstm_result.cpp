@@ -349,7 +349,7 @@ public:
             this->clearReturn();
             returnItem.resultVariant=value;
         };
-        return *parent;
+        return *this->parent;
     }
 
     ResultValue &setMessage(ResultValue::MessageType msgType, const QVariant &code, const QVariant &message)
@@ -366,7 +366,7 @@ public:
             }
             this->makeParentResult();
         }
-        return *parent;
+        return *this->parent;
     }
 
     void makeParentResult()
@@ -386,8 +386,8 @@ public:
                 pp = dynamic_cast<QStm::Object *>(pp->parent());
             }
             sWarning() << this->returnItem.toString();//TODO INCLUIR DIRECTIVA PARA OCULTAR O ERRO
-            for(int i=listParentResultValue.count()-1; i>0; i--){
-                parent=listParentResultValue.at(i);
+            for(int i=listParentResultValue.count()-1; i>=0; i--){
+                auto parent=listParentResultValue.at(i);
                 if(parent->parent())
                     sWarning() << parent->parent()->metaObject()->className();
                 parent->p->read(this);
