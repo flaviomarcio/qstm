@@ -11,9 +11,7 @@ Q_GLOBAL_STATIC(MsgTypeMap, msgTypeMap)
 
 static const QtMessageHandler qtMessageHandlerDefault = qInstallMessageHandler(0);
 
-#ifdef QT_DEBUG
 static bool staticQ_LOG_ENABLED=false;
-#endif
 static bool staticLogRegister=false;
 //Q_GLOBAL_STATIC(QString, static_log_dir);
 
