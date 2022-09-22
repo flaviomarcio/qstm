@@ -446,7 +446,6 @@ bool VariantUtil::isBase64(const QVariant &v) const
 
 const QString VariantUtil::toStr(const QVariant &v)
 {
-
     __setValue(v);
     return p->toByteArray(*this);
 }
