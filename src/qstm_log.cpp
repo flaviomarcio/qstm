@@ -7,37 +7,21 @@ namespace QStm {
 
 typedef QHash<int, QString> MsgTypeMap;
 
-Q_GLOBAL_STATIC(MsgTypeMap, msgTypeMap)
+Q_GLOBAL_STATIC_WITH_ARGS(MsgTypeMap, msgTypeMap,({{QtDebugMsg, "D"},{QtWarningMsg, "W"},{QtCriticalMsg, "C"},{QtFatalMsg, "F"},{QtInfoMsg, "I"},{QtSystemMsg, "S"}}))
 
 static const QtMessageHandler qtMessageHandlerDefault = qInstallMessageHandler(0);
 
-#ifdef QT_DEBUG
 static bool staticQ_LOG_ENABLED=false;
-#endif
 static bool staticLogRegister=false;
 //Q_GLOBAL_STATIC(QString, static_log_dir);
 
 
 static void initMsg()
 {
-    auto &vHash=*msgTypeMap;
-    vHash[QtDebugMsg]=QStringLiteral("D");
-    vHash[QtWarningMsg]=QStringLiteral("W");
-    vHash[QtCriticalMsg]=QStringLiteral("C");
-    vHash[QtFatalMsg]=QStringLiteral("F");
-    vHash[QtInfoMsg]=QStringLiteral("I");
-    vHash[QtSystemMsg]=QStringLiteral("S");
-
     auto format=
-#ifdef QTREFORCE_DEBUG_LOG
-    QByteArrayLiteral("qt.network.ssl.warning=true;qml.debug=true;*.debug=true;*.warning=true;*.critical=true;*.info=true");
-#else
-    QByteArrayLiteral("qt.network.ssl.warning=true;qml.debug=true;*.debug=false;*.warning=true;*.critical=true;*.info=true");
-#endif
+    QByteArrayLiteral("qt.network.ssl.warning=true;*.debug=true;qml.debug=true;*.warning=true;*.critical=true;*.info=true");
     qputenv(QByteArrayLiteral("QT_LOGGING_RULES"), format);
 }
-
-
 
 static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {

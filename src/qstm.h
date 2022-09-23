@@ -24,3 +24,5 @@
 #include "./qstm_network_types.h"
 #include "./qstm_startup.h"
 #include "./qstm_meta_enum.h"
+#include "./qstm_log.h"
+#include "./qstm_logger.h"
