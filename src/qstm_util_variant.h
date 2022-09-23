@@ -9,7 +9,6 @@
 #include <QVariantHash>
 #include "./qstm_global.h"
 #include "./qstm_meta_types.h"
-#include "./qstm_vvm.h"
 
 #define Q_DECLARE_VU QStm::VariantUtil vu
 
@@ -26,37 +25,37 @@ public:
     //!
     //! \brief typesListString
     //!
-    const QMetaTypeUtil&typesListString = QMetaTypeUtilMetaString ;
+    const QMetaTypeUtil &typesListString = QMetaTypeUtilMetaString ;
 
     //!
     //! \brief typesListNumeric
     //!
-    const QMetaTypeUtil&typesListNumeric = QMetaTypeUtilNumeric ;
+    const QMetaTypeUtil &typesListNumeric = QMetaTypeUtilNumeric ;
 
     //!
     //! \brief typesListIntergers
     //!
-    const QMetaTypeUtil&typesListIntergers = QMetaTypeUtilIntegers;
+    const QMetaTypeUtil &typesListIntergers = QMetaTypeUtilIntegers;
 
     //!
     //! \brief typesListClass
     //!
-    const QMetaTypeUtil&typesListClass = QMetaTypeUtilClass ;
+    const QMetaTypeUtil &typesListClass = QMetaTypeUtilClass ;
 
     //!
     //! \brief typesListObjects
     //!
-    const QMetaTypeUtil&typesListObjects = QMetaTypeUtilObjects ;
+    const QMetaTypeUtil &typesListObjects = QMetaTypeUtilObjects ;
 
     //!
     //! \brief typesListDates
     //!
-    const QMetaTypeUtil&typesListDates = QMetaTypeUtilDates ;
+    const QMetaTypeUtil &typesListDates = QMetaTypeUtilDates ;
 
     //!
     //! \brief typesListBool
     //!
-    const QMetaTypeUtil&typesListBool = QMetaTypeUtilBool ;
+    const QMetaTypeUtil &typesListBool = QMetaTypeUtilBool ;
 
     //!
     //! \brief operator =
@@ -241,38 +240,11 @@ public:
     virtual const QUuid toMd5Uuid(const QVariant &v={});
 
     //!
-    //! \brief toVVM
-    //! \return
-    //!
-    virtual QVVM toVVM()const;
-
-    //!
-    //! \brief toVVM
-    //! \param v
-    //! \return
-    //!
-    virtual const QVVM toVVM(const QVariant &v);
-
-    //!
-    //! \brief toVVM
-    //! \param key
-    //! \param value
-    //! \return
-    //!
-    virtual const QVVM toVVM(const QVariant &key, const QVariant &value);
-
-    //!
     //! \brief takeList
     //! \param keyName
     //! \return
     //!
     virtual const QVariantList takeList(const QByteArray &keyName);
-
-    //!
-    //! \brief type
-    //! \return
-    //!
-    virtual int typeId() const;
 
     //!
     //! \brief toStringList
@@ -314,6 +286,28 @@ public:
     //! \return
     //!
     virtual const QVariantMap toMap(const QVariant &key, const QVariant &value);
+
+    //!
+    //! \brief toPair
+    //! \return
+    //!
+    virtual QVariantPair toPair() const;
+
+    //!
+    //! \brief toPair
+    //! \param v
+    //! \return
+    //!
+    virtual const QVariantPair toPair(const QVariant &v);
+
+    //!
+    //! \brief toPair
+    //! \param key
+    //! \param value
+    //! \return
+    //!
+    virtual const QVariantPair toPair(const QVariant &key, const QVariant &value);
+
 
     //!
     //! \brief toHash
@@ -400,22 +394,6 @@ public:
     //! \return
     //!
     virtual const QUrl toUrl(const QVariant &v={});
-
-    //!
-    //! \brief makeVVM
-    //! \param key
-    //! \param value
-    //! \return
-    //!
-    virtual VariantUtil &makeVVM(const QVariant &key, const QVariant &value);
-
-    //!
-    //! \brief mVVM
-    //! \param key
-    //! \param value
-    //! \return
-    //!
-    virtual VariantUtil &insert(const QVariant &key, const QVariant &value);
 
     //!
     //! \brief makeMap

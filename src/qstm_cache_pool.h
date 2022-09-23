@@ -25,20 +25,20 @@ public:
     //! \brief i
     //! \return
     //!
-    static CachePool&i();
+    static CachePool &i();
 
     //!
     //! \brief instance
     //! \return
     //!
-    static CachePool&instance();
+    static CachePool &instance();
 
     //!
     //! \brief instance
     //! \param currentThread
     //! \return
     //!
-    static CachePool&instance(QThread *currentThread);
+    static CachePool &instance(QThread *currentThread);
 
     //!
     //! \brief clear
