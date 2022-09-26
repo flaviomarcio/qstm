@@ -1,5 +1,6 @@
 #include "./p_qstm_setting_manager.h"
 #include "../qstm_util_variant.h"
+#include "../qstm_macro.h"
 
 QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
     : QObject{parent},
@@ -240,23 +241,8 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
 
     auto bytes=file.readAll();
     file.close();
-    QJsonParseError*error=nullptr;
-    auto doc=QJsonDocument::fromJson(bytes, error);
-    if(error!=nullptr){
-#if Q_STM_LOG
-        sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), error->errorString());
-#endif
-        return false;
-    }
 
-//    if(doc.object().isEmpty()){
-//#if Q_STM_LOG
-//        sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
-//#endif
-//        return false;
-//    }
-
-    auto vHash=doc.object().toVariantHash();
+    auto vHash=QJsonDocument::fromJson(bytes).object().toVariantHash();
     if(!vHash.contains(QStringLiteral("services"))){
 #if Q_STM_LOG
         sWarning()<<QStringLiteral("tag services not exists, %1").arg(file.fileName());
@@ -264,6 +250,7 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
         return false;
     }
 
+    sWarning()<<QStringLiteral("loaded settings: %1").arg(file.fileName());
     return p.load(vHash);
 }
 
