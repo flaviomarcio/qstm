@@ -249,12 +249,12 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
         return false;
     }
 
-    if(doc.object().isEmpty()){
-#if Q_STM_LOG
-        sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
-#endif
-        return false;
-    }
+//    if(doc.object().isEmpty()){
+//#if Q_STM_LOG
+//        sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
+//#endif
+//        return false;
+//    }
 
     auto vHash=doc.object().toVariantHash();
     if(!vHash.contains(QStringLiteral("services"))){
