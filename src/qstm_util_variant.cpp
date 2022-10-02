@@ -13,6 +13,9 @@
 #include <QCborParserError>
 #include <QFile>
 
+#define charPercent QByteArrayLiteral("%")
+#define charNumber QByteArrayLiteral("N")
+
 namespace QStm {
 
 #define __setValue(v) if(v.isValid())QVariant::setValue(v);
@@ -643,7 +646,47 @@ const QDateTime VariantUtil::toDateTime(const QVariant &v)
 double VariantUtil::toDouble(const QVariant &v)
 {
     __setValue(v);
-    return QVariant::toDouble();
+    switch (v.typeId()) {
+    case QMetaType::Long:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::Double:
+        return v.toDouble();
+    case QMetaType::UnknownType:
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+    case QMetaType::QChar:
+    case QMetaType::QBitArray:
+    {
+        auto vText=v.toString().trimmed();
+        if(vText=="" || vText==QStringLiteral("0"))
+            return 0;
+        if(vText==QStringLiteral("-1"))
+            return -1;
+
+        if(vText.endsWith(charPercent)){
+            auto v = vText.replace(charPercent,"").toDouble();
+            v/=100;
+            return v;
+        }
+        else if(vText.endsWith(charNumber)){
+            auto v = vText.replace(charNumber,"").toDouble();
+            return v;
+        }
+        else{
+            bool ok=false;
+            auto vv = v.toDouble(&ok);
+            if(ok)
+                return vv;
+            return 0;
+        }
+        break;
+    }
+    default:
+        return 0;
+    }
 }
 
 bool VariantUtil::toBool(const QVariant &v)
