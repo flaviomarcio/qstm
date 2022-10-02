@@ -163,43 +163,62 @@ bool ObjectWrapper::setValues(const QVariant &v)
 
 
         if(!isObject()){
-            auto vHash=value.toHash();
-            QFont font;
+            switch(property.typeId()){
+            case QMetaType::QFont:{
+                auto vHash=value.toHash();
+                QFont font;
 
-            if(vHash.contains(__family))
-                font.setFamily(vHash.value(__family).toString());
+                if(vHash.contains(__family))
+                    font.setFamily(vHash.value(__family).toString());
 
-            if(vHash.contains(__bold))
-                font.setBold(vHash.value(__bold).toBool());
+                if(vHash.contains(__bold))
+                    font.setBold(vHash.value(__bold).toBool());
 
-            if(vHash.contains(__weight)){
-                MetaEnum<QFont::Weight> weight=vHash.value(__weight);
-                font.setWeight(weight.type());
+                if(vHash.contains(__weight)){
+                    MetaEnum<QFont::Weight> weight=vHash.value(__weight);
+                    font.setWeight(weight.type());
+                }
+
+                if(vHash.contains(__strikeOut))
+                    font.setStrikeOut(vHash.value(__strikeOut).toBool());
+
+                if(vHash.contains(__stretch))
+                    font.setStretch(vHash.value(__stretch).toReal());
+
+                if(vHash.contains(__italic))
+                    font.setItalic(vHash.value(__italic).toInt());
+
+                if(vHash.contains(__pixelSize))
+                    font.setPixelSize(vHash.value(__pixelSize).toInt());
+
+                if(vHash.contains(__pixelSize))
+                    font.setPixelSize(vHash.value(__pixelSize).toInt());
+
+                if(vHash.contains(__pointSize))
+                    font.setPointSize(vHash.value(__pointSize).toInt());
+
+                if(vHash.contains(__pointSizeF))
+                    font.setPointSizeF(vHash.value(__pointSizeF).toReal());
+
+                value=QVariant::fromValue(font);
+                break;
+            }
+            default:
+                break;
             }
 
-            if(vHash.contains(__strikeOut))
-                font.setStrikeOut(vHash.value(__strikeOut).toBool());
-
-            if(vHash.contains(__stretch))
-                font.setStretch(vHash.value(__stretch).toReal());
-
-            if(vHash.contains(__italic))
-                font.setItalic(vHash.value(__italic).toInt());
-
-            if(vHash.contains(__pixelSize))
-                font.setPixelSize(vHash.value(__pixelSize).toInt());
-
-            if(vHash.contains(__pixelSize))
-                font.setPixelSize(vHash.value(__pixelSize).toInt());
-
-            if(vHash.contains(__pointSize))
-                font.setPointSize(vHash.value(__pointSize).toInt());
-
-            if(vHash.contains(__pointSizeF))
-                font.setPointSizeF(vHash.value(__pointSizeF).toReal());
-
-            value=QVariant::fromValue(font);
-            break;
+            switch(value.typeId()){
+            case QMetaType::UnknownType:{
+//                if(mergeValues)
+//                    break;
+                property.reset(this);
+                break;
+            }
+            default:
+                if(property.write(this, value))
+                    __return=true;
+                break;
+            }
         }
         else{
             auto objReady=property.read(this).value<QObject*>();
