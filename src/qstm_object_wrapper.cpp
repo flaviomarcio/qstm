@@ -1,13 +1,24 @@
 #include "./qstm_object_wrapper.h"
 #include "./qstm_util_variant.h"
+#include "./qstm_meta_enum.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
 #include <QVariantHash>
 #include <QMetaType>
 #include <QFile>
+#include <QFont>
 
 namespace QStm {
 
+static const auto __family="family";
+static const auto __bold="bold";
+static const auto __italic="italic";
+static const auto __weight="weight";
+static const auto __strikeOut="strikeOut";
+static const auto __stretch="stretch";
+static const auto __pixelSize="pixelSize";
+static const auto __pointSize="pointSize";
+static const auto __pointSizeF="pointSizeF";
 
 typedef QVector<QByteArray> PropertyNames;
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyNames, staticIgnoreMethods,({"objectName","values","measures","asJson", "measures", "baseValues", "clearOnSetFail"}))
@@ -152,15 +163,43 @@ bool ObjectWrapper::setValues(const QVariant &v)
 
 
         if(!isObject()){
-            switch(value.typeId()){
-            case QMetaType::UnknownType:
-                property.reset(this);
-                break;
-            default:
-                if(property.write(this, value))
-                    __return=true;
-                break;
+            auto vHash=value.toHash();
+            QFont font;
+
+            if(vHash.contains(__family))
+                font.setFamily(vHash.value(__family).toString());
+
+            if(vHash.contains(__bold))
+                font.setBold(vHash.value(__bold).toBool());
+
+            if(vHash.contains(__weight)){
+                MetaEnum<QFont::Weight> weight=vHash.value(__weight);
+                font.setWeight(weight.type());
             }
+
+            if(vHash.contains(__strikeOut))
+                font.setStrikeOut(vHash.value(__strikeOut).toBool());
+
+            if(vHash.contains(__stretch))
+                font.setStretch(vHash.value(__stretch).toReal());
+
+            if(vHash.contains(__italic))
+                font.setItalic(vHash.value(__italic).toInt());
+
+            if(vHash.contains(__pixelSize))
+                font.setPixelSize(vHash.value(__pixelSize).toInt());
+
+            if(vHash.contains(__pixelSize))
+                font.setPixelSize(vHash.value(__pixelSize).toInt());
+
+            if(vHash.contains(__pointSize))
+                font.setPointSize(vHash.value(__pointSize).toInt());
+
+            if(vHash.contains(__pointSizeF))
+                font.setPointSizeF(vHash.value(__pointSizeF).toReal());
+
+            value=QVariant::fromValue(font);
+            break;
         }
         else{
             auto objReady=property.read(this).value<QObject*>();
