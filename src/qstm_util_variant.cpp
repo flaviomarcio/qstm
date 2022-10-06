@@ -196,8 +196,7 @@ public:
 
     static QByteArray toByteArray(const QVariant &v)
     {
-        auto typeId=v.typeId();
-        switch (typeId) {
+        switch (v.typeId()) {
         case QMetaType::QUuid:
             return v.toUuid().toByteArray();
         case QMetaType::QUrl:

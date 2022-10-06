@@ -26,3 +26,4 @@
 #include "./qstm_meta_enum.h"
 #include "./qstm_log.h"
 #include "./qstm_logger.h"
+#include "./qstm_crypto_util.h"

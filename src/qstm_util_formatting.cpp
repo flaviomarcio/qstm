@@ -66,7 +66,7 @@ public:
 
 Q_GLOBAL_STATIC(FormattingUtilStruct,___formattingUtilStruct)
 
-void init()
+static void init()
 {
     ___formattingUtilStruct->init();
 }
