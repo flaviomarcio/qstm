@@ -826,7 +826,7 @@ const QStringList VariantUtil::toStringList(const QVariant &v)
     default:
         break;
     }
-    return {};
+    return QStringList{v.toString().trimmed()};
 
 }
 
