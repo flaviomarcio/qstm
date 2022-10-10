@@ -27,7 +27,7 @@ static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext 
 {
     static auto timeFormat=QStringLiteral("hh:mm:ss");
     static auto logFormat=QStringLiteral("#%1-%2:%3");
-    static auto printFormat=QByteArrayLiteral("%1\n");
+    static auto printFormat=QByteArrayLiteral("%s\n");
 
     const static auto replaceText=QStringList{QT_STRINGIFY(ResultValue &),QT_STRINGIFY(ResultValue &),QT_STRINGIFY(QApp::),QStringLiteral("\"")};
     auto line = context.line<=0?QTime::currentTime().toString(timeFormat):QString::number(context.line).rightJustified(5,'0');
