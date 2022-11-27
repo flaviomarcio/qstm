@@ -39,13 +39,13 @@ public:
         //! \brief date
         //! \return
         //!
-        virtual QString&date() const;
+        virtual QString &date() const;
 
         //!
         //! \brief time
         //! \return
         //!
-        virtual QString&time() const;
+        virtual QString &time() const;
 
         //!
         //! \brief timeShort
@@ -57,38 +57,38 @@ public:
         //! \brief dateTime
         //! \return
         //!
-        virtual QString&dateTime() const;
+        virtual QString &dateTime() const;
 
         //!
         //! \brief currency
         //! \return
         //!
-        virtual QString&currency() const;
+        virtual QString &currency() const;
 
         //!
         //! \brief number
         //! \return
         //!
-        virtual QString&number() const;
+        virtual QString &number() const;
 
         //!
         //! \brief numeric
         //! \return
         //!
-        virtual QString&numeric() const;
+        virtual QString &numeric() const;
 
         //!
         //! \brief percent
         //! \return
         //!
-        virtual QString&percent() const;
+        virtual QString &percent() const;
 
         //!
         //! \brief boolean
         //! \param v
         //! \return
         //!
-        virtual QString&boolean(const bool&v)const;
+        virtual QString &boolean(const bool&v)const;
     private:
         FormattingUtilPvt *p=nullptr;
     };
@@ -153,6 +153,13 @@ public:
     //! \return
     //!
     virtual const QString toInt(const QVariant &v={});
+
+    //!
+    //! \brief toNumber
+    //! \param v
+    //! \return
+    //!
+    virtual const QString toNumber(const QVariant &v={});
 
     //!
     //! \brief toDouble

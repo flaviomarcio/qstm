@@ -5,6 +5,8 @@
 #include <QUuid>
 #include <QUrl>
 #include <QCoreApplication>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #define set_v \
 this->setValue((v.isValid())?v:(*this))
@@ -219,10 +221,36 @@ const QString FormattingUtil::toCurrency(const QVariant &v, int prec)
 
 const QString FormattingUtil::toInt(const QVariant &v)
 {
-
     set_v;
     auto val=QVariant::toDouble();
     return p->c.toString(val,fChar,0);
+}
+
+const QString FormattingUtil::toNumber(const QVariant &v)
+{
+    QString ss;
+    switch (v.typeId()) {
+    case QMetaType::QDate:
+        ss=v.toDate().toString(Qt::ISODate);
+        break;
+    case QMetaType::QTime:
+        ss=v.toTime().toString(Qt::ISODateWithMs);
+        break;
+    case QMetaType::QDateTime:
+        ss=v.toDateTime().toString(Qt::ISODateWithMs);
+        break;
+    case QMetaType::Double:
+        ss=QString::number(v.toDouble(),'f',11);
+        break;
+    default:
+        ss=v.toString();
+    }
+    static auto __regExp=QStringLiteral("[0-9]+");
+    static QRegularExpression rx(__regExp);
+    QRegularExpressionMatch match = rx.match(ss);
+    if (match.hasMatch())
+        return match.capturedTexts().join("");
+    return {};
 }
 
 const QString FormattingUtil::toDouble(const QVariant &v, int prec)
