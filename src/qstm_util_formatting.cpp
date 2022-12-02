@@ -203,7 +203,21 @@ const QString FormattingUtil::toTimeShort(const QVariant &v)
 const QString FormattingUtil::toDateTime(const QVariant &v)
 {
     set_v;
-    auto dt=QVariant::toDateTime();
+    QDateTime dt={};
+    switch (v.typeId()) {
+    case QMetaType::QDate:
+        dt=QDateTime{v.toDate(),{}};
+        break;
+    case QMetaType::QTime:
+        dt=QDateTime{{}, v.toTime()};
+        break;
+    case QMetaType::QDateTime:
+        dt=v.toDateTime();
+        break;
+    default:
+        dt=QDateTime::fromString(v.toString(),Qt::ISODateWithMs);
+        break;
+    }
     auto __return=dt.date().toString(this->masks().date());
     __return.append(QStringLiteral(" "));
     __return.append(dt.time().toString(this->masks().time()));
