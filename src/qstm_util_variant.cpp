@@ -1278,9 +1278,8 @@ bool VariantUtil::vIsEmpty(const QVariant &v)
     p->clear();
     this->setValue(v);
     auto vv=QVariant(v.isValid()?v:*this);
-    bool invalid=vv.isValid() && !v.isNull();
-    if(!invalid)
-        return false;
+    if(!vv.isValid() || vv.isNull())
+        return true;
 
     switch (this->typeId()) {
     case QMetaType::QUuid:
