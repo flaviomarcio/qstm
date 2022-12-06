@@ -54,7 +54,7 @@ public:
 
     bool equal(const QVariant &v)const
     {
-        auto type=this->type(v);
+        ENUM type=this->type(v);
         return this->_type==type;
     }
 
