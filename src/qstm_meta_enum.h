@@ -121,7 +121,7 @@ public:
 
 private:
     QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
-    ENUM _type=ENUM(this->metaEnum.value(0));;
+    ENUM _type=ENUM(this->metaEnum.value(0));
 };
 
 } // namespace QMFE
