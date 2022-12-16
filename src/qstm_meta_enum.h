@@ -65,8 +65,13 @@ public:
 
     ENUM type(const QVariant &value)const
     {
-        if(metaEnum.keyCount()==0)
+        if(metaEnum.keyCount()==0){
+            bool ok;
+            auto i=value.toInt(&ok);
+            if(ok)
+                return ENUM(i);
             return ENUM(-1);
+        }
 
         switch (value.typeId()) {
         case QMetaType::Long:
