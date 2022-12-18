@@ -199,6 +199,11 @@ public:
     virtual const QString v(const QVariant &v={}, int prec=-1);
 
     //!
+    //! \brief formatMask
+    //! \param mask
+    //! \param v
+    //! \return
+    //!
     virtual const QString formatMask(const QString &mask, const QVariant &v={});
 
     //!

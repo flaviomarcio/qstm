@@ -331,34 +331,37 @@ const QString FormattingUtil::formatMask(const QString &mask, const QVariant &v)
     set_v;
     static const auto __separator=QString(";");
     static const auto __mask=QChar('_');
+    static const auto __charFormat=QChar('#');
 
     auto valueText=v.toString().trimmed();
     if(valueText.isEmpty())
         return {};
 
     if(!mask.contains(__separator))
-        return v.toString();
+        return valueText;
 
     auto lst=mask.split(__separator);
     auto maskText=lst.first().trimmed();
     auto charText=lst.last().trimmed();
+
+    if(charText.size()>1)
+        return valueText;
+
     auto charDetected=(charText.isEmpty()?__mask:charText.at(charText.length()-1)).toLower();
 
     QString __return;
     for(auto &c:maskText){
 
-        if(c.toLower()==charDetected){
-            c=valueText.at(0);
-            valueText=valueText.mid(1,valueText.length());
+        if(c.toLower()==__charFormat){
+            if(valueText.isEmpty())
+                c=charDetected;
+            else{
+                c=valueText.at(0);
+                valueText=valueText.mid(1,valueText.length());
+            }
         }
         __return+=c;
-        if(valueText.isEmpty())
-            break;
-
     }
-
-
-
 
     return __return;
 
