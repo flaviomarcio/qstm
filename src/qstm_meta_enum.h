@@ -25,15 +25,15 @@ public:
         this->_type=this->type(value);
     }
 
-    ENUM operator = (const ENUM &value)
-    {
-        this->_type=value;
-        return this->_type;
-    }
-
     ENUM operator = (const QVariant &value)
     {
         this->_type=this->type(value);
+        return this->_type;
+    }
+
+    ENUM operator = (const ENUM &value)
+    {
+        this->_type=value;
         return this->_type;
     }
 
@@ -42,7 +42,17 @@ public:
         return this->_type==this->type(value);
     }
 
+    bool operator == (const ENUM &value)
+    {
+        return this->_type==value;
+    }
+
     bool operator != (const QVariant &value)
+    {
+        return this->_type!=this->type(value);
+    }
+
+    bool operator != (const ENUM &value)
     {
         return this->_type!=this->type(value);
     }
@@ -58,9 +68,15 @@ public:
         return this->_type==type;
     }
 
+    bool equal(const ENUM &type)const
+    {
+        return this->_type==type;
+    }
+
     QByteArray name()const
     {
-        return QByteArray{metaEnum.valueToKey(this->_type)};
+        auto ivalue=static_cast<int>(this->_type);
+        return QByteArray{metaEnum.valueToKey(ivalue)};
     }
 
     ENUM type(const QVariant &value)const
