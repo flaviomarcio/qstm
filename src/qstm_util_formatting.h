@@ -199,6 +199,9 @@ public:
     virtual const QString v(const QVariant &v={}, int prec=-1);
 
     //!
+    virtual const QString formatMask(const QString &mask, const QVariant &v={});
+
+    //!
     //! \brief currencySymbol
     //! \param v
     //! \return

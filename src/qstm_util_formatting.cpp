@@ -326,6 +326,44 @@ const QString FormattingUtil::v(const QVariant &v, int prec)
     return QVariant::toString();
 }
 
+const QString FormattingUtil::formatMask(const QString &mask, const QVariant &v)
+{
+    set_v;
+    static const auto __separator=QString(";");
+    static const auto __mask=QChar('_');
+
+    auto valueText=v.toString().trimmed();
+    if(valueText.isEmpty())
+        return {};
+
+    if(!mask.contains(__separator))
+        return v.toString();
+
+    auto lst=mask.split(__separator);
+    auto maskText=lst.first().trimmed();
+    auto charText=lst.last().trimmed();
+    auto charDetected=(charText.isEmpty()?__mask:charText.at(charText.length()-1)).toLower();
+
+    QString __return;
+    for(auto &c:maskText){
+
+        if(c.toLower()==charDetected){
+            c=valueText.at(0);
+            valueText=valueText.mid(1,valueText.length());
+        }
+        __return+=c;
+        if(valueText.isEmpty())
+            break;
+
+    }
+
+
+
+
+    return __return;
+
+}
+
 const QString FormattingUtil::currencySymbol(const QVariant &v)
 {
     static const QLocale brz(QLocale::Portuguese, QLocale::Brazil);
