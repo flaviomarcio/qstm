@@ -59,7 +59,7 @@ void init()
     make_static_variables();
 }
 
-Q_COREAPP_STARTUP_FUNCTION(init);
+Q_COREAPP_STARTUP_FUNCTION(init)
 
 class SettingBaseTemplatePrv: public QObject
 {

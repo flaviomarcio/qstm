@@ -2,19 +2,19 @@
 
 namespace QStm{
 
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilString, ({QMetaType::QString,QMetaType::QByteArray,QMetaType::QChar,QMetaType::QBitArray}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilMetaString, ({QMetaType::QUrl, QMetaType::QUuid, QMetaType::QString, QMetaType::QByteArray, QMetaType::QChar, QMetaType::QBitArray}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilNumeric, ({QMetaType::LongLong,QMetaType::Int,QMetaType::UInt,QMetaType::ULongLong,QMetaType::Double}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilDoubles, ({QMetaType::Double}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilIntegers, ({QMetaType::LongLong,QMetaType::Int,QMetaType::UInt,QMetaType::ULongLong,QMetaType::Double}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilClass, ({QMetaType::QUrl,QMetaType::QUuid,QMetaType::QVariantMap,QMetaType::QVariantHash,QMetaType::QVariantList,QMetaType::QStringList}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjects, ({QMetaType::QVariantMap,QMetaType::QVariantHash,QMetaType::QVariantList,QMetaType::QStringList}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjectsString, ({QMetaType::QString,QMetaType::QByteArray}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilDates, ({QMetaType::QDate,QMetaType::QDateTime,QMetaType::QTime}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilBool, ({QMetaType::Bool}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilVariantDictionary, ({QMetaType::QVariantHash, QMetaType::QVariantMap}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilVariantList, ({QMetaType::QVariantList, QMetaType::QStringList}));
-Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjectMetaData, ({QMetaType::QVariantHash, QMetaType::QVariantMap, QMetaType::QVariantList, QMetaType::QStringList}));
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilString, ({QMetaType::QString,QMetaType::QByteArray,QMetaType::QChar,QMetaType::QBitArray}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilMetaString, ({QMetaType::QUrl, QMetaType::QUuid, QMetaType::QString, QMetaType::QByteArray, QMetaType::QChar, QMetaType::QBitArray}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilNumeric, ({QMetaType::LongLong,QMetaType::Int,QMetaType::UInt,QMetaType::ULongLong,QMetaType::Double}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilDoubles, ({QMetaType::Double}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilIntegers, ({QMetaType::LongLong,QMetaType::Int,QMetaType::UInt,QMetaType::ULongLong,QMetaType::Double}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilClass, ({QMetaType::QUrl,QMetaType::QUuid,QMetaType::QVariantMap,QMetaType::QVariantHash,QMetaType::QVariantList,QMetaType::QStringList}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjects, ({QMetaType::QVariantMap,QMetaType::QVariantHash,QMetaType::QVariantList,QMetaType::QStringList}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjectsString, ({QMetaType::QString,QMetaType::QByteArray}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilDates, ({QMetaType::QDate,QMetaType::QDateTime,QMetaType::QTime}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilBool, ({QMetaType::Bool}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilVariantDictionary, ({QMetaType::QVariantHash, QMetaType::QVariantMap}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilVariantList, ({QMetaType::QVariantList, QMetaType::QStringList}))
+Q_GLOBAL_STATIC_WITH_ARGS(QMetaTypeUtil, staticQMetaTypeUtilObjectMetaData, ({QMetaType::QVariantHash, QMetaType::QVariantMap, QMetaType::QVariantList, QMetaType::QStringList}))
 
 QMetaTypeUtil::QMetaTypeUtil(const QVector<int> &list):QVector<int>{list}
 {

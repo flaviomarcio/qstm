@@ -1,25 +1,19 @@
 cmake_minimum_required(VERSION 3.14)
-project(
-    QStm
-    VERSION 0.1.0
-    LANGUAGES CXX
-)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+project(QStm LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Wextra -Werror -Wno-unused-function")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(NOT DEFINED QT_DEFAULT_MAJOR_VERSION)
-    set(QT_DEFAULT_MAJOR_VERSION 5)
-endif()
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Sql)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
-find_package(Qt5Core)
-find_package(Qt5Network)
-find_package(Qt5Sql)
 
 if(MSVC)
     add_compile_options(/W3 /WX /Zc:lambda)
@@ -27,43 +21,96 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
+#add_subdirectory(${CMAKE_SOURCE_DIR}/src)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Network_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Sql_EXECUTABLE_COMPILE_FLAGS}")
-
-include_directories(${Qt5Core_INCLUDE_DIRS})
-include_directories(${Qt5Network_INCLUDE_DIRS})
-include_directories(${Qt5Sql_INCLUDE_DIRS})
-
-add_subdirectory(src)
-
-foreach(plugin ${Qt5Core_PLUGINS})
-  get_target_property(_loc ${plugin} LOCATION)
-  message("Plugin ${plugin} is at location ${_loc}")
-endforeach()
-
-foreach(plugin ${Qt5Network_PLUGINS})
-  get_target_property(_loc ${plugin} LOCATION)
-  message("Plugin ${plugin} is at location ${_loc}")
-endforeach()
-
-foreach(plugin ${Qt5Sql_PLUGINS})
-  get_target_property(_loc ${plugin} LOCATION)
-  message("Plugin ${plugin} is at location ${_loc}")
-endforeach()
-
-file(
-    WRITE "${CMAKE_BINARY_DIR}/.clang-tidy"
-    "
----
-Checks: '-*,llvm-twine-local'
-...
-"
+set(QStm_SRCS
+    src/private/p_qstm_base_setting.cpp
+    src/private/p_qstm_base_setting.h
+    src/private/p_qstm_result_info.cpp
+    src/private/p_qstm_result_info.h
+    src/private/p_qstm_setting_manager.cpp
+    src/private/p_qstm_setting_manager.h
+    src/private/p_qstm_startup.cpp
+    src/private/p_qstm_startup.h
+    src/qstm.h
+    src/qstm_cache_pool.cpp
+    src/qstm_cache_pool.h
+    src/qstm_const.h
+    src/qstm_crypto_util.cpp
+    src/qstm_crypto_util.h
+    src/qstm_currency.cpp
+    src/qstm_currency.h
+    src/qstm_fileinfo.cpp
+    src/qstm_fileinfo.h
+    src/qstm_global.h
+    src/qstm_log.cpp
+    src/qstm_log.h
+    src/qstm_logger.cpp
+    src/qstm_logger.h
+    src/qstm_macro.h
+    src/qstm_message.cpp
+    src/qstm_message.h
+    src/qstm_meta_enum.h
+    src/qstm_meta_types.cpp
+    src/qstm_meta_types.h
+    src/qstm_network_types.cpp
+    src/qstm_network_types.h
+    src/qstm_object.cpp
+    src/qstm_object.h
+    src/qstm_object_wrapper.cpp
+    src/qstm_object_wrapper.h
+    src/qstm_result.cpp
+    src/qstm_result.h
+    src/qstm_result_info.cpp
+    src/qstm_result_info.h
+    src/qstm_setting_base.cpp
+    src/qstm_setting_base.h
+    src/qstm_setting_manager.cpp
+    src/qstm_setting_manager.h
+    src/qstm_startup.cpp
+    src/qstm_startup.h
+    src/qstm_types.cpp
+    src/qstm_types.h
+    src/qstm_types_const.h
+    src/qstm_url.cpp
+    src/qstm_url.h
+    src/qstm_util_date.cpp
+    src/qstm_util_date.h
+    src/qstm_util_double.cpp
+    src/qstm_util_double.h
+    src/qstm_util_formatting.cpp
+    src/qstm_util_formatting.h
+    src/qstm_util_meta_object.cpp
+    src/qstm_util_meta_object.h
+    src/qstm_util_path.cpp
+    src/qstm_util_path.h
+    src/qstm_util_variant.cpp
+    src/qstm_util_variant.h
+    src/qstm_vvm.cpp
+    src/qstm_vvm.h
 )
 
-#feature_summary(
-#    INCLUDE_QUIET_PACKAGES
-#    WHAT ALL
-#    FATAL_ON_MISSING_REQUIRED_PACKAGES
-#)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+    add_library(QStm STATIC ${QStm_SRCS})
+else()
+    add_library(QStm SHARED ${QStm_SRCS})
+endif()
+
+
+target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+
+target_compile_definitions(QStm PRIVATE QStm_LIBRARY)
+
+#include_directories(${CMAKE_SOURCE_DIR}/src)
+
+
+target_link_libraries(
+    QStm # cmake-format: sortable
+)
+
+target_link_libraries(QStm PRIVATE Qt6::Gui)
+
+install(TARGETS QStm
+    DESTINATION ${HOME}/qtreforce.sdk/lib/QStm
+)

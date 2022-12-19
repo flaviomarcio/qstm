@@ -25,7 +25,7 @@ static const char fChar='f';
 static auto nativeCountryName()
 {
     return QLocale::c().nativeCountryName();
-};
+}
 
 
 struct FormattingUtilStruct{
@@ -73,7 +73,7 @@ static void init()
     ___formattingUtilStruct->init();
 }
 
-Q_COREAPP_STARTUP_FUNCTION(init);
+Q_COREAPP_STARTUP_FUNCTION(init)
 
 class FormattingUtilPvt{
 public:
