@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
+#find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
@@ -21,6 +21,7 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
+#include(${CMAKE_CURRENT_SOURCE_DIR}/src/src.cmake)
 set(QStm_SRCS
     src/private/p_qstm_base_setting.cpp
     src/private/p_qstm_base_setting.h
@@ -88,6 +89,7 @@ set(QStm_SRCS
     src/qstm_vvm.h
 )
 
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
     add_library(QStm STATIC ${QStm_SRCS})
 else()
@@ -96,13 +98,17 @@ endif()
 
 
 target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Core)
-target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+#target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
+target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 target_compile_definitions(QStm PRIVATE QStm_LIBRARY)
 
 target_link_libraries(
     QStm # cmake-format: sortable
 )
 
+target_include_directories(QStm PUBLIC src)
+target_include_directories(QStm PRIVATE src/private)
 
 install(TARGETS QStm
     DESTINATION ${HOME}/qtreforce.sdk/lib

@@ -6,7 +6,9 @@
 #include <QVariantHash>
 #include <QMetaType>
 #include <QFile>
+#ifdef QT_GUI_LIB
 #include <QFont>
+#endif
 
 namespace QStm {
 
@@ -163,6 +165,7 @@ bool ObjectWrapper::setValues(const QVariant &v)
 
 
         if(!isObject()){
+#ifdef QT_GUI_LIB
             switch(property.typeId()){
             case QMetaType::QFont:{
                 auto vHash=value.toHash();
@@ -206,7 +209,7 @@ bool ObjectWrapper::setValues(const QVariant &v)
             default:
                 break;
             }
-
+#endif
             switch(value.typeId()){
             case QMetaType::UnknownType:{
 //                if(mergeValues)
