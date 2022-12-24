@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
-#find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
@@ -98,7 +98,7 @@ endif()
 
 
 target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Core)
-#target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
 target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Network)
 target_compile_definitions(QStm PRIVATE QStm_LIBRARY)
