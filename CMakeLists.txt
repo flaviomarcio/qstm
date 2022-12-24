@@ -99,18 +99,14 @@ endif()
 
 
 target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Core)
-
+target_link_libraries(QStm PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_compile_definitions(QStm PRIVATE QStm_LIBRARY)
-
-#include_directories(${CMAKE_SOURCE_DIR}/src)
-
 
 target_link_libraries(
     QStm # cmake-format: sortable
 )
 
-target_link_libraries(QStm PRIVATE Qt6::Gui)
 
 install(TARGETS QStm
-    DESTINATION ${HOME}/qtreforce.sdk/lib/QStm
+    DESTINATION ${HOME}/qtreforce.sdk/lib
 )
