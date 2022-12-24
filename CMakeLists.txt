@@ -21,8 +21,6 @@ else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
 
-#add_subdirectory(${CMAKE_SOURCE_DIR}/src)
-
 set(QStm_SRCS
     src/private/p_qstm_base_setting.cpp
     src/private/p_qstm_base_setting.h
@@ -89,7 +87,6 @@ set(QStm_SRCS
     src/qstm_vvm.cpp
     src/qstm_vvm.h
 )
-
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
     add_library(QStm STATIC ${QStm_SRCS})
