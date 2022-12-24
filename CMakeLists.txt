@@ -23,6 +23,7 @@ endif()
 
 #include(${CMAKE_CURRENT_SOURCE_DIR}/src/src.cmake)
 set(QStm_SRCS
+    includes/QStm
     src/private/p_qstm_base_setting.cpp
     src/private/p_qstm_base_setting.h
     src/private/p_qstm_result_info.cpp
