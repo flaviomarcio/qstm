@@ -14,6 +14,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
+qt_standard_project_setup()
+
 
 if(MSVC)
     add_compile_options(/W3 /WX /Zc:lambda)
@@ -112,5 +114,15 @@ target_include_directories(QStm PUBLIC src)
 target_include_directories(QStm PRIVATE src/private)
 
 install(TARGETS QStm
-    DESTINATION ${HOME}/qtreforce.sdk/lib
+    BUNDLE  DESTINATION .
+    #RUNTIME DESTINATION ${HOME}/qtreforce.sdk/lib
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+qt_generate_deploy_app_script(
+    TARGET QStm
+    FILENAME_VARIABLE deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+install(SCRIPT ${deploy_script})

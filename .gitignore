@@ -1,4 +1,12 @@
 #Qt Project
+
+CMakeFiles/
+config.tests/
+build.ninja
+.qt/
+cmake_install.cmake
+*.txt.user
+
 *.pro.user
 *.pro.user*
 
