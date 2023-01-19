@@ -113,13 +113,6 @@ public:
     QVariant parseVariables(const QVariant &v) const;
 
     //!
-    //! \brief staticParseVariables
-    //! \param v
-    //! \return
-    //!
-    static const QVariant staticParseVariables(const QVariant &v);
-
-    //!
     //! \brief variable
     //! \param v
     //! \return
@@ -154,12 +147,6 @@ public:
     //! \return
     //!
     static const QVariant parseInterval(const QVariant &v, const QVariant &interval);
-
-    //!
-    //! \brief staticVariables
-    //! \return
-    //!
-    const QVariantHash &staticVariables();
 
     //!
     //! \brief macth
@@ -298,12 +285,6 @@ public:
     void setActivityThread(const QVariant &value);
 
     void setMemoryLimit(const QVariant &value);
-
-    //!
-    //! \brief setStaticVariables
-    //! \param v
-    //!
-    void setStaticVariables(const QVariantHash &v);
 
 private:
     SettingBaseTemplatePrv*p=nullptr;

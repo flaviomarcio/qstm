@@ -3,70 +3,17 @@
 #include "../qstm_util_variant.h"
 #include "../qstm_util_date.h"
 #include "../qstm_util_meta_object.h"
+#include "../qstm_envs.h"
 
 namespace QStm {
 
 namespace Private {
-
-typedef QStandardPaths StdPaths;
-
-Q_GLOBAL_STATIC(QVariantHash, static_dirs)
-Q_GLOBAL_STATIC(QVariantHash, static_variables)
-
-static void make_static_variables()
-{
-    auto &d = *static_dirs;
-
-#ifndef Q_OS_IOS
-    QProcess process;
-    auto lst = process.environment();
-    for (auto &v : lst) {
-        auto s = v.split(QStringLiteral("="));
-        auto env = s.first().trimmed();
-        auto value = s.last().trimmed();
-        d[env] = value;
-    }
-#endif
-    d[QStringLiteral("$DesktopLocation")] = StdPaths::writableLocation(StdPaths::DesktopLocation);
-    d[QStringLiteral("$DocumentsLocation")] = StdPaths::writableLocation(StdPaths::DocumentsLocation);
-    d[QStringLiteral("$FontsLocation")] = StdPaths::writableLocation(StdPaths::FontsLocation);
-    d[QStringLiteral("$ApplicationsLocation")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
-    d[QStringLiteral("$MusicLocation")] = StdPaths::writableLocation(StdPaths::MusicLocation);
-    d[QStringLiteral("$MoviesLocation")] = StdPaths::writableLocation(StdPaths::MoviesLocation);
-    d[QStringLiteral("$PicturesLocation")] = StdPaths::writableLocation(StdPaths::PicturesLocation);
-    d[QStringLiteral("$TempLocation")] = StdPaths::writableLocation(StdPaths::TempLocation);
-    d[QStringLiteral("$HomeLocation")] = StdPaths::writableLocation(StdPaths::HomeLocation);
-    d[QStringLiteral("$CacheLocation")] = StdPaths::writableLocation(StdPaths::CacheLocation);
-    d[QStringLiteral("$GenericDataLocation")] = StdPaths::writableLocation(StdPaths::GenericDataLocation);
-    d[QStringLiteral("$RuntimeLocation")] = StdPaths::writableLocation(StdPaths::RuntimeLocation);
-    d[QStringLiteral("$ConfigLocation")] = StdPaths::writableLocation(StdPaths::ConfigLocation);
-    d[QStringLiteral("$DownloadLocation")] = StdPaths::writableLocation(StdPaths::DownloadLocation);
-    d[QStringLiteral("$GenericCacheLocation")] = StdPaths::writableLocation(StdPaths::GenericCacheLocation);
-    d[QStringLiteral("$GenericConfigLocation")] = StdPaths::writableLocation(StdPaths::GenericConfigLocation);
-    d[QStringLiteral("$AppDataLocation")] = StdPaths::writableLocation(StdPaths::AppDataLocation);
-    d[QStringLiteral("$AppConfigLocation")] = StdPaths::writableLocation(StdPaths::AppConfigLocation);
-    d[QStringLiteral("$AppLocalDataLocation")] = StdPaths::writableLocation(StdPaths::AppLocalDataLocation);
-    d[QStringLiteral("$HOME")] = StdPaths::writableLocation(StdPaths::HomeLocation);
-    d[QStringLiteral("$TEMPDIR")] = StdPaths::writableLocation(StdPaths::TempLocation);
-    d[QStringLiteral("$APPDIR")] = StdPaths::writableLocation(StdPaths::ApplicationsLocation);
-    d[QStringLiteral("$APPNAME")] = qApp->applicationName();
-
-    *static_variables=d;
-}
-
-void init()
-{
-    make_static_variables();
-}
-
-Q_COREAPP_STARTUP_FUNCTION(init)
 
 class SettingBaseTemplatePrv: public QObject
 {
 public:
     QObject *parent=nullptr;
     QString identification;
-    QVariantHash variables;
     QString name;
     bool enabled=false;
     QVariant activityLimit=defaultLimit;
@@ -74,68 +21,11 @@ public:
     int activityThread=0;
     QVariant memoryLimit=0;
 
+    QStm::Envs envs;
+
     explicit SettingBaseTemplatePrv(QObject *parent=nullptr):QObject{parent}
     {
         this->parent=parent;
-    }
-
-    virtual ~SettingBaseTemplatePrv()
-    {
-    }
-
-    static QVariant staticReplaceString(const QVariantHash &static_variables, const QVariant &v)
-    {
-        QString value;
-        switch (v.typeId()) {
-        case QMetaType::QVariantMap:
-        case QMetaType::QVariantHash:
-        case QMetaType::QVariantList:
-        case QMetaType::QStringList:
-            value=QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
-            break;
-        default:
-            value=v.toByteArray();
-        }
-
-        if(!value.contains(QStringLiteral("$")))
-            return v;
-
-        QHashIterator<QString, QVariant> i(static_variables);
-        while (i.hasNext()) {
-            i.next();
-            auto key=i.key();
-            const auto k=QString(QStringLiteral("$")+key)
-                    .replace(QStringLiteral("$$"),QStringLiteral("$"))
-                    .replace(QStringLiteral("${%1}").arg(key), QStringLiteral("$%1").arg(key));
-            const auto v=i.value().toString().trimmed();
-            value=value.replace(k,v);
-        }
-
-        switch (v.typeId()) {
-        case QMetaType::QVariantMap:
-        case QMetaType::QVariantHash:
-        case QMetaType::QVariantList:
-        case QMetaType::QStringList:
-            return QJsonDocument::fromJson(value.toUtf8()).toVariant();
-        default:
-            return value;
-        }
-
-    }
-
-    static const QVariant replaceEnvStatic(const QVariant &v)
-    {
-        auto value=v;
-        value=staticReplaceString(*static_variables, value);
-        return value;
-    }
-
-    QVariant replaceEnv(const QVariant &v)const
-    {
-        auto value=v;
-        value=staticReplaceString(*static_variables, value);
-        value=staticReplaceString(variables, value);
-        return value;
     }
 
     static const QVariant getAlpha(const QVariant &v)
@@ -309,21 +199,12 @@ void SettingBaseTemplate::print() const
 
 QVariant SettingBaseTemplate::parseVariables(const QVariant &v) const
 {
-    auto &p = *reinterpret_cast<SettingBaseTemplatePrv*>(this->p);
-    return p.replaceEnv(v);
-}
-
-const QVariant SettingBaseTemplate::staticParseVariables(const QVariant &v)
-{
-    auto value=SettingBaseTemplatePrv::replaceEnvStatic(v);
-    return value;
+    return p->envs.parser(v);
 }
 
 QVariant SettingBaseTemplate::variable(const QString &v) const
 {
-    auto &p = *reinterpret_cast<SettingBaseTemplatePrv*>(this->p);
-    auto var=p.variables.value(v);
-    return var.isValid()?var:p.replaceEnv(var);
+    return p->envs.parser(v);
 }
 
 const QVariant SettingBaseTemplate::parseAlpha(const QVariant &v)
@@ -344,11 +225,6 @@ const QVariant SettingBaseTemplate::parseInterval(const QVariant &v)
 const QVariant SettingBaseTemplate::parseInterval(const QVariant &v, const QVariant &interval)
 {
     return SettingBaseTemplatePrv::getInterval(v, interval);
-}
-
-const QVariantHash &SettingBaseTemplate::staticVariables()
-{
-    return *static_variables;
 }
 
 bool SettingBaseTemplate::macth(const QString &name)
@@ -669,7 +545,7 @@ QString SettingBaseTemplate::identification() const
 
 QVariantHash &SettingBaseTemplate::variables() const
 {
-    return p->variables;
+    return p->envs.customEnvs();
 }
 
 bool SettingBaseTemplate::enabled() const
@@ -709,7 +585,7 @@ void SettingBaseTemplate::setName(const QString &value)
 
 void SettingBaseTemplate::setVariables(const QVariantHash &value)
 {
-    p->variables=value;
+    p->envs.customEnvs(value);
 }
 
 void SettingBaseTemplate::setEnabled(const bool &value)
@@ -735,11 +611,6 @@ void SettingBaseTemplate::setActivityThread(const QVariant &value)
 void SettingBaseTemplate::setMemoryLimit(const QVariant &value)
 {
     p->memoryLimit=value;
-}
-
-void SettingBaseTemplate::setStaticVariables(const QVariantHash &v)
-{
-    *static_variables=v;
 }
 
 } // namespace Private

@@ -17,7 +17,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString, __argVarSetting,("%1=%2"))
 Q_GLOBAL_STATIC_WITH_ARGS(QString, __argText,("%1"))
 
 static const auto __envUndefined="${?}";
-static const auto __envRegExt="\\${([a-zA-Z0-9._-]+})";
+static const auto __envRegExt="\\${+([a-zA-Z0-9._-]+)}";
 static const auto __splitEnvs="|";
 static const auto __splitEnv="=";
 static const auto __splitArray=",";
@@ -25,7 +25,7 @@ static const auto __splitArray=",";
 static void make_static_variables()
 {
     QVariantHash envsDir={
-        {"DesktopLocation", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)}
+         {"DesktopLocation", QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)}
         ,{"DocumentsLocation", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)}
         ,{"FontsLocation", QStandardPaths::writableLocation(QStandardPaths::FontsLocation)}
         ,{"ApplicationsLocation", QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation)}
@@ -44,10 +44,11 @@ static void make_static_variables()
         ,{"AppDataLocation", QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)}
         ,{"AppConfigLocation", QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)}
         ,{"AppLocalDataLocation", QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)}
-        ,{"HOME", QStandardPaths::writableLocation(QStandardPaths::HomeLocation)}
-        ,{"TEMPDIR", QStandardPaths::writableLocation(QStandardPaths::TempLocation)}
-        ,{"APPDIR", QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation)}
-        ,{"APPNAME", qApp->applicationName()}
+        ,{"home", QStandardPaths::writableLocation(QStandardPaths::HomeLocation)}
+        ,{"tempDir", QStandardPaths::writableLocation(QStandardPaths::TempLocation)}
+        ,{"appDir", QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation)}
+        ,{"appFileName", qApp->applicationFilePath()}
+        ,{"appName", qApp->applicationName()}
     };
 
     *static_DirEnvs=envsDir;
@@ -95,18 +96,21 @@ Q_COREAPP_STARTUP_FUNCTION(init)
 
 class EnvsPvt: public QObject{
 public:
+    QVariantHash dirEnvs=*static_DirEnvs;
+    QVariantHash systemEnvs=*static_SystemEnvs;
     QVariantHash customEnvs;
     bool envalidEnvsClean;
     QVariant invalidEnvsValue;
     bool ignoreSystemEnvs=false;
     bool ignoreDirEnvs=false;
     bool ignoreCustomEnvs=false;
+    bool clearUnfoundEnvs=false;
     Envs *parent=nullptr;
     explicit EnvsPvt(Envs *parent):QObject{parent}
     {
         this->parent=parent;
     }
-
+private:
     static const QString parserToStr(const QVariant &value){
         Q_DECLARE_VU;
         Q_DECLARE_DU;
@@ -179,17 +183,22 @@ public:
     }
 
     static const QString parserDeclaredEnvs(const QString &textParser){
-        static QRegularExpression re(__envRegExt);
-        auto text=textParser;
-        auto match = re.match(text);
-        if (!match.hasMatch())
-            return textParser;
-        for(auto&key:match.capturedTexts())
-            text=text.replace(key, key.toLower());
-        return text;
+        auto input=textParser.trimmed();
+        if(input.isEmpty())
+            return {};
+        QRegularExpression reA(__envRegExt);
+        QRegularExpressionMatchIterator i = reA.globalMatch(input);
+        while (i.hasNext()) {
+            QRegularExpressionMatch match = i.next();
+            if (match.hasMatch()) {
+                auto captured=match.captured(0);
+                input.replace(captured,captured.toLower());
+            }
+        }
+        return input;
     }
 
-    static const QVariant parser(const QVariant &values, const QVariantHash &envs)
+    static const QString parser(const QVariant &values, const QVariantHash &envs)
     {
         Q_DECLARE_VU;
         QString textParser=parserDeclaredEnvs(vu.toByteArray(values));
@@ -206,38 +215,7 @@ public:
                 break;
         }
 
-        return vu.toType(values.typeId(), textParser);
-    }
-
-    static const QVariant staticParser(const QVariant &values, const QVariant &envs)
-    {
-        Q_DECLARE_VU;
-        QVariant value=vu.toByteArray(values);
-
-        value = parser(value, *static_SystemEnvs);
-
-        value = parser(value, *static_DirEnvs);
-
-        value = parser(value, vu.toHash(envs));
-
-        return vu.toType(values.typeId(), value);
-    }
-
-    QVariant customParser(const QVariant &values)const
-    {
-        Q_DECLARE_VU;
-        QVariant value=parserDeclaredEnvs(vu.toByteArray(values));
-
-        if(!this->ignoreSystemEnvs)
-            value = parser(value, *static_SystemEnvs);
-
-        if(!this->ignoreDirEnvs)
-            value = parser(value, *static_DirEnvs);
-
-        if(!this->ignoreCustomEnvs)
-            value = parser(value, this->customEnvs);
-
-        return vu.toType(values.typeId(), value);
+        return textParser;
     }
 
     void addCustomEnv(const QString &envKey, const QVariant &envValue)
@@ -256,6 +234,63 @@ public:
         QVariant v=value.isEmpty()?QVariant{}:value;
         v=vu.toVariant(v);
         this->customEnvs.insert(key, v);
+    }
+
+    static QString clearEnvs(const QString &textParser)
+    {
+        static QRegularExpression re(__envRegExt);
+        auto text=textParser;
+        auto match = re.match(text);
+        if (!match.hasMatch())
+            return textParser;
+        for(auto&key:match.capturedTexts())
+            text=text.replace(key, "");
+        return text;
+    }
+
+public:
+
+    void clear()
+    {
+        this->dirEnvs.clear();
+        this->systemEnvs.clear();
+        this->customEnvs.clear();
+    }
+
+    static const QVariant staticParser(const QVariant &values, const QVariant &envs)
+    {
+        Q_DECLARE_VU;
+        auto value=parserDeclaredEnvs(vu.toByteArray(values));
+
+        value = parser(value, *static_SystemEnvs);
+
+        value = parser(value, *static_DirEnvs);
+
+        value = parser(value, vu.toHash(envs));
+
+        value=clearEnvs(value);
+
+        return vu.toType(values.typeId(), value);
+    }
+
+    QVariant customParser(const QVariant &values)const
+    {
+        Q_DECLARE_VU;
+        auto value=parserDeclaredEnvs(vu.toByteArray(values));
+
+        if(!this->ignoreSystemEnvs)
+            value = parser(value, systemEnvs);
+
+        if(!this->ignoreDirEnvs)
+            value = parser(value, dirEnvs);
+
+        if(!this->ignoreCustomEnvs)
+            value = parser(value, this->customEnvs);
+
+        if(this->clearUnfoundEnvs)
+            value=clearEnvs(value);
+
+        return vu.toType(values.typeId(), value);
     }
 
     void setCustomEnvs(const QVariant &customValues)
@@ -366,7 +401,13 @@ Envs::Envs(QObject *parent)
 Envs::Envs(const QVariant &customEnvs, QObject *parent):QObject{parent}
 {
     this->p=new EnvsPvt{this};
-    this->customEnvs(customEnvs);
+    p->setCustomEnvs(customEnvs);
+}
+
+Envs &Envs::clear()
+{
+    p->clear();
+    return *this;
 }
 
 QVariant Envs::parser(const QVariant &values)const
@@ -379,6 +420,11 @@ const QVariant Envs::parser(const QVariant &values, const QVariant &envs)
     return EnvsPvt::staticParser(values, envs);
 }
 
+QVariant Envs::value(const QString &env)
+{
+    return p->customParser(__argVar->arg(env));
+}
+
 QVariantHash &Envs::customEnvs() const
 {
     return p->customEnvs;
@@ -389,6 +435,14 @@ Envs &Envs::customEnvs(const QVariant &newCustomEnvs)
     Q_DECLARE_VU;
     p->customEnvs.clear();
     p->setCustomEnvs(newCustomEnvs);
+    emit customEnvsChanged();
+    return *this;
+}
+
+Envs &Envs::customEnvs(const QString &env, const QVariant &value)
+{
+    Q_DECLARE_VU;
+    p->setCustomEnvs(QVariantHash{{env, value}});
     emit customEnvsChanged();
     return *this;
 }
@@ -506,6 +560,25 @@ Envs &Envs::ignoreCustomEnvs(bool newIgnoreCustomEnvs)
 Envs &Envs::resetIgnoreCustomEnvs()
 {
     return ignoreCustomEnvs({});
+}
+
+bool Envs::clearUnfoundEnvs() const
+{
+    return p->clearUnfoundEnvs;
+}
+
+Envs &Envs::clearUnfoundEnvs(bool newClearUnfoundEnvs)
+{
+    if (p->clearUnfoundEnvs == newClearUnfoundEnvs)
+        return *this;
+    p->clearUnfoundEnvs=newClearUnfoundEnvs;
+    emit clearUnfoundEnvsChanged();
+    return *this;
+}
+
+Envs &Envs::resetClearUnfoundEnvs()
+{
+    return this->clearUnfoundEnvs({});
 }
 
 } // namespace QStm

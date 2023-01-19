@@ -5,6 +5,7 @@
 
 namespace QStm {
 
+
 SettingManager::SettingManager(QObject *parent) : QObject{nullptr}
 {
     this->p = new SettingManagerPvt{this};
@@ -123,29 +124,22 @@ const QVariantHash SettingManager::settingBody(const QString &value)
 
 QVariantHash SettingManager::arguments() const
 {
-    return p->variables.value(QStringLiteral("arguments")).toHash();
+    return p->arguments;
 }
 
 void SettingManager::setArguments(const QVariantHash &value)
 {
-    auto arguments = p->variables.value(QStringLiteral("arguments")).toHash();
-    QHashIterator<QString, QVariant> i(value);
-    while (i.hasNext()) {
-        i.next();
-        auto v = SettingBase::staticParseVariables(i.value());
-        arguments.insert(i.key(), v);
-    }
-    p->variables.insert(QStringLiteral("arguments"), arguments);
+    p->arguments=p->envs.parser(value).toHash();
 }
 
 QVariantHash SettingManager::variables() const
 {
-    return p->variables;
+    return p->envs.customEnvs();
 }
 
 void SettingManager::setVariables(const QVariantHash &value)
 {
-    p->variables = value;
+    p->envs.customEnvs(value);
 }
 
 QVariantHash SettingManager::toHash() const
@@ -155,13 +149,13 @@ QVariantHash SettingManager::toHash() const
 
 QString SettingManager::rootDir() const
 {
-    auto v = p->variables.value(QStringLiteral("rootdir")).toString();
+    auto v = p->envs.value(__rootDir).toString();
     return v;
 }
 
 SettingManager &SettingManager::setRootDir(const QString &value)
 {
-    p->variables.insert(QStringLiteral("rootdir"), value);
+    p->envs.customEnvs(__rootDir, value);
     return *this;
 }
 

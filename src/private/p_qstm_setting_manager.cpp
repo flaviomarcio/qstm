@@ -4,7 +4,8 @@
 
 QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
     : QObject{parent},
-      settingsDefault(parent)
+      settingsDefault{parent},
+      envs{parent}
 {
     this->parent=parent;
 }
@@ -58,15 +59,14 @@ QVariantHash QStm::SettingManagerPvt::toHash()
     vList=vList+this->settings.values();
     for(auto &v:vList)
         vServices.insert(v->name(), v->toHash());
-    vHash.insert(QStringLiteral("variables"), this->variables);
-    vHash.insert(QStringLiteral("services"), vServices);
+    vHash.insert(__variables, this->envs.customEnvs());
+    vHash.insert(__services, vServices);
     return vHash;
 }
 
 QByteArray QStm::SettingManagerPvt::settingNameAdjust(const QString &settingName)
 {
-    auto setting=settingName.trimmed();
-    return setting.toUtf8();
+    return settingName.trimmed().toUtf8();
 }
 
 QStm::SettingBase &QStm::SettingManagerPvt::settingGetCheck(const QByteArray &settingName)
@@ -243,7 +243,7 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     file.close();
 
     auto vHash=QJsonDocument::fromJson(bytes).object().toVariantHash();
-    if(!vHash.contains(QStringLiteral("services"))){
+    if(!vHash.contains(__services)){
 #if Q_STM_LOG
         sWarning()<<QStringLiteral("tag services not exists, %1").arg(file.fileName());
 #endif
@@ -259,57 +259,58 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
     auto &p=*this;
     p.settingBody=settingsBody;
 
-    const auto settings=settingsBody.contains(QStringLiteral("services"))?settingsBody.value(QStringLiteral("services")).toHash():p.settingBody;
+    const auto serviceSettings=settingsBody.contains(__services)?settingsBody.value(__services).toHash():p.settingBody;
 
     {//variables
-        this->variables=settingsBody[QStringLiteral("variables")].toHash();
+        this->envs.customEnvs(settingsBody.value(__variables));
 
-        auto rootDir=settingsBody[QStringLiteral("rootdir")].toString().trimmed();
-        this->variables[QStringLiteral("rootdir")]=rootDir.isEmpty()?QStringLiteral("%HOME/$APPNAME"):rootDir;
+        auto rootDir=settingsBody.value(__rootDir).toString().trimmed();
+        this->envs.customEnvs(__rootDir,rootDir.isEmpty()?QStringLiteral("${HOME}/${APPNAME}"):rootDir);
 
         QVariantHash arguments;
-        auto varguments=settingsBody[QStringLiteral("arguments")];
+        auto varguments=settingsBody.value(__arguments);
         if(varguments.isNull() || !varguments.isValid())
-            varguments=this->variables[QStringLiteral("arguments")];
-        else
-            this->variables[QStringLiteral("arguments")]=varguments;
+            varguments=this->arguments;
+        else{
+            this->arguments.clear();
 
-        switch (varguments.typeId()) {
-        case QMetaType::QVariantHash:
-        case QMetaType::QVariantMap:
-        {
-            QHashIterator<QString, QVariant> i(varguments.toHash());
-            while (i.hasNext()) {
-                i.next();
-                arguments.insert(i.key().toLower(), i.value());
+            switch (varguments.typeId()) {
+            case QMetaType::QVariantHash:
+            case QMetaType::QVariantMap:
+            {
+                QHashIterator<QString, QVariant> i(varguments.toHash());
+                while (i.hasNext()) {
+                    i.next();
+                    arguments.insert(i.key().toLower(), i.value());
+                }
+                break;
             }
-            break;
-        }
-        case QMetaType::QVariantList:
-        case QMetaType::QStringList:
-        {
-            for(auto &v:varguments.toList()){
-                auto l=v.toString().split(QStringLiteral("="));
-                if(l.isEmpty())
-                    continue;
+            case QMetaType::QVariantList:
+            case QMetaType::QStringList:
+            {
+                for(auto &v:varguments.toList()){
+                    auto l=v.toString().split(QStringLiteral("="));
+                    if(l.isEmpty())
+                        continue;
 
-                if(l.size()==1){
-                    auto key=l.first();
+                    if(l.size()==1){
+                        auto key=l.first();
+                        auto value=l.last();
+                        arguments.insert(key,value);
+                        continue;
+                    }
+
+                    auto key=l.first().toLower();
                     auto value=l.last();
                     arguments.insert(key,value);
-                    continue;
                 }
-
-                auto key=l.first().toLower();
-                auto value=l.last();
-                arguments.insert(key,value);
+                break;
             }
-            break;
+            default:
+                break;
+            }
+            this->parent->setArguments(arguments);
         }
-        default:
-            break;
-        }
-        this->parent->setArguments(arguments);
     }
 
     QVariantHash defaultVariables({{QStringLiteral("hostName"), QStringLiteral("SERVICE_HOST")}});
@@ -327,16 +328,16 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
         }
     }
 
-    auto defaultSetting=settings.value(QStringLiteral("default")).toHash();
+    auto defaultSetting=serviceSettings.value(QStringLiteral("default")).toHash();
 
     p.settingsDefault=defaultSetting;
 
-    if(settings.contains(QStringLiteral("hostName")) && settings.contains(QStringLiteral("port"))){
-        this->insert(settings);
+    if(serviceSettings.contains(QStringLiteral("hostName")) && serviceSettings.contains(QStringLiteral("port"))){
+        this->insert(serviceSettings);
         return this->isLoaded();
     }
 
-    QHashIterator<QString, QVariant> i(settings);
+    QHashIterator<QString, QVariant> i(serviceSettings);
     while (i.hasNext()) {
         i.next();
         auto value=i.value().toHash();

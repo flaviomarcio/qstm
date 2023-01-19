@@ -19,10 +19,15 @@ class Q_STM_EXPORT Envs : public QObject
     Q_PROPERTY(bool ignoreSystemEnvs READ ignoreSystemEnvs WRITE ignoreSystemEnvs RESET resetIgnoreSystemEnvs NOTIFY ignoreSystemEnvsChanged)
     Q_PROPERTY(bool ignoreDirEnvs READ ignoreDirEnvs WRITE ignoreDirEnvs RESET resetIgnoreDirEnvs NOTIFY ignoreDirEnvsChanged)
     Q_PROPERTY(bool ignoreCustomEnvs READ ignoreCustomEnvs WRITE ignoreCustomEnvs RESET resetIgnoreCustomEnvs NOTIFY ignoreCustomEnvsChanged)
+    Q_PROPERTY(bool clearUnfoundEnvs READ clearUnfoundEnvs WRITE clearUnfoundEnvs RESET resetClearUnfoundEnvs NOTIFY clearUnfoundEnvsChanged)
 public:
     explicit Envs(QObject *parent = nullptr);
     explicit Envs(const QVariant &customEnvs, QObject *parent = nullptr);
 
+    //!
+    //! \brief clear
+    //!
+    Envs &clear();
 
     //!
     //! \brief parser
@@ -39,11 +44,19 @@ public:
     static const QVariantHash &systemEnvs();
 
     //!
+    //! \brief value
+    //! \param env
+    //! \return
+    //!
+    QVariant value(const QString &env);
+
+    //!
     //! \brief customEnvs
     //! \return
     //!
     QVariantHash &customEnvs()const;
     Envs &customEnvs(const QVariant &newCustomEnvs);
+    Envs &customEnvs(const QString &env, const QVariant &value);
     Envs &resetCustomEnvs();
 
     //!
@@ -94,6 +107,14 @@ public:
     Envs &ignoreCustomEnvs(bool newIgnoreCustomEnvs);
     Envs &resetIgnoreCustomEnvs();
 
+    //!
+    //! \brief clearUnfoundEnvs
+    //! \return
+    //!
+    bool clearUnfoundEnvs() const;
+    Envs &clearUnfoundEnvs(bool newClearUnfoundEnvs);
+    Envs &resetClearUnfoundEnvs();
+
 private:
     EnvsPvt *p=nullptr;
 signals:
@@ -104,6 +125,7 @@ signals:
     void ignoreSystemEnvsChanged();
     void ignoreDirEnvsChanged();
     void ignoreCustomEnvsChanged();
+    void clearUnfoundEnvsChanged();
 };
 
 } // namespace QStm
