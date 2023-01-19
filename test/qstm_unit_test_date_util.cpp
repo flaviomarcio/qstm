@@ -62,11 +62,11 @@ TEST_F(Q_STM_DateUtilTestUnit, CheckLists)
 
 TEST_F(Q_STM_DateUtilTestUnit, CheckConversor)
 {
-    EXPECT_TRUE(u.toDateTime(QDate::currentDate().addDays(1))==QDateTime(QDate::currentDate().addDays(1), minTime))<<"invalid return value";
+    EXPECT_TRUE(u.toDateTime(QDate::currentDate().addDays(1))==QDateTime(QDate::currentDate().addDays(1), {}))<<"invalid return value";
     EXPECT_TRUE(u.toDateTime(QDateTime(QDate(1901,2,2), QTime(12,12,13)))==QDateTime(QDate(1901,2,2), QTime(12,12,13)))<<"invalid return value";
     EXPECT_FALSE(u.toDateTime(QTime(12,12,13)).isValid())<<"invalid return value";
     EXPECT_TRUE(u.toDateTime("1901-03-04T12:12:13")==QDateTime(QDate(1901,03,04), QTime(12,12,13)))<<"invalid return value";
-    EXPECT_TRUE(u.toDateTime("1901-03-04")==QDateTime(QDate(1901,03,04), minTime))<<"invalid return value";
+    EXPECT_TRUE(u.toDateTime("1901-03-04")==QDateTime(QDate(1901,03,04), {}))<<"invalid return value";
     EXPECT_TRUE(u.toDateTime("12:12:13")==QDateTime(QDate(), QTime(12,12,13)))<<"invalid return value";
 
 
@@ -77,11 +77,11 @@ TEST_F(Q_STM_DateUtilTestUnit, CheckConversor)
     EXPECT_TRUE(u.toDate("1901-03-04")==QDate(1901,03,04))<<"invalid return value";
     EXPECT_TRUE(u.toDate("12:12:13")==QDate())<<"invalid return value";
 
-    EXPECT_TRUE(u.toTime(QDate::currentDate())==minTime)<<"invalid return value";
+    EXPECT_TRUE(u.toTime(QDate::currentDate())==QTime{})<<"invalid return value";
     EXPECT_TRUE(u.toTime(QDateTime(QDate(1901,2,2), QTime(12,12,13)))==QTime(12,12,13))<<"invalid return value";
     EXPECT_TRUE(u.toTime(QTime(12,12,13))==QTime(12,12,13))<<"invalid return value";
     EXPECT_TRUE(u.toTime("1901-03-04T12:12:13")==QTime(12,12,13))<<"invalid return value";
-    EXPECT_TRUE(u.toTime("1901-03-04")==minTime)<<"invalid return value";
+    EXPECT_TRUE(u.toTime("1901-03-04")==QTime{})<<"invalid return value";
     EXPECT_TRUE(u.toTime("12:12:13")==QTime(12,12,13))<<"invalid return value";
 
 }

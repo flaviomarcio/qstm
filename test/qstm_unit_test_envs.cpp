@@ -217,8 +217,24 @@ TEST_F(Q_STM_EnvsFunctional, replaceVarObject)
                 .parser(parserTextIn)
                 .toString();
 
-        qWarning()<<envsOutBytes;
-        qWarning()<<envsInBytes;
+        EXPECT_EQ(envsOutBytes, envsInBytes) <<"Invalid load env data";
+    }
+}
+
+TEST_F(Q_STM_EnvsFunctional, replaceSystemEnvs)
+{
+    const auto envsIn=QVariantHash{
+    {"user",QByteArray{getenv("USER")}}
+    };
+
+    {
+        auto parserTextIn="user=${user}";
+        auto envsOutBytes=QString("user=%1").arg(QByteArray{getenv("USER")});
+
+        auto envsInBytes=envs
+                .customEnvs(envsIn)
+                .parser(parserTextIn)
+                .toString();
 
         EXPECT_EQ(envsOutBytes, envsInBytes) <<"Invalid load env data";
     }
