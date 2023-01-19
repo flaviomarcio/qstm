@@ -443,8 +443,8 @@ const QDateTime DateUtil::toDateTime(const QVariant &v)
     default:
         dt=QVariant::toDateTime();
     }
-    if(dt.time().isNull() || !dt.time().isValid())
-        dt.setTime(*static_minTime);
+//    if(dt.time().isNull() || !dt.time().isValid())
+//        dt.setTime(*static_minTime);
     return dt;
 }
 
@@ -487,7 +487,7 @@ const QTime DateUtil::toTime(const QVariant &v)
         __return=QVariant::toDateTime().time();
         break;
     case QMetaType::QDate:
-        __return=*static_minTime;
+        __return={};//*static_minTime;
         break;
     case QMetaType::QTime:
     {
@@ -497,9 +497,12 @@ const QTime DateUtil::toTime(const QVariant &v)
     case QMetaType::QString:
     case QMetaType::QByteArray:
     {
-        __return=QTime::fromString(QVariant::toString(), Qt::ISODateWithMs);
+        auto text=QVariant::toString();
+        if(!text.contains(":"))
+            break;
+        __return=QTime::fromString(text, Qt::ISODateWithMs);
         if(__return.isNull() || !__return.isValid()){
-            __return=QDateTime::fromString(QVariant::toString(), Qt::ISODateWithMs).time();
+            __return=QDateTime::fromString(text, Qt::ISODateWithMs).time();
         }
         break;
     }
@@ -508,7 +511,8 @@ const QTime DateUtil::toTime(const QVariant &v)
         break;
     }
     if(__return.isNull() || !__return.isValid())
-        __return=*static_minTime;
+        return {};
+//        __return=*static_minTime;
     return __return;
 }
 

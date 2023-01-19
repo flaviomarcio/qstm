@@ -17,7 +17,9 @@ HEADERS += \
     $$PWD/qstm_test_functional.h
 
 SOURCES += \
+    $$PWD/main.cpp \
     $$PWD/qstm_test.cpp \
+    $$PWD/qstm_unit_test_envs.cpp \
     $$PWD/qstm_unit_test_result_value.cpp \
     $$PWD/qstm_unit_test_object.cpp \
     $$PWD/qstm_unit_test_variant_util.cpp \
