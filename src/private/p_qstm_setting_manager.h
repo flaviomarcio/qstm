@@ -17,6 +17,7 @@ namespace QStm {
 static const auto __rootDir="rootdir";
 static const auto __arguments="arguments";
 static const auto __variables="variables";
+static const auto __default="default";
 static const auto __services="services";
 
 class SettingManagerPvt: QObject{

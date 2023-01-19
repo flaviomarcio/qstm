@@ -259,10 +259,9 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
     auto &p=*this;
     p.settingBody=settingsBody;
 
-    const auto serviceSettings=settingsBody.contains(__services)?settingsBody.value(__services).toHash():p.settingBody;
-
     {//variables
         this->envs.customEnvs(settingsBody.value(__variables));
+
 
         auto rootDir=settingsBody.value(__rootDir).toString().trimmed();
         this->envs.customEnvs(__rootDir,rootDir.isEmpty()?QStringLiteral("${HOME}/${APPNAME}"):rootDir);
@@ -313,22 +312,10 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
         }
     }
 
-    QVariantHash defaultVariables({{QStringLiteral("hostName"), QStringLiteral("SERVICE_HOST")}});
-    QVariantHash defaultValues;
-    if(!defaultVariables.isEmpty()){
-        QHashIterator<QString, QVariant> i(defaultVariables);
-        while (i.hasNext()) {
-            i.next();
-            auto env = i.value().toByteArray();
-            auto v = QByteArray(getenv(env)).trimmed();
-            if(v.isEmpty())
-                v = QByteArray(getenv(env.toLower())).trimmed();
-            if(!v.isEmpty())
-                defaultValues.insert(i.key(),v);
-        }
-    }
-
-    auto defaultSetting=serviceSettings.value(QStringLiteral("default")).toHash();
+    auto serviceSettings=settingsBody.contains(__services)?settingsBody.value(__services).toHash():p.settingBody;
+    serviceSettings=this->envs.parser(serviceSettings).toHash();
+    //Envs envDefault(serviceSettings.value(__default));
+    auto defaultSetting=this->envs.parser(serviceSettings.value(__default)).toHash();
 
     p.settingsDefault=defaultSetting;
 
@@ -341,16 +328,9 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
     while (i.hasNext()) {
         i.next();
         auto value=i.value().toHash();
+        //value=envDefault.parser(value).toHash();
+        //value=this->envs.parser(value).toHash();
         value.insert(QStringLiteral("name"), i.key().trimmed());
-
-        {
-            QHashIterator<QString, QVariant> i(defaultValues);
-            while (i.hasNext()) {
-                i.next();
-                if(!value.contains(i.key()))
-                    value.insert(i.key(), i.value());
-            }
-        }
 
         {
             QHashIterator<QString, QVariant> i(defaultSetting);
@@ -360,6 +340,7 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
                     value.insert(i.key(), i.value());
             }
         }
+
 
         this->insert(value);
 
