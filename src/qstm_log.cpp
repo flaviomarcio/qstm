@@ -1,5 +1,6 @@
 #include "./qstm_log.h"
 #include "./qstm_envs.h"
+#include "./qstm_macro.h"
 #include <QDateTime>
 #include <QCoreApplication>
 
@@ -43,7 +44,7 @@ static void initQtFlags()
         QString("*.critical=%1").arg(toBool(staticQT_LOG_WARNING)),
         QString("*.info=%1").arg(toBool(staticQT_LOG_CRITICAL)),
     }.join(',');
-    qDebug()<<"QT_LOGGING_RULES=="<<format;
+    sDebug()<<"QT_LOGGING_RULES=="<<format;
     staticEnvs->systemEnvs("QT_LOGGING_RULES", format);
 }
 
