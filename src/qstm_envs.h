@@ -41,7 +41,9 @@ public:
     //! \brief systemEnvs
     //! \return
     //!
-    static const QVariantHash &systemEnvs();
+    const QVariantHash &systemEnvs()const;
+    Envs &systemEnvs(const QVariant &envs);
+    Envs &systemEnvs(const QString &env, const QVariant &value);
 
     //!
     //! \brief value

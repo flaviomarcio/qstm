@@ -111,7 +111,40 @@ public:
         this->parent=parent;
     }
 private:
-    static const QString parserToStr(const QVariant &value){
+    static const QVariantHash toEnvHash(const QVariant &envs)
+    {
+        QVariantHash __return;
+
+        Q_DECLARE_VU;
+
+        QVariantList lst;
+        auto value=vu.toVariant(envs);
+        switch (value.typeId()) {
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantPair:
+            return value.toHash();
+            break;
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
+            lst=value.toList();
+            break;
+        default:
+            lst.append(value);
+            break;
+        }
+        for (auto &v : lst) {
+            auto s = v.toString().trimmed().split(__splitEnv);
+            auto env = s.first().trimmed();
+            auto value = s.size()==1?"":s.last().trimmed();
+            __return.insert(env, value);
+        }
+
+        return __return;
+
+    }
+    static const QString parserToStr(const QVariant &value)
+    {
         Q_DECLARE_VU;
         Q_DECLARE_DU;
 
@@ -249,6 +282,18 @@ private:
     }
 
 public:
+
+    void putSystemEnvs(const QVariant &envs)
+    {
+        auto vHash=this->toEnvHash(envs);
+        QHashIterator<QString, QVariant> i(vHash);
+        while(i.hasNext()){
+            i.next();
+            auto key=i.key().trimmed().toUtf8();
+            auto value=i.value().toByteArray().trimmed();
+            qputenv(key, value);
+        }
+    }
 
     void clear()
     {
@@ -418,6 +463,23 @@ QVariant Envs::parser(const QVariant &values)const
 const QVariant Envs::parser(const QVariant &values, const QVariant &envs)
 {
     return EnvsPvt::staticParser(values, envs);
+}
+
+const QVariantHash &Envs::systemEnvs() const
+{
+    return *static_SystemEnvs;
+}
+
+Envs &Envs::systemEnvs(const QVariant &envs)
+{
+    p->putSystemEnvs(envs);
+    return *this;
+}
+
+Envs &Envs::systemEnvs(const QString &env, const QVariant &value)
+{
+    p->putSystemEnvs(QVariantHash{{env,value}});
+    return *this;
 }
 
 QVariant Envs::value(const QString &env)

@@ -1,26 +1,50 @@
 #include "./qstm_log.h"
+#include "./qstm_envs.h"
 #include <QDateTime>
 #include <QCoreApplication>
 
 namespace QStm {
 
+typedef QHash<int, QString> MsgTypeHash;
 
-typedef QHash<int, QString> MsgTypeMap;
-
-Q_GLOBAL_STATIC_WITH_ARGS(MsgTypeMap, msgTypeMap,({{QtDebugMsg, "D"},{QtWarningMsg, "W"},{QtCriticalMsg, "C"},{QtFatalMsg, "F"},{QtInfoMsg, "I"},{QtSystemMsg, "S"}}))
-
+Q_GLOBAL_STATIC_WITH_ARGS(MsgTypeHash, msgTypeMap,({{QtDebugMsg, "D"},{QtWarningMsg, "W"},{QtCriticalMsg, "C"},{QtFatalMsg, "F"},{QtInfoMsg, "I"},{QtSystemMsg, "S"}}))
+Q_GLOBAL_STATIC(Envs, staticEnvs)
 static const QtMessageHandler qtMessageHandlerDefault = qInstallMessageHandler(0);
 
-static bool staticQ_LOG_ENABLED=false;
-static bool staticLogRegister=false;
+#ifdef QT_DEBUG
+static bool staticQT_LOG_ENABLED=true;
+static bool staticQT_LOG_DEBUG=true;
+static bool staticQT_LOG_INFO=true;
+static bool staticQT_LOG_WARNING=true;
+static bool staticQT_LOG_CRITICAL=true;
+static bool staticQT_LOG_SSL_WARNING=true;
+#else
+static bool staticQT_LOG_ENABLED=false;
+static bool staticQT_LOG_DEBUG=false;
+static bool staticQT_LOG_INFO=false;
+static bool staticQT_LOG_WARNING=false;
+static bool staticQT_LOG_CRITICAL=false;
+static bool staticQT_LOG_SSL_WARNING=false;
+#endif
+
 //Q_GLOBAL_STATIC(QString, static_log_dir);
 
 
-static void initMsg()
+static void initQtFlags()
 {
-    auto format=
-    QByteArrayLiteral("qt.network.ssl.warning=true;*.debug=true;qml.debug=true;*.warning=true;*.critical=true;*.info=true");
-    qputenv(QByteArrayLiteral("QT_LOGGING_RULES"), format);
+    auto toBool=[](bool v){
+        return v?"true":"false";
+    };
+
+    QStringList format={
+        QString("qt.network.ssl.warning=%1").arg(toBool(staticQT_LOG_SSL_WARNING)),
+        QString("*.debug=true;qml.debug=%1").arg(toBool(staticQT_LOG_DEBUG)),
+        QString("*.warning=%1").arg(toBool(staticQT_LOG_INFO)),
+        QString("*.critical=%1").arg(toBool(staticQT_LOG_WARNING)),
+        QString("*.info=%1").arg(toBool(staticQT_LOG_CRITICAL)),
+    };
+
+    staticEnvs->systemEnvs("QT_LOGGING_RULES", format.join(','));
 }
 
 static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -37,17 +61,22 @@ static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext 
     fprintf(stderr, printFormat, message.toUtf8().constData());
 }
 
+static void initEnvs()
+{
+    staticQT_LOG_ENABLED=staticEnvs->value("QT_LOG_ENABLED").toBool();
+    if(staticQT_LOG_ENABLED){
+        staticQT_LOG_SSL_WARNING=staticEnvs->value("QT_LOG_SSL_WARNING").toBool();
+        staticQT_LOG_DEBUG=staticEnvs->value("LOG_DEBUG").toBool();
+        staticQT_LOG_INFO=staticEnvs->value("LOG_INFO").toBool();
+        staticQT_LOG_WARNING=staticEnvs->value("LOG_WARNING").toBool();
+        staticQT_LOG_CRITICAL=staticEnvs->value("LOG_CRITICAL").toBool();
+    }
+}
+
 static void init()
 {
-#ifdef QT_DEBUG
-    staticLogRegister = true;
-#else
-    staticQ_LOG_ENABLED = QVariant{QString{getenv(QByteArrayLiteral("Q_LOG_ENABLED"))}.trimmed()}.toBool();
-    staticLogRegister = staticQ_LOG_ENABLED;
-#endif
-    if(!staticLogRegister)
-        return;
-    initMsg();
+    initEnvs();
+    initQtFlags();
     QStm::Log::enabled();
 }
 
@@ -60,7 +89,7 @@ Log::Log(QObject *parent) : QObject{parent}
 
 bool Log::qLogEnabled()
 {
-    return staticQ_LOG_ENABLED;
+    return staticQT_LOG_ENABLED;
 }
 
 void Log::enabled()
