@@ -20,8 +20,8 @@ public:
     QVariant activityInterval=defaultInterval;
     int activityThread=0;
     QVariant memoryLimit=0;
-
-    QStm::Envs envs;
+    QStm::Envs variables;
+    QVariantHash configs;
 
     explicit SettingBaseTemplatePrv(QObject *parent=nullptr):QObject{parent}
     {
@@ -197,16 +197,21 @@ void SettingBaseTemplate::print() const
     sInfo()<<QStringLiteral(" ");
 }
 
-QVariant SettingBaseTemplate::parseVariables(const QVariant &v) const
-{
-    return p->envs.parser(v);
-}
 
 QVariant SettingBaseTemplate::variable(const QString &v) const
 {
-    return p->envs.parser(v);
+    return p->variables.parser(v);
 }
 
+QVariant SettingBaseTemplate::config(const QString &v) const
+{
+    return this->configs().value(v.trimmed().toLower());
+}
+
+QVariant SettingBaseTemplate::parseVariables(const QVariant &v) const
+{
+    return p->variables.parser(v);
+}
 const QVariant SettingBaseTemplate::parseAlpha(const QVariant &v)
 {
     return SettingBaseTemplatePrv::getAlpha(v);
@@ -543,9 +548,16 @@ QString SettingBaseTemplate::identification() const
     return p->identification;
 }
 
-QVariantHash &SettingBaseTemplate::variables() const
+const QVariantHash &SettingBaseTemplate::variables() const
 {
-    return p->envs.customEnvs();
+    return p->variables.customEnvs();
+}
+
+const QVariantHash &SettingBaseTemplate::configs() const
+{
+    if(!p->configs.isEmpty())
+        p->configs=p->variables.parser(p->configs).toHash();
+    return p->configs;
 }
 
 bool SettingBaseTemplate::enabled() const
@@ -585,7 +597,19 @@ void SettingBaseTemplate::setName(const QString &value)
 
 void SettingBaseTemplate::setVariables(const QVariantHash &value)
 {
-    p->envs.customEnvs(value);
+    p->variables.customEnvs(value);
+}
+
+void SettingBaseTemplate::setConfigs(const QVariant &value)
+{
+    Q_DECLARE_VU;
+    p->configs.clear();
+    auto vHash=vu.toHash(value);
+    QHashIterator<QString, QVariant> i(vHash);
+    while(i.hasNext()){
+        i.next();
+        p->configs.insert(i.key().trimmed().toLower(), i.value());
+    }
 }
 
 void SettingBaseTemplate::setEnabled(const bool &value)

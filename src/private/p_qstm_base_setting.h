@@ -80,6 +80,7 @@ class SettingBaseTemplate:public QStm::Object
     Q_OBJECT
     Q_PROPERTY(QString identification READ identification WRITE setIdentification NOTIFY identificationChanged)
     Q_PROPERTY(QVariantHash variables READ variables WRITE setVariables NOTIFY variablesChanged)
+    Q_PROPERTY(QVariantHash configs READ configs WRITE setConfigs NOTIFY configsChanged)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QVariant memoryLimit READ memoryLimit WRITE setMemoryLimit NOTIFY memoryLimitChanged)
@@ -118,6 +119,13 @@ public:
     //! \return
     //!
     QVariant variable(const QString &v) const;
+
+    //!
+    //! \brief config
+    //! \param v
+    //! \return
+    //!
+    QVariant config(const QString &v) const;
 
     //!
     //! \brief parseAlpha
@@ -238,7 +246,13 @@ public:
     //! \brief variables
     //! \return
     //!
-    virtual QVariantHash &variables() const;
+    virtual const QVariantHash &variables() const;
+
+    //!
+    //! \brief configs
+    //! \return
+    //!
+    virtual const QVariantHash &configs() const;
 
     //!
     //! \brief enabled
@@ -270,20 +284,58 @@ public:
     //!
     virtual qlonglong memoryLimit() const;
 
+    //!
+    //! \brief setIdentification
+    //! \param value
+    //!
     void setIdentification(const QString &value);
 
+    //!
+    //! \brief setName
+    //! \param value
+    //!
     void setName(const QString &value);
 
+    //!
+    //! \brief setVariables
+    //! \param value
+    //!
     void setVariables(const QVariantHash &value);
 
+    //!
+    //! \brief setConfigs
+    //! \param value
+    //!
+    void setConfigs(const QVariant &value);
+
+    //!
+    //! \brief setEnabled
+    //! \param value
+    //!
     void setEnabled(const bool &value);
 
+    //!
+    //! \brief setActivityLimit
+    //! \param value
+    //!
     void setActivityLimit(const QVariant &value);
 
+    //!
+    //! \brief setActivityInterval
+    //! \param value
+    //!
     void setActivityInterval(const QVariant &value);
 
+    //!
+    //! \brief setActivityThread
+    //! \param value
+    //!
     void setActivityThread(const QVariant &value);
 
+    //!
+    //! \brief setMemoryLimit
+    //! \param value
+    //!
     void setMemoryLimit(const QVariant &value);
 
 private:
@@ -291,6 +343,7 @@ private:
 signals:
     void nameChanged();
     void variablesChanged();
+    void configsChanged();
     void enabledChanged();
     void activityLimitChanged();
     void activityIntervalChanged();
