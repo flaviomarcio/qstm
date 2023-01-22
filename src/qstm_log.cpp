@@ -36,15 +36,15 @@ static void initQtFlags()
         return v?"true":"false";
     };
 
-    QStringList format={
+    auto format=QStringList{
         QString("qt.network.ssl.warning=%1").arg(toBool(staticQT_LOG_SSL_WARNING)),
         QString("*.debug=true;qml.debug=%1").arg(toBool(staticQT_LOG_DEBUG)),
         QString("*.warning=%1").arg(toBool(staticQT_LOG_INFO)),
         QString("*.critical=%1").arg(toBool(staticQT_LOG_WARNING)),
         QString("*.info=%1").arg(toBool(staticQT_LOG_CRITICAL)),
-    };
-
-    staticEnvs->systemEnvs("QT_LOGGING_RULES", format.join(','));
+    }.join(',');
+    qDebug()<<"QT_LOGGING_RULES=="<<format;
+    staticEnvs->systemEnvs("QT_LOGGING_RULES", format);
 }
 
 static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext &context, const QString &msg)
