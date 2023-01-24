@@ -99,7 +99,7 @@ public:
     QVariantHash dirEnvs=*static_DirEnvs;
     QVariantHash systemEnvs=*static_SystemEnvs;
     QVariantHash customEnvs;
-    bool envalidEnvsClean;
+    bool invalidEnvsClean;
     QVariant invalidEnvsValue;
     bool ignoreSystemEnvs=false;
     bool ignoreDirEnvs=false;
@@ -110,7 +110,94 @@ public:
     {
         this->parent=parent;
     }
+
+public:
+    static QVariant readEnvFile(QFile &envs)
+    {
+        envs.close();
+        if(!envs.open(QFile::Unbuffered | QFile::ReadOnly)){
+            sWarning()<<envs.errorString();
+            return {};
+        }
+        Q_DECLARE_VU;
+        static const QStringList phrasesReplace={{"#!/bin/bash"}, {"export "}};
+        auto vBody=vu.toVariant(envs.readAll());
+        envs.close();
+        switch (vBody.typeId()) {
+        case QMetaType::QStringList:
+        case QMetaType::QVariantList:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantPair:
+            break;
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        {
+            auto bytes=vBody.toString();
+            if(bytes.contains('\n'))
+                vBody=bytes.split('\n');
+            break;
+        }
+        default:
+            break;
+        }
+
+        switch (vBody.typeId()) {
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantPair:
+            return vBody.toHash();
+        case QMetaType::QStringList:
+        case QMetaType::QVariantList:
+        {
+            QVariantHash vHash;
+
+            auto envs=vBody.toList();
+            vBody.clear();
+            for(auto&env:envs){
+                QString line=env.toString();
+
+                if(line.isEmpty())
+                    continue;
+
+                if(line.right(1)==';')
+                    line=line.left(line.length()-1);
+
+                for(auto&phrase: phrasesReplace)
+                    line=line.replace(phrase,"").trimmed();
+
+                if(line.isEmpty())
+                    continue;
+
+                if(!line.contains(__splitEnv))
+                    vHash.insert(line, {});
+                else{
+                    auto lst=line.split(__splitEnv);
+                    auto key=lst.takeFirst();
+                    auto value=lst.join(__splitEnv).trimmed();
+                    vHash.insert(key, value.isEmpty()?QVariant{}:value);
+                }
+            }
+            return vHash;
+        }
+        default:
+            {
+                QVariantHash vHash;
+                auto lst=vBody.toString().split(__splitEnv);
+                vBody.clear();
+                if(lst.size()>1)
+                    vHash.insert(lst.takeFirst(), lst.join(__splitEnv));
+                else
+                    vHash.insert(lst.takeFirst(), {});
+                return vHash;
+            }
+        }
+
+        return {};
+    }
+
 private:
+
     static const QVariantHash toEnvHash(const QVariant &envs)
     {
         QVariantHash __return;
@@ -130,7 +217,7 @@ private:
             lst=value.toList();
             break;
         default:
-            lst.append(value);
+            lst=QVariant{value.toString().split('\n')}.toList();
             break;
         }
         for (auto &v : lst) {
@@ -231,6 +318,27 @@ private:
         return input;
     }
 
+    static const QStringList getEnvKeys(const QVariant &values)
+    {
+        QStringList __return;
+        Q_DECLARE_VU;
+        auto bytes=vu.toByteArray(values);
+        QRegularExpression reA(__envRegExt);
+        QRegularExpressionMatchIterator i = reA.globalMatch(bytes);
+        while (i.hasNext()) {
+            QRegularExpressionMatch match = i.next();
+            if (match.hasMatch()){
+                auto key=match.captured(0).trimmed().toLower();
+                if(!__return.contains(key))
+                __return.append(key);
+            }
+        }
+#ifdef QT_DEBUG
+        __return.sort();
+#endif
+        return __return;
+    }
+
     static const QString parser(const QVariant &values, const QVariantHash &envs)
     {
         Q_DECLARE_VU;
@@ -295,14 +403,36 @@ public:
         }
     }
 
+    void reset()
+    {
+        this->dirEnvs=*static_DirEnvs;
+        this->systemEnvs=*static_SystemEnvs;
+        this->customEnvs.clear();
+    }
+
     void clear()
     {
         this->dirEnvs.clear();
         this->systemEnvs.clear();
         this->customEnvs.clear();
+        this->invalidEnvsClean=false;
+        this->invalidEnvsValue={};
+        this->ignoreSystemEnvs=false;
+        this->ignoreDirEnvs=false;
+        this->ignoreCustomEnvs=false;
+        this->clearUnfoundEnvs=false;
     }
 
-    static const QVariant staticParser(const QVariant &values, const QVariant &envs)
+    bool contains(const QString &env)const{
+        auto key=(*__argVar).arg(env).toLower();
+        if(this->dirEnvs.contains(key))
+            return true;
+        if(this->systemEnvs.contains(key))
+            return true;
+        return false;
+    }
+
+    static const QVariant staticParser(const QVariant &values, const QVariant &envs, bool clearNullEnvs)
     {
         Q_DECLARE_VU;
         auto value=parserDeclaredEnvs(vu.toByteArray(values));
@@ -313,7 +443,8 @@ public:
 
         value = parser(value, vu.toHash(envs));
 
-        value=clearEnvs(value);
+        if(clearNullEnvs)
+            value=clearEnvs(value);
 
         return vu.toType(values.typeId(), value);
     }
@@ -336,6 +467,20 @@ public:
             value=clearEnvs(value);
 
         return vu.toType(values.typeId(), value);
+    }
+
+    void putCustomEnvs(const QVariant &envs)
+    {
+        QRegularExpression reA(__envRegExt);
+        auto vHash=this->toEnvHash(envs);
+        QHashIterator<QString, QVariant> i(vHash);
+        while(i.hasNext()){
+            i.next();
+            auto key=i.key().trimmed().toUtf8();
+            auto value=i.value().toByteArray().trimmed();
+            auto match = reA.match(value);
+            setCustomEnvs(QVariantHash{{key, value}});
+        }
     }
 
     void setCustomEnvs(const QVariant &customValues)
@@ -371,7 +516,6 @@ public:
                 default:
                     break;
                 }
-
 
                 auto listVar = envItem.toString().split(__splitEnv);
                 if(listVar.isEmpty())
@@ -449,6 +593,12 @@ Envs::Envs(const QVariant &customEnvs, QObject *parent):QObject{parent}
     p->setCustomEnvs(customEnvs);
 }
 
+Envs &Envs::reset()
+{
+    p->reset();
+    return *this;
+}
+
 Envs &Envs::clear()
 {
     p->clear();
@@ -462,7 +612,7 @@ QVariant Envs::parser(const QVariant &values)const
 
 const QVariant Envs::parser(const QVariant &values, const QVariant &envs)
 {
-    return EnvsPvt::staticParser(values, envs);
+    return EnvsPvt::staticParser(values, envs, false);
 }
 
 const QVariantHash &Envs::systemEnvs() const
@@ -480,6 +630,18 @@ Envs &Envs::systemEnvs(const QString &env, const QVariant &value)
 {
     p->putSystemEnvs(QVariantHash{{env,value}});
     return *this;
+}
+
+Envs &Envs::systemEnvs(QFile &envs)
+{
+    Q_DECLARE_VU;
+    p->putSystemEnvs(p->readEnvFile(envs));
+    return *this;
+}
+
+bool Envs::contains(const QString &env) const
+{
+    return p->contains(env);
 }
 
 QVariant Envs::value(const QString &env)
@@ -509,6 +671,12 @@ Envs &Envs::customEnvs(const QString &env, const QVariant &value)
     return *this;
 }
 
+Envs &Envs::customEnvs(QFile &envs)
+{
+    p->putCustomEnvs(p->readEnvFile(envs));
+    return *this;
+}
+
 Envs &Envs::resetCustomEnvs()
 {
     return this->customEnvs({});
@@ -530,23 +698,23 @@ Envs &Envs::customEnv(const QString &key, const QVariant &value)
     return *this;
 }
 
-bool Envs::envalidEnvsClean() const
+bool Envs::invalidEnvsClean() const
 {
-    return p->envalidEnvsClean;
+    return p->invalidEnvsClean;
 }
 
-Envs &Envs::envalidEnvsClean(bool newEnvalidEnvsClean)
+Envs &Envs::invalidEnvsClean(bool newinvalidEnvsClean)
 {
-    if (p->envalidEnvsClean == newEnvalidEnvsClean)
+    if (p->invalidEnvsClean == newinvalidEnvsClean)
         return *this;
-    p->envalidEnvsClean = newEnvalidEnvsClean;
-    emit envalidEnvsCleanChanged();
+    p->invalidEnvsClean = newinvalidEnvsClean;
+    emit invalidEnvsCleanChanged();
     return *this;
 }
 
-Envs &Envs::resetEnvalidEnvsClean()
+Envs &Envs::resetInvalidEnvsClean()
 {
-    return envalidEnvsClean({});
+    return invalidEnvsClean({});
 }
 
 QVariant &Envs::invalidEnvsValue() const

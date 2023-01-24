@@ -58,7 +58,7 @@ public:
 
     bool load(const QString &fileName);
 
-    bool load(const QVariantHash &settingsBody);
+    bool load(const QVariantHash &settingsIn);
 
 };
 

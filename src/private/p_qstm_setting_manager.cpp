@@ -254,13 +254,15 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     return p.load(vHash);
 }
 
-bool QStm::SettingManagerPvt::load(const QVariantHash &settingsBody)
+bool QStm::SettingManagerPvt::load(const QVariantHash &settingsIn)
 {
     auto &p=*this;
-    p.settingBody=settingsBody;
+    this->envs.reset();
+    auto settingsBody=this->envs.parser(settingsIn).toHash();
+    this->envs.customEnvs(settingsBody.value(__variables));
+    p.settingBody=settingsIn;
 
     {//variables
-        this->envs.customEnvs(settingsBody.value(__variables));
 
 
         auto rootDir=settingsBody.value(__rootDir).toString().trimmed();

@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QVariantHash>
+#include <QFile>
 #include "./qstm_global.h"
 
 namespace QStm {
@@ -14,7 +15,7 @@ class Q_STM_EXPORT Envs : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant customEnvs READ customEnvs WRITE customEnvs RESET resetCustomEnvs NOTIFY customEnvsChanged)
-    Q_PROPERTY(bool envalidEnvsClean READ envalidEnvsClean WRITE envalidEnvsClean RESET resetEnvalidEnvsClean NOTIFY envalidEnvsCleanChanged)
+    Q_PROPERTY(bool invalidEnvsClean READ invalidEnvsClean WRITE invalidEnvsClean RESET resetInvalidEnvsClean NOTIFY invalidEnvsCleanChanged)
     Q_PROPERTY(QVariant invalidEnvsValue READ invalidEnvsValue WRITE invalidEnvsValue RESET resetInvalidEnvsValue NOTIFY invalidEnvsValueChanged)
     Q_PROPERTY(bool ignoreSystemEnvs READ ignoreSystemEnvs WRITE ignoreSystemEnvs RESET resetIgnoreSystemEnvs NOTIFY ignoreSystemEnvsChanged)
     Q_PROPERTY(bool ignoreDirEnvs READ ignoreDirEnvs WRITE ignoreDirEnvs RESET resetIgnoreDirEnvs NOTIFY ignoreDirEnvsChanged)
@@ -25,7 +26,11 @@ public:
     explicit Envs(const QVariant &customEnvs, QObject *parent = nullptr);
 
     //!
+    Envs &reset();
+
+    //!
     //! \brief clear
+    //! \return
     //!
     Envs &clear();
 
@@ -44,6 +49,14 @@ public:
     const QVariantHash &systemEnvs()const;
     Envs &systemEnvs(const QVariant &envs);
     Envs &systemEnvs(const QString &env, const QVariant &value);
+    Envs &systemEnvs(QFile &envs);
+
+    //!
+    //! \brief contains
+    //! \param env
+    //! \return
+    //!
+    bool contains(const QString &env)const;
 
     //!
     //! \brief value
@@ -59,6 +72,7 @@ public:
     QVariantHash &customEnvs()const;
     Envs &customEnvs(const QVariant &newCustomEnvs);
     Envs &customEnvs(const QString &env, const QVariant &value);
+    Envs &customEnvs(QFile &envs);
     Envs &resetCustomEnvs();
 
     //!
@@ -70,12 +84,12 @@ public:
     Envs &customEnv(const QString &key, const QVariant &value);
 
     //!
-    //! \brief envalidEnvsClean
+    //! \brief invalidEnvsClean
     //! \return
     //!
-    bool envalidEnvsClean() const;
-    Envs &envalidEnvsClean(bool newEnvalidEnvsClean);
-    Envs &resetEnvalidEnvsClean();
+    bool invalidEnvsClean() const;
+    Envs &invalidEnvsClean(bool newinvalidEnvsClean);
+    Envs &resetInvalidEnvsClean();
 
     //!
     //! \brief invalidEnvsValue
@@ -121,7 +135,7 @@ private:
     EnvsPvt *p=nullptr;
 signals:
     void customEnvsChanged();
-    void envalidEnvsCleanChanged();
+    void invalidEnvsCleanChanged();
     void invalidEnvsValueChanged();
 
     void ignoreSystemEnvsChanged();
