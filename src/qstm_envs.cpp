@@ -16,6 +16,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString, __argVar,("${%1}"))
 Q_GLOBAL_STATIC_WITH_ARGS(QString, __argVarSetting,("%1=%2"))
 Q_GLOBAL_STATIC_WITH_ARGS(QString, __argText,("%1"))
 
+static const auto __argVarStartWith="${";
 static const auto __envUndefined="${?}";
 static const auto __envRegExt="\\${+([a-zA-Z0-9._-]+)}";
 static const auto __splitEnvs="|";
@@ -343,6 +344,7 @@ private:
     {
         Q_DECLARE_VU;
         QString textParser=parserDeclaredEnvs(vu.toByteArray(values));
+        static QRegularExpression re(__envRegExt);
 
         QHashIterator<QString, QVariant> i(envs);
         while (i.hasNext()) {
@@ -350,8 +352,6 @@ private:
             const auto&key=i.key();
             auto value = parserToStr(i.value());
             textParser = textParser.replace(key, value, Qt::CaseSensitive);
-
-            static QRegularExpression re(__envRegExt);
             if(!re.match(textParser).hasMatch())
                 break;
         }
@@ -372,7 +372,12 @@ private:
             sWarning()<<QString("invalid values: value[%1] contains key[%2]").arg(envValueText, key);
             sWarning()<<QString("value modified to: [%1]").arg(value);
         }
+
         QVariant v=value.isEmpty()?QVariant{}:value;
+        if(re.match(value).hasMatch())
+            value=this->customParser(value).toString();
+
+
         v=vu.toVariant(v);
         this->customEnvs.insert(key, v);
     }
@@ -469,17 +474,57 @@ public:
         return vu.toType(values.typeId(), value);
     }
 
+    QString getEnvValue(const QString &env)
+    {
+        QString key;
+        if(env.startsWith(__argVarStartWith))
+            key=env;
+        else
+            key=(*__argVar).arg(env).toLower();
+
+        auto value=customEnvs.value(key).toString().trimmed();
+        if(value.isEmpty())
+            value=this->dirEnvs.value(key).toString().trimmed();
+
+        if(value.isEmpty())
+            value=this->systemEnvs.value(key).toString().trimmed();
+
+        if(value.contains(key,Qt::CaseSensitive)){
+            sWarning()<<tr("env[%1] contaisn it'self").arg(key);
+            return {};
+        }
+        return value;
+    }
+
     void putCustomEnvs(const QVariant &envs)
     {
         QRegularExpression reA(__envRegExt);
         auto vHash=this->toEnvHash(envs);
-        QHashIterator<QString, QVariant> i(vHash);
-        while(i.hasNext()){
-            i.next();
-            auto key=i.key().trimmed().toUtf8();
-            auto value=i.value().toByteArray().trimmed();
-            auto match = reA.match(value);
-            setCustomEnvs(QVariantHash{{key, value}});
+        {
+            QHashIterator<QString, QVariant> i(vHash);
+            while(i.hasNext()){
+                i.next();
+                auto key=i.key().trimmed().toUtf8();
+                auto value=i.value().toByteArray().trimmed();
+                if(!reA.match(value).hasMatch())
+                    setCustomEnvs(QVariantHash{{key, value}});
+            }
+        }
+        {
+            QHashIterator<QString, QVariant> i(vHash);
+            while(i.hasNext()){
+                i.next();
+                auto key=i.key().trimmed().toUtf8();
+                auto value=i.value().toString().trimmed();
+                if(reA.match(value).hasMatch()){
+                    auto envs=getEnvKeys(value);
+                    for(auto&v:envs){
+                        auto envVal=this->getEnvValue(v);
+                        value=value.replace(v,envVal,Qt::CaseInsensitive);
+                    }
+                    setCustomEnvs(QVariantHash{{key, value}});
+                }
+            }
         }
     }
 
