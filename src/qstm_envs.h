@@ -14,10 +14,12 @@ class EnvsPvt;
 class Q_STM_EXPORT Envs : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariant argumentEnvs READ argumentEnvs WRITE argumentEnvs RESET resetArgumentEnvs NOTIFY argumentEnvsChanged)
     Q_PROPERTY(QVariant customEnvs READ customEnvs WRITE customEnvs RESET resetCustomEnvs NOTIFY customEnvsChanged)
     Q_PROPERTY(bool invalidEnvsClean READ invalidEnvsClean WRITE invalidEnvsClean RESET resetInvalidEnvsClean NOTIFY invalidEnvsCleanChanged)
     Q_PROPERTY(QVariant invalidEnvsValue READ invalidEnvsValue WRITE invalidEnvsValue RESET resetInvalidEnvsValue NOTIFY invalidEnvsValueChanged)
     Q_PROPERTY(bool ignoreSystemEnvs READ ignoreSystemEnvs WRITE ignoreSystemEnvs RESET resetIgnoreSystemEnvs NOTIFY ignoreSystemEnvsChanged)
+    Q_PROPERTY(bool ignoreArgumentEnvs READ ignoreArgumentEnvs WRITE ignoreArgumentEnvs RESET resetIgnoreArgumentEnvs NOTIFY ignoreArgumentEnvsChanged)
     Q_PROPERTY(bool ignoreDirEnvs READ ignoreDirEnvs WRITE ignoreDirEnvs RESET resetIgnoreDirEnvs NOTIFY ignoreDirEnvsChanged)
     Q_PROPERTY(bool ignoreCustomEnvs READ ignoreCustomEnvs WRITE ignoreCustomEnvs RESET resetIgnoreCustomEnvs NOTIFY ignoreCustomEnvsChanged)
     Q_PROPERTY(bool clearUnfoundEnvs READ clearUnfoundEnvs WRITE clearUnfoundEnvs RESET resetClearUnfoundEnvs NOTIFY clearUnfoundEnvsChanged)
@@ -66,6 +68,16 @@ public:
     QVariant value(const QString &env);
 
     //!
+    //! \brief argumentEnvs
+    //! \return
+    //!
+    QVariantHash &argumentEnvs()const;
+    Envs &argumentEnvs(const QVariant &newCustomEnvs);
+    Envs &argumentEnvs(const QString &env, const QVariant &value);
+    Envs &argumentEnvs(QFile &envs);
+    Envs &resetArgumentEnvs();
+
+    //!
     //! \brief customEnvs
     //! \return
     //!
@@ -108,6 +120,14 @@ public:
     Envs &resetIgnoreSystemEnvs();
 
     //!
+    //! \brief ignoreArgumentEnvs
+    //! \return
+    //!
+    bool ignoreArgumentEnvs() const;
+    Envs &ignoreArgumentEnvs(bool newIgnoreArgumentEnvs);
+    Envs &resetIgnoreArgumentEnvs();
+
+    //!
     //! \brief ignoreDirEnvs
     //! \return
     //!
@@ -134,10 +154,11 @@ public:
 private:
     EnvsPvt *p=nullptr;
 signals:
+    void argumentEnvsChanged();
     void customEnvsChanged();
     void invalidEnvsCleanChanged();
     void invalidEnvsValueChanged();
-
+    void ignoreArgumentEnvsChanged();
     void ignoreSystemEnvsChanged();
     void ignoreDirEnvsChanged();
     void ignoreCustomEnvsChanged();
