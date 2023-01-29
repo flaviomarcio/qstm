@@ -1,4 +1,5 @@
 #include "./private/p_qstm_startup.h"
+#include "./qstm_macro.h"
 
 namespace QStm {
 
@@ -56,7 +57,7 @@ void StartUp::run()
 StartUpFunction StartUp::at(int index)
 {
     if(index<0 || index>=p->list.count())
-        return [](){qWarning()<<__PRETTY_FUNCTION__<<": invalid startup function";};
+        return [](){sWarning()<<__PRETTY_FUNCTION__<<": invalid startup function";};
     return p->list.at(index);
 }
 
