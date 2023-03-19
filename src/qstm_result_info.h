@@ -200,6 +200,7 @@ public:
 public:
     ResultInfoPvt *p=nullptr;
 signals:
+    void codeChanged();
     void messagesChanged();
     void successChanged();
     void pageChanged();
