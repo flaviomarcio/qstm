@@ -8,7 +8,6 @@ namespace QStm {
 
 class ResultInfoPvt:public QObject
 {
-    Q_OBJECT
 public :
     ResultInfo *parent=nullptr;
     bool enabled=false;
