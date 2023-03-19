@@ -21,14 +21,13 @@ class Q_STM_EXPORT ResultInfo:public ObjectWrapper
     Q_STM_DECLARE_MESSAGE_TYPE
 
     Q_PROPERTY(QVariant messageType READ messageType WRITE setMessageType RESET resetMessageType NOTIFY messageTypeChanged)
-    Q_PROPERTY(QVariant errors READ errors WRITE setErrors NOTIFY errorsChanged)
     Q_PROPERTY(QVariant messages READ messages WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
     Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged)
-    Q_PROPERTY(int per_page READ perPage WRITE setPerPage NOTIFY perPageChanged)
+    Q_PROPERTY(int perPage READ perPage WRITE setPerPage NOTIFY perPageChanged)
     Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
-    Q_PROPERTY(int total_count READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
-    Q_PROPERTY(int total_pages READ totalPages WRITE setTotalPages NOTIFY totalPagesChanged)
+    Q_PROPERTY(int totalCount READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
+    Q_PROPERTY(int totalPages READ totalPages WRITE setTotalPages NOTIFY totalPagesChanged)
 
 public:
     //!
@@ -43,14 +42,6 @@ public:
     //!
     //! clear all values
     virtual void clear();
-
-    //!
-    //! \brief clearErrors
-    //!
-    //!
-    //! clear all errors info
-    virtual void clearErrors();
-
 
     //!
     //! \brief errors
@@ -71,18 +62,6 @@ public:
     QStm::ResultInfo::MessageType messageType() const;
     void setMessageType(const QVariant &value);
     void resetMessageType();
-
-    //!
-    //! \brief errors
-    //! \return
-    //! return errors to server
-    virtual QStringList &errors();
-
-    //!
-    //! \brief setErrors
-    //! \param value
-    //!
-    virtual void setErrors(const QVariant &value);
 
     //!
     //! \brief messages
@@ -212,7 +191,6 @@ public:
 public:
     ResultInfoPvt *p=nullptr;
 signals:
-    void errorsChanged();
     void messagesChanged();
     void successChanged();
     void pageChanged();

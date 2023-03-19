@@ -13,21 +13,13 @@ void QStm::ResultInfoPvt::clear()
 {
     success=false;
     page=0;
-    per_page=9999999;
+    perPage=9999999;
     count=0;
-    total_count=0;
+    totalCount=0;
     total_pages=0;
     this->messages.clear();
     this->messageType=ResultInfo::MessageType::None;
-    this->clearErrors();
+     this->success=true;
 }
-
-void QStm::ResultInfoPvt::clearErrors()
-{
-    this->errors.clear();
-    this->success=true;
-}
-
-
 
 }

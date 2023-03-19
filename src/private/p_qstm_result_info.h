@@ -10,22 +10,19 @@ class ResultInfoPvt:public QObject
 public :
     ResultInfo *parent=nullptr;
     bool enabled=false;
-    QStringList errors;
     QStringList messages;
     bool success=true;
     int page=0;
-    int per_page=9999999;
+    int perPage=9999999;
     int count=0;
-    int total_count=0;
-    int total_pages=0;
+    int totalCount=0;
+    int totalPages=0;
 
     MetaEnum<ResultInfo::MessageType> messageType=ResultInfo::MessageType::None;
 
     explicit ResultInfoPvt(ResultInfo *parent);
 
     void clear();
-
-    void clearErrors();
 };
 
 

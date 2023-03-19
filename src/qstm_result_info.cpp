@@ -1,7 +1,7 @@
 #include "./private/p_qstm_result_info.h"
+#include "./qstm_util_variant.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
-#include "./qstm_util_variant.h"
 
 namespace QStm {
 
@@ -12,11 +12,6 @@ ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}
 void ResultInfo::clear()
 {
     p->clear();
-}
-
-void ResultInfo::clearErrors()
-{
-    p->clearErrors();
 }
 
 bool ResultInfo::enabled()
@@ -45,17 +40,6 @@ void ResultInfo::setMessageType(const QVariant &value)
 void ResultInfo::resetMessageType()
 {
     setMessageType(None);
-}
-
-QStringList &ResultInfo::errors()
-{
-    return p->errors;
-}
-
-void ResultInfo::setErrors(const QVariant &value)
-{
-    Q_DECLARE_VU;
-    p->errors=vu.toStringList(value);
 }
 
 QStringList &ResultInfo::messages()
@@ -91,12 +75,12 @@ void ResultInfo::setPage(int value)
 
 int ResultInfo::perPage() const
 {
-    return p->per_page;
+    return p->perPage;
 }
 
 void ResultInfo::setPerPage(int value)
 {
-    p->per_page = value;
+    p->perPage = value;
 }
 
 int ResultInfo::count() const
@@ -111,22 +95,22 @@ void ResultInfo::setCount(int value)
 
 int ResultInfo::totalCount() const
 {
-    return p->total_count;
+    return p->totalCount;
 }
 
 void ResultInfo::setTotalCount(int value)
 {
-    p->total_count = value;
+    p->totalCount = value;
 }
 
 int ResultInfo::totalPages() const
 {
-    return p->total_pages;
+    return p->totalPages;
 }
 
 void ResultInfo::setTotalPages(int value)
 {
-    p->total_pages = value;
+    p->totalPages = value;
 }
 
 const QVariantHash ResultInfo::toRequestHash() const
