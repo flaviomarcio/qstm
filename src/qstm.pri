@@ -9,7 +9,6 @@ HEADERS += \
     $$PWD/private/p_qstm_base_setting.h \
     $$PWD/private/p_qstm_setting_manager.h \
     $$PWD/private/p_qstm_startup.h \
-    $$PWD/private/p_qstm_result_info.h \
     $$PWD/qstm.h \
     $$PWD/qstm_const.h \
     $$PWD/qstm_crypto_util.h \
@@ -47,7 +46,6 @@ SOURCES += \
     $$PWD/private/p_qstm_base_setting.cpp \
     $$PWD/private/p_qstm_setting_manager.cpp \
     $$PWD/private/p_qstm_startup.cpp \
-    $$PWD/private/p_qstm_result_info.cpp \
     $$PWD/qstm_crypto_util.cpp \
     $$PWD/qstm_envs.cpp \
     $$PWD/qstm_logger.cpp \

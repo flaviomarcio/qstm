@@ -1,10 +1,9 @@
 #include "./qstm_result.h"
 #include "./qstm_macro.h"
 #include "./qstm_object.h"
-#include "./qstm_meta_enum.h"
 #include "./qstm_util_meta_object.h"
 #include "./qstm_util_variant.h"
-#include "./private/p_qstm_result_info.h"
+#include "./qstm_result_info.cpp"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QMutex>

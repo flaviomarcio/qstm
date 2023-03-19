@@ -20,6 +20,7 @@ class Q_STM_EXPORT ResultInfo:public ObjectWrapper
 
     Q_STM_DECLARE_MESSAGE_TYPE
 
+    Q_PROPERTY(QVariant code READ code WRITE setCode RESET resetCode NOTIFY codeChanged)
     Q_PROPERTY(QVariant messageType READ messageType WRITE setMessageType RESET resetMessageType NOTIFY messageTypeChanged)
     Q_PROPERTY(QVariant messages READ messages WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
@@ -54,6 +55,14 @@ public:
     //! \param value
     //!
     virtual void setEnabled(bool value);
+
+    //!
+    //! \brief code
+    //! \return
+    //!
+    virtual int code();
+    ResultInfo &setCode(const QVariant &value);
+    ResultInfo &resetCode();
 
     //!
     //! \brief messageType

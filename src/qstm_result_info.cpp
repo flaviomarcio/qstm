@@ -1,9 +1,47 @@
-#include "./private/p_qstm_result_info.h"
+#include "./qstm_result_info.h"
 #include "./qstm_util_variant.h"
+#include "./qstm_meta_enum.h"
 #include <QMetaProperty>
 #include <QJsonDocument>
 
 namespace QStm {
+
+class ResultInfoPvt:public QObject
+{
+    Q_OBJECT
+public :
+    ResultInfo *parent=nullptr;
+    bool enabled=false;
+    int code=0;
+    QStringList messages;
+    bool success=true;
+    int page=0;
+    int perPage=9999999;
+    int count=0;
+    int totalCount=0;
+    int totalPages=0;
+
+    QStm::MetaEnum<ResultInfo::MessageType> messageType=ResultInfo::MessageType::None;
+
+    explicit ResultInfoPvt(ResultInfo *parent):QObject{parent}
+    {
+        this->parent=parent;
+    }
+
+    void clear()
+    {
+        this->success=false;
+        this->page=0;
+        this->perPage=9999999;
+        this->count=0;
+        this->totalCount=0;
+        this->totalPages=0;
+        this->code=0;
+        this->messages.clear();
+        this->messageType=ResultInfo::MessageType::None;
+        this->success=true;
+    }
+};
 
 ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}
 {
@@ -22,6 +60,25 @@ bool ResultInfo::enabled()
 void ResultInfo::setEnabled(bool value)
 {
     p->enabled=value;
+}
+
+int ResultInfo::code()
+{
+    return p->code;
+}
+
+ResultInfo &ResultInfo::setCode(const QVariant &newCode)
+{
+    if (p->messageType == newCode)
+        return *this;
+    p->messageType = newCode;
+    emit messageTypeChanged();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetCode()
+{
+    return setCode(ResultInfo::None);
 }
 
 ResultInfo::MessageType ResultInfo::messageType() const
