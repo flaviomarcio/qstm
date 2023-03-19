@@ -746,7 +746,7 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
                 break;
             }
 
-            resultInfo.fromVar(vResultInfo);
+            resultInfo.readFrom(vResultInfo);
             if(resultInfo.messages().isEmpty()){
                 if(reason_phrase.isEmpty())
                     resultInfo.messages().append(reason_phrase);

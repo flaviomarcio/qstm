@@ -44,9 +44,9 @@ public:
     virtual void clear();
 
     //!
-    //! \brief errors
+    //! \brief enabled
     //! \return
-    //! activity resource
+    //!
     virtual bool enabled();
 
     //!
