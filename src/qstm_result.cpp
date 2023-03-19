@@ -144,8 +144,8 @@ public:
             this->returnCode=this->returnHash;
 
         if(!this->returnText.trimmed().isEmpty()){
-            this->resultInfo.errors().clear();
-            this->resultInfo.errors().append(this->returnText);
+            this->resultInfo.messages().clear();
+            this->resultInfo.messages().append(this->returnText);
         }
         this->resultVariant=QVariantHash{{__resultInfo, this->resultInfo.toHash()}};
         this->returnBool=false;
@@ -747,12 +747,12 @@ ResultValue &ResultValue::setResponse(const QVariant &value)
             }
 
             resultInfo.fromVar(vResultInfo);
-            if(resultInfo.errors().isEmpty()){
+            if(resultInfo.messages().isEmpty()){
                 if(reason_phrase.isEmpty())
-                    resultInfo.errors().append(reason_phrase);
+                    resultInfo.messages().append(reason_phrase);
             }
-            if(!resultInfo.errors().isEmpty())
-                reason_phrase=resultInfo.errors().first().trimmed();
+            if(!resultInfo.messages().isEmpty())
+                reason_phrase=resultInfo.messages().first().trimmed();
             this->setCode(status_code, reason_phrase);
             p->returnItem.resultVariant=response_body;
             p->returnItem.resultInfo=&resultInfo;
