@@ -22,7 +22,7 @@ class Q_STM_EXPORT ResultInfo:public ObjectWrapper
 
     Q_PROPERTY(QVariant messageType READ messageType WRITE setMessageType RESET resetMessageType NOTIFY messageTypeChanged)
     Q_PROPERTY(QVariant messages READ messages WRITE setMessages NOTIFY messagesChanged)
-    Q_PROPERTY(QVariant errors setMessages NOTIFY messagesChanged)
+    Q_PROPERTY(QVariant errors WRITE setMessages NOTIFY messagesChanged)
     Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
     Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged)
     Q_PROPERTY(int perPage READ perPage WRITE setPerPage NOTIFY perPageChanged)
