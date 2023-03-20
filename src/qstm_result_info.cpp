@@ -13,6 +13,7 @@ public :
     bool enabled=false;
     int code=0;
     QStringList messages;
+    QString messagesText;
     bool success=true;
     int page=0;
     int perPage=9999999;
@@ -107,6 +108,25 @@ void ResultInfo::setMessages(const QVariant &value)
 {
     Q_DECLARE_VU;
     p->messages=vu.toStringList(value);
+}
+
+QString &ResultInfo::messagesText()
+{
+    QStringList list;
+    for(auto &v:p->messages)
+        list.append(v.trimmed());
+    auto msg=list.join(',').trimmed();
+    static const auto __format1=QString("%1-%2");
+    static const auto __format2=QString("Error %1");
+    if(p->code!=0 && !msg.isEmpty())
+        p->messagesText=__format1.arg(p->code).arg(msg);
+    else if(p->code!=0)
+        p->messagesText=__format2.arg(p->code);
+    else if(!msg.isEmpty())
+        p->messagesText=msg;
+    else
+        p->messagesText.clear();
+    return p->messagesText;
 }
 
 bool ResultInfo::success() const

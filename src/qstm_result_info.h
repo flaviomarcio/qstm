@@ -79,12 +79,8 @@ public:
     //!
     //! return message to server
     virtual QStringList &messages();
-
-    //!
-    //! \brief setMessages
-    //! \param value
-    //!
     void setMessages(const QVariant &value);
+    virtual QString &messagesText();
 
     //!
     //! \brief success
