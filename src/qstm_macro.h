@@ -88,6 +88,8 @@
 
 #define Q_LOOP_LIMIT(counter,loops) auto counter=0; while(loops>=counter++)
 
+#define Q_SORT(TARGET, LAMBDA) std::sort(TARGET->begin(), TARGET->end(), LAMBDA)
+
 #define qtr QObject::tr
 
 #define __FUNCTION_UUID__ QCryptographicHash::hash(__PRETTY_FUNCTION__, QCryptographicHash::Md5).toHex()
