@@ -6,25 +6,44 @@
 
 namespace QStm {
 
+//!
+//! \brief The MetaEnum class
+//!
 template <typename ENUM>
 class Q_STM_EXPORT MetaEnum
 {
 public:
+    //!
+    //! \brief MetaEnum
+    //!
     MetaEnum()
     {
         this->_type={};
     }
 
+    //!
+    //! \brief MetaEnum
+    //! \param value
+    //!
     MetaEnum(const ENUM &value)
     {
         this->_type=value;
     }
 
+    //!
+    //! \brief MetaEnum
+    //! \param value
+    //!
     MetaEnum(const QVariant &value)
     {
         this->_type=this->type(value);
     }
 
+    //!
+    //! \brief operator =
+    //! \param value
+    //! \return
+    //!
     ENUM operator = (const QVariant &value)
     {
         this->_type=this->type(value);
@@ -37,48 +56,91 @@ public:
         return this->_type;
     }
 
+    //!
+    //! \brief operator ==
+    //! \param value
+    //! \return
+    //!
     bool operator == (const QVariant &value)
     {
         return this->_type==this->type(value);
     }
 
+    //!
+    //! \brief operator ==
+    //! \param value
+    //! \return
+    //!
     bool operator == (const ENUM &value)
     {
         return this->_type==value;
     }
 
+    //!
+    //! \brief operator !=
+    //! \param value
+    //! \return
+    //!
     bool operator != (const QVariant &value)
     {
         return this->_type!=this->type(value);
     }
 
+    //!
+    //! \brief operator !=
+    //! \param value
+    //! \return
+    //!
     bool operator != (const ENUM &value)
     {
         return this->_type!=this->type(value);
     }
 
+    //!
+    //! \brief type
+    //! \return
+    //!
     ENUM type()const
     {
         return this->_type;
     }
 
+    //!
+    //! \brief equal
+    //! \param v
+    //! \return
+    //!
     bool equal(const QVariant &v)const
     {
         ENUM type=this->type(v);
         return this->_type==type;
     }
 
+    //!
+    //! \brief equal
+    //! \param type
+    //! \return
+    //!
     bool equal(const ENUM &type)const
     {
         return this->_type==type;
     }
 
+    //!
+    //! \brief name
+    //! \return
+    //!
     QByteArray name()const
     {
         auto ivalue=static_cast<int>(this->_type);
         return QByteArray{metaEnum.valueToKey(ivalue)};
     }
 
+    //!
+    //! \brief type
+    //! \param value
+    //! \return
+    //!
     ENUM type(const QVariant &value)const
     {
         if(metaEnum.keyCount()==0){
@@ -127,9 +189,32 @@ public:
         default:
             break;
         }
-        return ENUM(this->metaEnum.value(0));
+        return this->_typeDefault;
     }
 
+    //!
+    //! \brief canType
+    //! \param v
+    //! \return
+    //!
+    bool canType(const QVariant &v){
+        QByteArray uName=v.toByteArray().trimmed().toLower();
+        for(int i=0; i< metaEnum.keyCount(); ++i){
+            auto v=QByteArray{metaEnum.key(i)};
+            if(v.toLower()==uName){
+                this->_type=ENUM(metaEnum.keyToValue(v));
+                return true;
+            }
+        }
+        this->_type=_typeDefault;
+        return false;
+    }
+
+    //!
+    //! \brief contains
+    //! \param value
+    //! \return
+    //!
     bool contains(const QVariant &value)const
     {
         return this->type(value)>=0;
@@ -137,7 +222,8 @@ public:
 
 private:
     QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
-    ENUM _type=ENUM(this->metaEnum.value(0));
+    ENUM _typeDefault=ENUM(metaEnum.keyToValue(metaEnum.key(0)));
+    ENUM _type=_typeDefault;
 };
 
 } // namespace QMFE
