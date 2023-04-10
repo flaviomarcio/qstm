@@ -198,12 +198,27 @@ public:
     //! \return
     //!
     bool canType(const QVariant &v){
-        QByteArray uName=v.toByteArray().trimmed().toLower();
-        for(int i=0; i< metaEnum.keyCount(); ++i){
-            auto v=QByteArray{metaEnum.key(i)};
-            if(v.toLower()==uName){
-                this->_type=ENUM(metaEnum.keyToValue(v));
-                return true;
+
+        bool enumNumberOK=false;
+        int enumCastNumber=v.toInt(&enumNumberOK);
+        if(enumNumberOK){
+            for(int i=0; i< metaEnum.keyCount(); ++i){
+                auto v=QByteArray{metaEnum.key(i)};
+                auto enumValue=metaEnum.keyToValue(v);
+                if(enumValue==enumCastNumber){
+                    this->_type=ENUM(enumCastNumber);
+                    return true;
+                }
+            }
+        }
+        else{
+            auto uName=v.toByteArray().trimmed().toLower();
+            for(int i=0; i< metaEnum.keyCount(); ++i){
+                auto v=QByteArray{metaEnum.key(i)};
+                if(v.toLower()==uName){
+                    this->_type=ENUM(metaEnum.keyToValue(v));
+                    return true;
+                }
             }
         }
         this->_type=_typeDefault;
@@ -217,12 +232,12 @@ public:
     //!
     bool contains(const QVariant &value)const
     {
-        return this->type(value)>=0;
+        return this->type(value)>=this->_typeDefault;
     }
 
 private:
     QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
-    ENUM _typeDefault=ENUM(metaEnum.keyToValue(metaEnum.key(0)));
+    const ENUM _typeDefault=ENUM(metaEnum.keyToValue(metaEnum.key(0)));
     ENUM _type=_typeDefault;
 };
 
