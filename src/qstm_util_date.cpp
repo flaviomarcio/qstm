@@ -673,8 +673,8 @@ bool DateUtil::setDistantRange(QDate &vA, QDate &vB)
 
 bool DateUtil::setDistantRange(QDateTime &vA, QDateTime &vB)
 {
-    vA=QDateTime{QDate{2500,1,1}, *static_maxTime};
-    vB=QDateTime{QDate{1901,1,1}, *static_minTime};
+    vA=QDateTime{QDate{1901,1,1}, *static_minTime};
+    vB=QDateTime{QDate{2500,1,1}, *static_maxTime};
     return vA<vB;
 }
 
@@ -784,7 +784,6 @@ bool DateUtil::checkBetween(QDateTime &vMin, QDateTime &vMax)
         vMin=vMax;
         vMax=aux;
     }
-
     vMin=QDateTime{vMin.date(), *static_minTime};
     vMax=QDateTime{vMax.date(), *static_maxTime};
     return vMin.isValid() && vMax.isValid();
