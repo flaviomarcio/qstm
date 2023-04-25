@@ -116,28 +116,28 @@ public:
     //! \param v
     //! \return
     //!
-    virtual const QString toDate(const QVariant &v={});
+    virtual const QString toDate(const QVariant &v={}, const QVariant &defaultValue={});
 
     //!
     //! \brief toTime
     //! \param v
     //! \return
     //!
-    virtual const QString toTime(const QVariant &v={});
+    virtual const QString toTime(const QVariant &v={}, const QVariant &defaultValue={});
 
     //!
     //! \brief toTimeShort
     //! \param v
     //! \return
     //!
-    const virtual QString toTimeShort(const QVariant &v);
+    const virtual QString toTimeShort(const QVariant &v, const QVariant &defaultValue={});
 
     //!
     //! \brief toDateTime
     //! \param v
     //! \return
     //!
-    virtual const QString toDateTime(const QVariant &v={});
+    virtual const QString toDateTime(const QVariant &v={}, const QVariant &defaultValue={});
 
     //!
     //! \brief toCurrency

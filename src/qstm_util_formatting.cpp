@@ -182,45 +182,57 @@ FormattingUtil &FormattingUtil::operator=(const QVariant &v)
     return *this;
 }
 
-const QString FormattingUtil::toDate(const QVariant &v)
+const QString FormattingUtil::toDate(const QVariant &v, const QVariant &defaultValue)
 {
     set_v;
-    return QVariant::toDate().toString(this->masks().date());
+    auto val=QVariant::toDate();
+    if(val.isNull() || !val.isValid())
+        return defaultValue.toString();
+    return val.toString(this->masks().date());
 }
 
-const QString FormattingUtil::toTime(const QVariant &v)
+const QString FormattingUtil::toTime(const QVariant &v, const QVariant &defaultValue)
 {
     set_v;
-    return QVariant::toTime().toString(this->masks().time());
+    auto val=QVariant::toTime();
+    if(val.isNull() || !val.isValid())
+        return defaultValue.toString();
+    return val.toString(this->masks().time());
 }
 
-const QString FormattingUtil::toTimeShort(const QVariant &v)
+const QString FormattingUtil::toTimeShort(const QVariant &v, const QVariant &defaultValue)
 {
     set_v;
-    return QVariant::toTime().toString(this->masks().timeShort());
+    auto val=QVariant::toTime();
+    if(val.isNull() || !val.isValid())
+        return defaultValue.toString();
+    return val.toString(this->masks().timeShort());
 }
 
-const QString FormattingUtil::toDateTime(const QVariant &v)
+const QString FormattingUtil::toDateTime(const QVariant &v, const QVariant &defaultValue)
 {
     set_v;
-    QDateTime dt={};
+    QDateTime val={};
     switch (v.typeId()) {
     case QMetaType::QDate:
-        dt=QDateTime{v.toDate(),{}};
+        val=QDateTime{v.toDate(),{}};
         break;
     case QMetaType::QTime:
-        dt=QDateTime{{}, v.toTime()};
+        val=QDateTime{{}, v.toTime()};
         break;
     case QMetaType::QDateTime:
-        dt=v.toDateTime();
+        val=v.toDateTime();
         break;
     default:
-        dt=QDateTime::fromString(v.toString(),Qt::ISODateWithMs);
+        val=QDateTime::fromString(v.toString(),Qt::ISODateWithMs);
         break;
     }
-    auto __return=dt.date().toString(this->masks().date());
+    if(val.isNull() || !val.isValid())
+        return defaultValue.toString();
+
+    auto __return=val.date().toString(this->masks().date());
     __return.append(QStringLiteral(" "));
-    __return.append(dt.time().toString(this->masks().time()));
+    __return.append(val.time().toString(this->masks().time()));
     return __return;
 }
 
