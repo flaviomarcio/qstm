@@ -1,6 +1,8 @@
 #include "./qstm_object_wrapper.h"
 #include "./qstm_util_variant.h"
+#ifdef QT_GUI_LIB
 #include "./qstm_meta_enum.h"
+#endif
 #include <QMetaProperty>
 #include <QJsonDocument>
 #include <QVariantHash>
@@ -12,6 +14,7 @@
 
 namespace QStm {
 
+#ifdef QT_GUI_LIB
 static const auto __family="family";
 static const auto __bold="bold";
 static const auto __italic="italic";
@@ -21,7 +24,7 @@ static const auto __stretch="stretch";
 static const auto __pixelSize="pixelSize";
 static const auto __pointSize="pointSize";
 static const auto __pointSizeF="pointSizeF";
-
+#endif
 typedef QVector<QByteArray> PropertyNames;
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyNames, staticIgnoreMethods,({"objectName","values","measures","asJson", "measures", "baseValues", "clearOnSetFail"}))
 
