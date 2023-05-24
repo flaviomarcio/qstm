@@ -22,9 +22,9 @@ static bool staticQT_LOG_SSL_WARNING=true;
 #else
 static bool staticQT_LOG_ENABLED=false;
 static bool staticQT_LOG_DEBUG=false;
-static bool staticQT_LOG_INFO=false;
-static bool staticQT_LOG_WARNING=false;
-static bool staticQT_LOG_CRITICAL=false;
+static bool staticQT_LOG_INFO=true;
+static bool staticQT_LOG_WARNING=true;
+static bool staticQT_LOG_CRITICAL=true;
 static bool staticQT_LOG_SSL_WARNING=false;
 #endif
 
