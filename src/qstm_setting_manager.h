@@ -10,8 +10,8 @@ Q_INVOKABLE explicit Manager(const QStringList&settingFileName, QObject *parent 
 Q_INVOKABLE explicit Manager(const QString &settingFileName, QObject *parent = nullptr):QStm::SettingManager{settingFileName, parent} {}\
 Setting &setting(){ auto setting=&QStm::SettingManager::setting(); return*dynamic_cast<Setting*>(setting); } \
 Setting &setting(const QString &value){ auto setting=&QStm::SettingManager::setting(value); return*dynamic_cast<Setting*>(setting); } \
-Setting *settingClone(const QString &value){ auto setting=QStm::SettingManager::settingClone(value); return dynamic_cast<Setting*>(setting); } \
-virtual QObject*settingCreate(QObject *parent){ return new Setting(parent); }
+Setting *settingClone(const QString &value, QObject *parent=nullptr){ auto setting=QStm::SettingManager::settingClone(value, parent); return dynamic_cast<Setting*>(setting); } \
+virtual QObject *settingCreate(QObject *parent=nullptr){ return new Setting{parent}; }
 
 
 namespace QStm {
@@ -83,14 +83,14 @@ public:
     //! \param value
     //! \return
     //!
-    SettingBase *settingClone(const QString &value);
+    SettingBase *settingClone(const QString &settingName, QObject *parent=nullptr);
 
     //!
     //! \brief settingCreate
     //! \param parent
     //! \return
     //!
-    virtual QObject *settingCreate(QObject *parent);
+    virtual QObject *settingCreate(QObject *parent=nullptr);
 
     //!
     //! \brief load
@@ -111,7 +111,7 @@ public:
     //! \param settingsObject
     //! \return
     //!
-    virtual bool load(QObject*settingsObject);
+    virtual bool load(QObject *settingsObject);
 
     //!
     //! \brief settingsFileName
@@ -137,7 +137,7 @@ public:
     //! \param value
     //! \return
     //!
-    virtual const QVariantHash settingBody(const QString &value);
+    virtual const QVariantHash settingBody(const QString &settingName);
 
     //!
     //! \brief arguments

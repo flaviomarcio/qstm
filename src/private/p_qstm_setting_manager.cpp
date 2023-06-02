@@ -10,11 +10,6 @@ QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
     this->parent=parent;
 }
 
-QStm::SettingManagerPvt::~SettingManagerPvt()
-{
-    this->clear();
-}
-
 bool QStm::SettingManagerPvt::isLoaded()
 {
     QHashIterator<QString, SettingBase*> i(this->settings);
@@ -71,13 +66,15 @@ QByteArray QStm::SettingManagerPvt::settingNameAdjust(const QString &settingName
 
 QStm::SettingBase &QStm::SettingManagerPvt::settingGetCheck(const QByteArray &settingName)
 {
+    if(QThread::currentThread()!=this->thread())
+        qFatal();
     auto name=this->settingNameAdjust(settingName);
     auto ___return=settings.value(name);
     if(___return==nullptr){
-        ___return=this->settingCreate(this->parent);
+        ___return=this->settingCreate(this);
         settings.insert(name, ___return);
     }
-    return*___return;
+    return *___return;
 }
 
 QStm::SettingBase *QStm::SettingManagerPvt::settingCreate(QObject *parent)
@@ -114,7 +111,7 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
             vValue[property]=v;
         }
     }
-    setting=this->settingCreate(this->parent);
+    setting=this->settingCreate(this);
     setting->fromHash(vValue);
     setting->setName(name);
     p.settings.insert(setting->name(), setting);

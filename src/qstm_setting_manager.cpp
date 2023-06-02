@@ -62,19 +62,16 @@ SettingBase &SettingManager::setting()
 
 SettingBase &SettingManager::setting(const QString &value)
 {
-    const auto name = value.toUtf8();
-    return p->settingGetCheck(name);
+    return p->settingGetCheck(value.toUtf8());
 }
 
-SettingBase *SettingManager::settingClone(const QString &value)
+SettingBase *SettingManager::settingClone(const QString &settingName, QObject *parent)
 {
-    const auto name = value.toUtf8();
-    auto &setting = p->settingGetCheck(name);
-    if (!setting.isValid())
+    auto setting=p->settings.value(p->settingNameAdjust(settingName));
+    if (!setting || !setting->isValid())
         return nullptr;
-    auto _parent = (QThread::currentThread() == this->thread()) ? this : nullptr;
-    auto newSetting = p->settingCreate(_parent);
-    newSetting->fromHash(setting.toHash());
+    auto newSetting = p->settingCreate(parent);
+    newSetting->fromHash(setting->toHash());
     return newSetting;
 }
 
@@ -115,11 +112,12 @@ QVariantHash SettingManager::settingBody() const
     return p->settingBody;
 }
 
-const QVariantHash SettingManager::settingBody(const QString &value)
+const QVariantHash SettingManager::settingBody(const QString &settingName)
 {
-    auto &setting = this->setting(value);
-    auto vHash = setting.toHash();
-    return vHash;
+    const auto setting=p->settings.value(p->settingNameAdjust(settingName));
+    if(!setting)
+        return {};
+    return setting->toHash();
 }
 
 QVariantHash SettingManager::arguments() const
@@ -149,8 +147,7 @@ QVariantHash SettingManager::toHash() const
 
 QString SettingManager::rootDir() const
 {
-    auto v = p->envs.value(__rootDir).toString();
-    return v;
+    return p->envs.value(__rootDir).toString();
 }
 
 SettingManager &SettingManager::setRootDir(const QString &value)

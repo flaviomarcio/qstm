@@ -20,7 +20,7 @@ static const auto __variables="variables";
 static const auto __default="default";
 static const auto __services="services";
 
-class SettingManagerPvt: QObject{
+class SettingManagerPvt: public QObject{
 public:
     QVariant settingsFileName;
     SettingBase settingsDefault;
@@ -32,8 +32,6 @@ public:
 
     explicit SettingManagerPvt(SettingManager*parent);
 
-    virtual ~SettingManagerPvt();
-
     bool isLoaded();
 
     bool isEmpty();
@@ -44,9 +42,9 @@ public:
 
     QByteArray settingNameAdjust(const QString &settingName);
 
-    SettingBase&settingGetCheck(const QByteArray &settingName);
+    SettingBase &settingGetCheck(const QByteArray &settingName);
 
-    SettingBase*settingCreate(QObject *parent);
+    SettingBase *settingCreate(QObject *parent);
 
     SettingManager &insert(const QVariantHash &value);
 
