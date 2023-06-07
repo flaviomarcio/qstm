@@ -18,6 +18,7 @@ public:
     bool enabled=false;
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
+    QVariant activityIntervalInitial=defaultInterval;
     int activityThread=0;
     QVariant memoryLimit=0;
     QStm::Envs variables;
@@ -575,6 +576,16 @@ qlonglong SettingBaseTemplate::activityInterval() const
     return p->getInterval(p->activityInterval, defaultInterval).toLongLong();
 }
 
+qlonglong SettingBaseTemplate::activityIntervalInitial() const
+{
+    return p->getInterval(p->activityIntervalInitial, defaultInterval).toLongLong();
+}
+
+qlonglong SettingBaseTemplate::activityInitial() const
+{
+    return p->getInterval(p->activityIntervalInitial, defaultInterval).toLongLong();
+}
+
 int SettingBaseTemplate::activityThread() const
 {
     return p->activityThread>0?p->activityThread:QThread::idealThreadCount();
@@ -625,6 +636,11 @@ void SettingBaseTemplate::setActivityLimit(const QVariant &value)
 void SettingBaseTemplate::setActivityInterval(const QVariant &value)
 {
     p->activityInterval=value;
+}
+
+void SettingBaseTemplate::setActivityIntervalInitial(const QVariant &value)
+{
+    p->activityIntervalInitial=value;
 }
 
 void SettingBaseTemplate::setActivityThread(const QVariant &value)

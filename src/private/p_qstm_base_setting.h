@@ -86,6 +86,7 @@ class SettingBaseTemplate:public QStm::Object
     Q_PROPERTY(QVariant memoryLimit READ memoryLimit WRITE setMemoryLimit NOTIFY memoryLimitChanged)
     Q_PROPERTY(QVariant activityLimit READ activityLimit WRITE setActivityLimit NOTIFY activityLimitChanged)
     Q_PROPERTY(QVariant activityInterval READ activityInterval WRITE setActivityInterval NOTIFY activityIntervalChanged)
+    Q_PROPERTY(QVariant activityIntervalInitial READ activityIntervalInitial WRITE setActivityIntervalInitial NOTIFY activityIntervalInitialChanged)
     Q_PROPERTY(QVariant activityThread READ activityThread WRITE setActivityThread NOTIFY activityThreadChanged)
 
 public:
@@ -273,6 +274,18 @@ public:
     virtual qlonglong activityInterval() const;
 
     //!
+    //! \brief activityIntervalInitial
+    //! \return
+    //!
+    virtual qlonglong activityIntervalInitial() const;
+
+    //!
+    //! \brief activityInitial
+    //! \return
+    //!
+    virtual qlonglong activityInitial() const;
+
+    //!
     //! \brief activityThread
     //! \return
     //!
@@ -327,6 +340,12 @@ public:
     void setActivityInterval(const QVariant &value);
 
     //!
+    //! \brief setActivityIntervalInitial
+    //! \param value
+    //!
+    void setActivityIntervalInitial(const QVariant &value);
+
+    //!
     //! \brief setActivityThread
     //! \param value
     //!
@@ -347,6 +366,7 @@ signals:
     void enabledChanged();
     void activityLimitChanged();
     void activityIntervalChanged();
+    void activityIntervalInitialChanged();
     void activityThreadChanged();
     void memoryLimitChanged();
     void identificationChanged();

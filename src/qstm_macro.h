@@ -93,3 +93,12 @@
 #define qtr QObject::tr
 
 #define __FUNCTION_UUID__ QCryptographicHash::hash(__PRETTY_FUNCTION__, QCryptographicHash::Md5).toHex()
+
+#define Q_STM_DECLARE_BUILDER(CLASS) public:\
+static CLASS &builder(QObject *parent){ \
+        auto object=new CLASS{parent}; \
+        return *object; \
+} \
+    auto build(){ \
+        return this; \
+}
