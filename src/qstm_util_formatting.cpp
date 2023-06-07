@@ -223,6 +223,15 @@ const QString FormattingUtil::toDateTime(const QVariant &v, const QVariant &defa
     case QMetaType::QDateTime:
         val=v.toDateTime();
         break;
+    case QMetaType::Double:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::Long:
+    case QMetaType::ULong:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
+        val=QDateTime::fromMSecsSinceEpoch(v.toLongLong());
+        break;
     default:
         val=QDateTime::fromString(v.toString(),Qt::ISODateWithMs);
         break;

@@ -84,26 +84,40 @@ public:
         if(v.isNull() || !v.isValid() || v.toLongLong()<0)
             return defaultV;
 
-        if(QMetaTypeUtilNumeric.contains(v.typeId()))
-            return v;
+        switch (v.typeId()) {
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+        case QMetaType::Long:
+        case QMetaType::ULong:
+        case QMetaType::Double:
+            return v.toInt();
+        default:
+            break;
+        }
 
-        qlonglong scale=1;
+        double scale=1;
         auto a=getAlpha(v).toString().toLower();
-        if(a==QStringLiteral("s") || a==QStringLiteral("sc") || a==QStringLiteral("second"))
+        if(a==QStringLiteral("ms") || a==QStringLiteral("millisecond"))
             scale=1;
-        else if(a==QStringLiteral("m") || a==QStringLiteral("mn") || a==QStringLiteral("minute"))
-            scale=60;
-        else if(a==QStringLiteral("h") || a==QStringLiteral("hr") || a==QStringLiteral("hour"))
-            scale=60*60;
-        else if(a==QStringLiteral("d") || a==QStringLiteral("dd") || a==QStringLiteral("day"))
-            scale=60*60*24;
-        else if(a==QStringLiteral("mo")|| a==QStringLiteral("mo") || a==QStringLiteral("month"))
-            scale=(60*60*24*30);
-        else if(a==QStringLiteral("y") || a==QStringLiteral("yy") || a==QStringLiteral("year"))
-            scale=(60*60*24*30*12);
-        else
-            scale=1;//ms
-        scale*=1000;
+        else{
+            if(a==QStringLiteral("s") || a==QStringLiteral("sc") || a==QStringLiteral("second"))
+                scale=1;
+            else if(a==QStringLiteral("m") || a==QStringLiteral("mn") || a==QStringLiteral("minute"))
+                scale=60;
+            else if(a==QStringLiteral("h") || a==QStringLiteral("hr") || a==QStringLiteral("hour"))
+                scale=60*60;
+            else if(a==QStringLiteral("d") || a==QStringLiteral("dd") || a==QStringLiteral("day"))
+                scale=60*60*24;
+            else if(a==QStringLiteral("mo")|| a==QStringLiteral("mo") || a==QStringLiteral("month"))
+                scale=(60*60*24*30);
+            else if(a==QStringLiteral("y") || a==QStringLiteral("yy") || a==QStringLiteral("year"))
+                scale=(60*60*24*30*12);
+            else
+                scale=1;//seconds
+            scale*=1000;
+        }
         auto iN=getNumber(v);
         auto i=iN.toDouble();
         i*=scale;
