@@ -1,5 +1,6 @@
 #include "./qstm_setting_base.h"
-#include "./qstm_types.h"
+#include "./qstm_meta_enum.h"
+//#include "./qstm_types.h"
 #include <QStandardPaths>
 #include <QProcess>
 #include <QDateTime>
@@ -16,7 +17,7 @@
 
 namespace QStm {
 
-class SettingBasePvt{
+class SettingBasePvt:public QObject{
 public:
     QObject *parent=nullptr;
     QVariantHash headers;
@@ -35,13 +36,9 @@ public:
     bool cacheCleanup=false;
     int cacheCleanupInterval=0;
 
-    explicit SettingBasePvt(QObject *parent)
+    explicit SettingBasePvt(QObject *parent):QObject{parent}
     {
         this->parent=parent;
-    }
-
-    virtual ~SettingBasePvt()
-    {
     }
 };
 
@@ -49,11 +46,6 @@ public:
 SettingBase::SettingBase(QObject *parent):SettingBaseTemplate<SettingBase>{parent}
 {
     this->p = new SettingBasePvt(this);
-}
-
-SettingBase::~SettingBase()
-{
-    delete p;
 }
 
 QVariant SettingBase::url()const
@@ -76,19 +68,8 @@ QVariant SettingBase::url()const
         {
             auto record=this->protocol().toList();
             for(const auto &v:record){
-                QString protocol;
-                switch (v.typeId()) {
-                case QMetaType::Int:
-                    protocol=QStm::ProtocolName.value(v.toInt());
-                    break;
-                case QMetaType::QString:
-                case QMetaType::QByteArray:
-                    protocol=v.toString().toLower();
-                    break;
-                default:
-                    continue;
-                }
-                vList.append(QStringLiteral("%1://%2").arg(protocol,url));
+                MetaEnum<Protocol> eProtocol=v;
+                vList.append(QStringLiteral("%1://%2").arg(eProtocol.name(),url));
             }
             break;
         }
@@ -130,17 +111,8 @@ QVariant SettingBase::protocol() const
 
 SettingBase &SettingBase::setProtocol(const QVariant &value)
 {
-    switch (value.typeId()) {
-    case QMetaType::Int:
-    case QMetaType::UInt:
-    case QMetaType::Double:
-    case QMetaType::LongLong:
-    case QMetaType::ULongLong:
-        p->protocol=QStm::ProtocolName.value(value.toInt());
-        break;
-    default:
-        p->protocol=value;
-    }
+    MetaEnum<Protocol> eProtocol=value;
+    p->protocol=eProtocol.name();
     return *this;
 }
 

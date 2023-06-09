@@ -14,17 +14,13 @@ class Q_STM_EXPORT SettingBase:public QStm::SettingBaseTemplate<SettingBase>
     Q_OBJECT
     QSTM_SETTING_OBJECT(SettingBase)
 public:
+    enum Protocol {TcpSocket=1, UdpSocket=2, WebSocket=4, Mqtt=8, Amqp=16, Http=32};
+    Q_ENUM(Protocol)
     //!
     //! \brief SettingBase
     //! \param parent
     //!
     Q_INVOKABLE explicit SettingBase(QObject *parent=nullptr);
-
-    //!
-    //! \brief ~SettingBase
-    //!
-    ~SettingBase();
-
 
 public:
     //!
