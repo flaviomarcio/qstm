@@ -13,8 +13,8 @@ class SettingBaseTemplatePrv: public QObject
 {
 public:
     QObject *parent=nullptr;
-    QString identification;
-    QString name;
+    QString identification, identificationParser;
+    QString name, nameParser;
     bool enabled=false;
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
@@ -539,14 +539,16 @@ bool SettingBaseTemplate::mergeVariant(const QVariant &v)
     return true;
 }
 
-QString SettingBaseTemplate::name() const
+QString &SettingBaseTemplate::name() const
 {
+    p->nameParser=this->parseVariables(p->name).toString();
     return p->name;
 }
 
-QString SettingBaseTemplate::identification() const
+QString &SettingBaseTemplate::identification() const
 {
-    return p->identification;
+    p->identificationParser=this->parseVariables(p->identification).toString();
+    return p->identificationParser;
 }
 
 const QVariantHash &SettingBaseTemplate::variables() const

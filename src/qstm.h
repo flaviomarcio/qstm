@@ -1,3 +1,4 @@
+#include "./qstm_cache_io.h"
 #include "./qstm_cache_pool.h"
 #include "./qstm_const.h"
 #include "./qstm_crypto_util.h"

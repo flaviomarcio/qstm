@@ -54,18 +54,23 @@ public:
         case QMetaType::QUrl:
             if(property.write(object, vValue.toUrl()))
                 return true;
+            break;
         case QMetaType::QUuid:
             if(property.write(object, vValue.toUuid()))
                 return true;
+            break;
         case QMetaType::QString:
             if(property.write(object, vValue.toString()))
                 return true;
+            break;
         case QMetaType::QByteArray:
             if(property.write(object, vValue.toByteArray()))
                 return true;
+            break;
         case QMetaType::QChar:
             if(property.write(object, vValue.toChar()))
                 return true;
+            break;
         case QMetaType::QBitArray:
             if(property.write(object, vValue.toBitArray()))
                 return true;
@@ -149,8 +154,9 @@ public:
             case QMetaType::QByteArray:
             case QMetaType::QChar:
             {
+                static const auto __true=QStringLiteral("true");
                 auto vv=vValue.toString().toLower();
-                bool vBool=(vv==QStringLiteral("true"));
+                bool vBool=(vv==__true);
                 if(property.write(object, vBool))
                     return true;
                 break;

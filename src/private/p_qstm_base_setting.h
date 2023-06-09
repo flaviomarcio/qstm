@@ -235,13 +235,13 @@ public:
     //! \brief name
     //! \return
     //!
-    virtual QString name() const;
+    virtual QString &name() const;
 
     //!
     //! \brief identification
     //! \return
     //!
-    virtual QString identification() const;
+    virtual QString &identification() const;
 
     //!
     //! \brief variables

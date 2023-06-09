@@ -45,24 +45,14 @@ public:
     //! \brief headers
     //! \return
     //!
-    virtual QVariantHash headers() const;
-
-    //!
-    //! \brief setHeaders
-    //! \param value
-    //!
+    virtual QVariantHash &headers() const;
     virtual SettingBase &setHeaders(const QVariantHash &value);
 
     //!
     //! \brief protocol
     //! \return
     //!
-    virtual QVariant protocol() const;
-
-    //!
-    //! \brief setProtocol
-    //! \param value
-    //!
+    virtual QVariant &protocol() const;
     virtual SettingBase &setProtocol(const QVariant &value);
 
     //!
@@ -70,59 +60,34 @@ public:
     //! \return
     //!
     virtual QString method() const;
-
-    //!
-    //! \brief setMethod
-    //! \param value
-    //!
     virtual SettingBase &setMethod(const QString &value);
 
     //!
     //! \brief driverName
     //! \return
     //!
-    virtual QString driverName() const;
-
-    //!
-    //! \brief setDriverName
-    //! \param value
-    //!
+    virtual QString &driverName() const;
     virtual SettingBase &setDriverName(const QString &value);
 
     //!
     //! \brief hostName
     //! \return
     //!
-    virtual QString hostName() const;
-
-    //!
-    //! \brief setHostName
-    //! \param value
-    //!
+    virtual QString &hostName() const;
     virtual SettingBase &setHostName(const QString &value);
 
     //!
     //! \brief userName
     //! \return
     //!
-    virtual QString userName() const;
-
-    //!
-    //! \brief setUserName
-    //! \param value
-    //!
+    virtual QString &userName() const;
     virtual SettingBase &setUserName(const QString &value);
 
     //!
     //! \brief password
     //! \return
     //!
-    virtual QString password() const;
-
-    //!
-    //! \brief setPassword
-    //! \param value
-    //!
+    virtual QString &password() const;
     virtual SettingBase &setPassword(const QString &value);
 
     //!
@@ -130,11 +95,6 @@ public:
     //! \return
     //!
     virtual int port() const;
-
-    //!
-    //! \brief setPort
-    //! \param value
-    //!
     virtual SettingBase &setPort(int value);
 
     //!
@@ -142,53 +102,28 @@ public:
     //! \return
     //!
     virtual QVariant route() const;
-
-    //!
-    //! \brief setRoute
-    //! \param value
-    //!
     virtual SettingBase &setRoute(const QVariant &value);
 
     //!
     //! \brief routeList
     //! \return
     //!
-    virtual QVariantList routeList() const;
-
-    //!
-    //! \brief path
-    //! \return
-    //!
-    virtual QString path() const;
-
-    //!
-    //! \brief setPath
-    //! \param value
-    //!
+    virtual QVariantList &routeList() const;
+    virtual QString &path() const;
     virtual SettingBase &setPath(const QString &value);
 
     //!
     //! \brief parameters
     //! \return
     //!
-    virtual QVariantHash parameters() const;
-
-    //!
-    //! \brief setParameters
-    //! \param value
-    //!
+    virtual QVariantHash &parameters() const;
     virtual SettingBase &setParameters(const QVariantHash &value);
 
     //!
     //! \brief body
     //! \return
     //!
-    virtual QVariant body() const;
-
-    //!
-    //! \brief setBody
-    //! \param value
-    //!
+    virtual QVariant &body() const;
     virtual SettingBase &setBody(const QVariant &value);
 
     //!
@@ -196,11 +131,6 @@ public:
     //! \return
     //!
     virtual int cacheInterval() const;
-
-    //!
-    //! \brief setCacheInterval
-    //! \param value
-    //!
     virtual SettingBase &setCacheInterval(const QVariant &value);
 
     //!
@@ -208,11 +138,6 @@ public:
     //! \return
     //!
     virtual bool cacheCleanup() const;
-
-    //!
-    //! \brief setCacheCleanup
-    //! \param value
-    //!
     virtual SettingBase &setCacheCleanup(const QVariant &value);
 
     //!
@@ -220,11 +145,6 @@ public:
     //! \return
     //!
     virtual int cacheCleanupInterval() const;
-
-    //!
-    //! \brief setCacheCleanupInterval
-    //! \param value
-    //!
     virtual SettingBase &setCacheCleanupInterval(const QVariant &value);
 
 signals:
