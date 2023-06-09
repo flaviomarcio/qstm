@@ -72,7 +72,7 @@ public:
     //! \return
     //!
     __QSTM_DECLARE_RESULT_READ_OPERATOR(ResultValue&)
-    __QSTM_DECLARE_RESULT_READ_OPERATOR(QVariant&)
+    __QSTM_DECLARE_RESULT_READ_OPERATOR(QVariant &)
 
     //!
     //! \brief setResult

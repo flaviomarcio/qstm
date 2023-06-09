@@ -27,4 +27,5 @@
 #include "./qstm_util_meta_object.h"
 #include "./qstm_util_path.h"
 #include "./qstm_util_variant.h"
+#include "./qstm_setting_file.h"
 #include "./qstm_vvm.h"

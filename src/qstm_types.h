@@ -42,7 +42,7 @@ enum RequestMethod {Head=1, Get=2, Post=4, Put=8, Delete=16, Options=32, Patch=6
 //!
 //! \brief The QStm::Protocol enum
 //!
-enum Protocol {TcpSocket=1, UdpSocket=2, WebSocket=4, Mqtt=8, Amqp=16, Http=32, Https=64, rpcProtocolMin=TcpSocket, rpcProtocolMax=Https};
+enum Protocol {TcpSocket=1, UdpSocket=2, WebSocket=4, Mqtt=8, Amqp=16, Http=32, rpcProtocolMin=TcpSocket, rpcProtocolMax=Http};
 
 namespace Private {
 const QHash<int, QString> &___ProtocolName();

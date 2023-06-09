@@ -35,7 +35,7 @@ public:
     {
         if(this->_cachePool==nullptr)
             this->_cachePool=&CachePool::instance();
-        return*this->_cachePool;
+        return *this->_cachePool;
     }
 
     static const QByteArray toMd5(const QVariant &value)

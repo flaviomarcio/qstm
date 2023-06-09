@@ -1,5 +1,4 @@
 #include "./qstm_util_date.h"
-#include "./qstm_meta_types.h"
 #include <QCoreApplication>
 #include <QStringList>
 #include <QVariantList>

@@ -24,7 +24,7 @@ public:
         this->qbcmath.setValue(value.toString());
         this->qbcmath.round(this->precision);
         v.setValue(qbcmath.toString());
-        return*this->parent;
+        return *this->parent;
     }
 };
 

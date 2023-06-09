@@ -94,10 +94,10 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
     auto &p=*this;
     QVariantHash vValue=value;
     if(vValue.isEmpty())
-        return*this->parent;
+        return *this->parent;
     auto name=vValue.value(QStringLiteral("name")).toByteArray().trimmed();
     if(name.isEmpty())
-        return*this->parent;
+        return *this->parent;
 
     auto setting=p.settings.value(name);
     if(setting!=nullptr)
@@ -115,7 +115,7 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
     setting->fromHash(vValue);
     setting->setName(name);
     p.settings.insert(setting->name(), setting);
-    return*this->parent;
+    return *this->parent;
 }
 
 bool QStm::SettingManagerPvt::v_load(const QVariant &v)
@@ -168,16 +168,12 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
             continue;
 
         if(!file.exists()){
-#if Q_STM_LOG
             sWarning()<<QStringLiteral("file not exists %1").arg(file.fileName());
-#endif
             continue;
         }
 
         if(!file.open(QFile::ReadOnly)){
-#if Q_STM_LOG
             sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), file.errorString());
-#endif
             continue;
         }
 
@@ -186,26 +182,22 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
         QJsonParseError*error=nullptr;
         auto doc=QJsonDocument::fromJson(bytes, error);
         if(error!=nullptr){
-#if Q_STM_LOG
             sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), error->errorString());
-#endif
             continue;
         }
 
         if(doc.object().isEmpty()){
-#if Q_STM_LOG
             sWarning()<<QStringLiteral("object is empty, %1").arg(file.fileName());
-#endif
             continue;
 
         }
-        auto map=doc.object().toVariantHash();
-        if(!map.isEmpty())
-            vList.append(map);
+        auto vHash=doc.object().toVariantHash();
+        if(!vHash.isEmpty())
+            vList.append(vHash);
     }
     Q_DECLARE_VU;
-    auto vMap=vu.vMerge(vList).toHash();
-    if(p.load(vMap))
+    auto vHash=vu.vMerge(vList).toHash();
+    if(p.load(vHash))
         this->settingsFileName=settingsFileName;
     else
         this->settingsFileName.clear();
@@ -217,22 +209,16 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     auto &p=*this;
     QFile file(fileName);
     if(fileName.trimmed().isEmpty()){
-#if Q_STM_LOG
         sWarning()<<QStringLiteral("not file settings");
-#endif
         return false;
     }
     if(!file.exists()){
-#if Q_STM_LOG
         sWarning()<<QStringLiteral("file not exists %1").arg(file.fileName());
-#endif
         return false;
     }
 
     if(!file.open(QFile::ReadOnly)){
-#if Q_STM_LOG
         sWarning()<<QStringLiteral("%1, %2").arg(file.fileName(), fileName);
-#endif
         return false;
     }
 
@@ -241,9 +227,7 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
 
     auto vHash=QJsonDocument::fromJson(bytes).object().toVariantHash();
     if(!vHash.contains(__services)){
-#if Q_STM_LOG
         sWarning()<<QStringLiteral("tag services not exists, %1").arg(file.fileName());
-#endif
         return false;
     }
 

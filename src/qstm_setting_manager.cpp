@@ -107,7 +107,7 @@ SettingManager &SettingManager::operator<<(SettingBase &value)
     return this->insert(value);
 }
 
-QVariantHash SettingManager::settingBody() const
+QVariantHash &SettingManager::settingBody() const
 {
     return p->settingBody;
 }

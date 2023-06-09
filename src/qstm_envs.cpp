@@ -156,7 +156,7 @@ public:
 
             auto envs=vBody.toList();
             vBody.clear();
-            for(auto&env:envs){
+            for(auto &env:envs){
                 QString line=env.toString();
 
                 if(line.isEmpty())
@@ -165,7 +165,7 @@ public:
                 if(line.right(1)==';')
                     line=line.left(line.length()-1);
 
-                for(auto&phrase: phrasesReplace)
+                for(auto &phrase: phrasesReplace)
                     line=line.replace(phrase,"").trimmed();
 
                 if(line.isEmpty())
@@ -207,7 +207,7 @@ private:
         auto match = re.match(text);
         if (!match.hasMatch())
             return textParser;
-        for(auto&key:match.capturedTexts())
+        for(auto &key:match.capturedTexts())
             text=text.replace(key, "");
         return text;
     }
@@ -293,7 +293,7 @@ private:
         {
             QStringList out;
             auto vList=value.toList();
-            for(auto&v:vList)
+            for(auto &v:vList)
                 out.append(vu.toStr(v));
             return toValue(out.join(','));
         }
@@ -362,7 +362,7 @@ private:
         QHashIterator<QString, QVariant> i(envs);
         while (i.hasNext()) {
             i.next();
-            const auto&key=i.key();
+            const auto &key=i.key();
             auto value = parserToStr(i.value());
             textParser = textParser.replace(key, value, Qt::CaseSensitive);
             if(!re.match(textParser).hasMatch())
@@ -372,7 +372,7 @@ private:
         return textParser;
     }
 
-    static void addEnv(EnvsPvt*envPvt, QVariantHash&envs, const QString &envKey, const QVariant &envValue)
+    static void addEnv(EnvsPvt*envPvt, QVariantHash &envs, const QString &envKey, const QVariant &envValue)
     {
         Q_DECLARE_VU;
         static QRegularExpression re(__envRegExt);
@@ -567,7 +567,7 @@ public:
                 default:
                 {
                     QVariantList vList;
-                    for(auto&v:listVar){
+                    for(auto &v:listVar){
                         auto item=vu.toVariant(v);
                         switch (item.typeId()) {
                         case QMetaType::QString:
@@ -626,7 +626,7 @@ public:
                 auto value=i.value().toString().trimmed();
                 if(reA.match(value).hasMatch()){
                     auto envList=getEnvKeys(value);
-                    for(auto&v:envList){
+                    for(auto &v:envList){
                         auto envVal=getEnvValue(envPvt, v);
                         value=value.replace(v,envVal,Qt::CaseInsensitive);
                     }

@@ -130,7 +130,7 @@ public:
     //! \brief settingBody
     //! \return
     //! full settings source
-    virtual QVariantHash settingBody() const;
+    virtual QVariantHash &settingBody() const;
 
     //!
     //! \brief settingBody

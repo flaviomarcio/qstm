@@ -78,7 +78,7 @@ void ObjectWrapper::mergeFrom(const QObject *object)
 
 void ObjectWrapper::clear()
 {
-    auto&metaObject = *this->metaObject();
+    auto &metaObject = *this->metaObject();
     for(int col = 0; col < metaObject.propertyCount(); ++col) {
         auto property = metaObject.property(col);
 
@@ -349,7 +349,7 @@ const QVector<QMetaProperty> ObjectWrapper::extractProperty(const QObject *objec
 {
     QVector<QMetaProperty> __return;
 
-    auto&metaObject = *object->metaObject();
+    auto &metaObject = *object->metaObject();
     for(int col = 0; col < metaObject.propertyCount(); ++col) {
         auto property = metaObject.property(col);
         auto name=QByteArray{property.name()};

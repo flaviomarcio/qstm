@@ -12,7 +12,6 @@ const QHash<int, QString> &___ProtocolName()
     __return.insert(Mqtt, QT_STRINGIFY2(mqtt));
     __return.insert(Amqp, QT_STRINGIFY2(amqp));
     __return.insert(Http, QT_STRINGIFY2(http));
-    __return.insert(Https, QT_STRINGIFY2(https));
     return __return;
 }
 
@@ -26,7 +25,6 @@ const QHash<QString, int> &___ProtocolType()
     __return.insert(QT_STRINGIFY2(Mqtt), Mqtt);
     __return.insert(QT_STRINGIFY2(Amqp), Amqp);
     __return.insert(QT_STRINGIFY2(Http), Http);
-    __return.insert(QT_STRINGIFY2(Https), Https);
 
     __return.insert(QT_STRINGIFY2(tcp), TcpSocket);
     __return.insert(QT_STRINGIFY2(udp), UdpSocket);
@@ -34,7 +32,6 @@ const QHash<QString, int> &___ProtocolType()
     __return.insert(QT_STRINGIFY2(mqtt), Mqtt);
     __return.insert(QT_STRINGIFY2(amqp), Amqp);
     __return.insert(QT_STRINGIFY2(http), Http);
-    __return.insert(QT_STRINGIFY2(https), Https);
     return __return;
 }
 

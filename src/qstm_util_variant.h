@@ -8,7 +8,7 @@
 #include <QVariantList>
 #include <QVariantHash>
 #include "./qstm_global.h"
-#include "./qstm_meta_types.h"
+
 
 #define Q_DECLARE_VU QStm::VariantUtil vu
 
@@ -21,42 +21,6 @@ class Q_STM_EXPORT VariantUtil:public QVariant{
 public:
     explicit VariantUtil(const QVariant &v={});
     virtual ~VariantUtil();
-
-    //!
-    //! \brief typesListString
-    //!
-    const QMetaTypeUtil &typesListString = QMetaTypeUtilMetaString ;
-
-    //!
-    //! \brief typesListNumeric
-    //!
-    const QMetaTypeUtil &typesListNumeric = QMetaTypeUtilNumeric ;
-
-    //!
-    //! \brief typesListIntergers
-    //!
-    const QMetaTypeUtil &typesListIntergers = QMetaTypeUtilIntegers;
-
-    //!
-    //! \brief typesListClass
-    //!
-    const QMetaTypeUtil &typesListClass = QMetaTypeUtilClass ;
-
-    //!
-    //! \brief typesListObjects
-    //!
-    const QMetaTypeUtil &typesListObjects = QMetaTypeUtilObjects ;
-
-    //!
-    //! \brief typesListDates
-    //!
-    const QMetaTypeUtil &typesListDates = QMetaTypeUtilDates ;
-
-    //!
-    //! \brief typesListBool
-    //!
-    const QMetaTypeUtil &typesListBool = QMetaTypeUtilBool ;
-
     //!
     //! \brief operator =
     //! \param v

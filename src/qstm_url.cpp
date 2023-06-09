@@ -37,7 +37,7 @@ public:
         }
         this->body=vBody;
         this->parent->setValue(vBody);
-        return*this->parent;
+        return *this->parent;
     }
 
     void setVar(const QVariant &v){

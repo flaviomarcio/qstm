@@ -43,7 +43,7 @@ public:
     //! result value class
     virtual ResultValue &lr() const;
     __QSTM_DECLARE_RESULT_READ_LR(ResultValue&)
-    __QSTM_DECLARE_RESULT_READ_LR(QVariant&)
+    __QSTM_DECLARE_RESULT_READ_LR(QVariant &)
 
 public:
     //!

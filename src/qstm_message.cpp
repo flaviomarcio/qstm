@@ -145,7 +145,7 @@ public:
         vBody[QT_STRINGIFY(attachment)        ]=this->attachment      ;
         this->body=vBody;
         this->parent->setValue(vBody);
-        return*this->parent;
+        return *this->parent;
     }
 
     QString getStr(const QStringList &keys, const QVariantHash &vBody)
