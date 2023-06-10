@@ -33,7 +33,7 @@ public:
     //! \brief service
     //! \return
     //!
-    virtual QString service() const;
+    virtual QString &service() const;
 
     //!
     //! \brief setService

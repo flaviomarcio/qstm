@@ -78,6 +78,7 @@ class SettingBaseTemplatePrv;
 class SettingBaseTemplate:public QStm::Object
 {
     Q_OBJECT
+    Q_PROPERTY(QVariant stope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QString identification READ identification WRITE setIdentification NOTIFY identificationChanged)
     Q_PROPERTY(QVariantHash variables READ variables WRITE setVariables NOTIFY variablesChanged)
     Q_PROPERTY(QVariantHash configs READ configs WRITE setConfigs NOTIFY configsChanged)
@@ -238,6 +239,12 @@ public:
     virtual QString &name() const;
 
     //!
+    //! \brief scope
+    //! \return
+    //!
+    virtual QVariant &scope() const;
+
+    //!
     //! \brief identification
     //! \return
     //!
@@ -296,6 +303,12 @@ public:
     //! \return
     //!
     virtual qlonglong memoryLimit() const;
+
+    //!
+    //! \brief setScope
+    //! \param value
+    //!
+    void setScope(const QVariant &value);
 
     //!
     //! \brief setIdentification
@@ -360,6 +373,8 @@ public:
 private:
     SettingBaseTemplatePrv*p=nullptr;
 signals:
+    void scopeChanged();
+    void identificationChanged();
     void nameChanged();
     void variablesChanged();
     void configsChanged();
@@ -369,7 +384,6 @@ signals:
     void activityIntervalInitialChanged();
     void activityThreadChanged();
     void memoryLimitChanged();
-    void identificationChanged();
 
 };
 
@@ -391,6 +405,12 @@ public:
     virtual T &clear()
     {
         Private::SettingBaseTemplate::clear();
+        return *dynamic_cast<T*>(this);
+    }
+
+    virtual T &setScope(const QVariant &value)
+    {
+        Private::SettingBaseTemplate::setScope(value);
         return *dynamic_cast<T*>(this);
     }
 

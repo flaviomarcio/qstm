@@ -13,6 +13,7 @@ class SettingBaseTemplatePrv: public QObject
 {
 public:
     QObject *parent=nullptr;
+    QVariant scope, scopeParser;
     QString identification, identificationParser;
     QString name, nameParser;
     bool enabled=false;
@@ -545,6 +546,12 @@ QString &SettingBaseTemplate::name() const
     return p->name;
 }
 
+QVariant &SettingBaseTemplate::scope() const
+{
+    p->scopeParser=this->parseVariables(p->scope).toString();
+    return p->scopeParser;
+}
+
 QString &SettingBaseTemplate::identification() const
 {
     p->identificationParser=this->parseVariables(p->identification).toString();
@@ -596,6 +603,11 @@ int SettingBaseTemplate::activityThread() const
 qlonglong SettingBaseTemplate::memoryLimit() const
 {
     return p->getMemoryBytes(p->memoryLimit, 0).toLongLong();
+}
+
+void SettingBaseTemplate::setScope(const QVariant &value)
+{
+    p->scope=value;
 }
 
 void SettingBaseTemplate::setIdentification(const QString &value)

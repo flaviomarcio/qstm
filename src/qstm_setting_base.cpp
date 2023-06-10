@@ -83,7 +83,7 @@ QVariant SettingBase::url()const
     return __return;
 }
 
-QString SettingBase::service() const
+QString &SettingBase::service() const
 {
     return this->identification();
 }
