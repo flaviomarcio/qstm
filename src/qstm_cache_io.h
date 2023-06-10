@@ -1,8 +1,6 @@
 #pragma once
 
 #include "./qstm_global.h"
-#include "./qstm_object.h"
-#include "./qstm_result.h"
 #include <QUrl>
 #include <QUuid>
 #include <QFile>
@@ -14,7 +12,7 @@ class CacheIOPvt;
 //!
 //! \brief The CacheIO class
 //!
-class Q_STM_EXPORT CacheIO : public QStm::Object
+class Q_STM_EXPORT CacheIO : public QObject
 {
     Q_OBJECT
 public:
@@ -22,10 +20,16 @@ public:
     explicit CacheIO(const QString &root, QObject *parent = nullptr);
 
     //!
+    //! \brief lastError
+    //! \return
+    //!
+    QString &lastError()const;
+
+    //!
     //! \brief backup
     //! \return
     //!
-    virtual ResultValue &backup();
+    virtual bool backup();
 
     //!
     //! \brief root
@@ -38,8 +42,20 @@ public:
     //! \brief storagePath
     //! \return
     //!
-    virtual QString &storagePath();
-    virtual CacheIO &storagePath(const QString &newStoragePath);
+    virtual QVariant &storage();
+    virtual CacheIO &storage(const QVariant &newStorage);
+
+    //!
+    //! \brief storageBackup
+    //! \return
+    //!
+    virtual const QString &storageBackup();
+
+    //!
+    //! \brief storageTree
+    //! \return
+    //!
+    virtual const QString &storageTree();
 
     //!
     //! \brief exists
@@ -53,16 +69,16 @@ public:
     //! \param bytes
     //! \return
     //!
-    virtual ResultValue &put(const QByteArray &bytes);
-    virtual ResultValue &put(QFile &srcFile);
+    virtual bool put(QUuid &outMD5, const QByteArray &bytes);
+    virtual bool put(QUuid &outMD5, QFile &srcFile);
 
     //!
     //! \brief get
     //! \param mdhFile
     //! \return
     //!
-    virtual ResultValue &get(const QUuid &md5File);
 
+    virtual bool get(const QUuid &md5File, QByteArray &outBytes);
     //!
     //! \brief rm
     //! \param srcFile
@@ -73,82 +89,27 @@ public:
     //!
     //! \brief cp
     //! \param md5File
-    //! \param destineDir
+    //! \param destine
     //! \return
     //!
-    virtual bool cp(const QUuid &md5File, const QString &destineDir);
+    virtual bool cp(const QUuid &md5File, const QString &destine);
 
     //!
-    //! \brief urlFile
+    //! \brief url
     //! \param md5File
     //! \return
     //!
     virtual QUrl url(const QUuid &md5File);
 
-    //!
-    //! \brief beforePrepare
-    //! \return
-    //!
-    virtual void beforePrepare();
-
-    //!
-    //! \brief afterPrepare
-    //! \return
-    //!
-    virtual void afterPrepare();
-
-    //!
-    //! \brief beforePut
-    //! \param md5File
-    //! \param urlFile
-    //! \return
-    //!
-    virtual ResultValue &beforePut(const QUuid &md5File, const QUrl &urlFile);
-
-    //!
-    //! \brief afterPut
-    //! \param md5File
-    //! \param urlFile
-    //! \return
-    //!
-    virtual ResultValue &afterPut(const QUuid &md5File, const QUrl &urlFile);
-
-    //!
-    //! \brief beforeGet
-    //! \param md5File
-    //! \param urlFile
-    //! \return
-    //!
-    virtual ResultValue &beforeGet(const QUuid &md5File, const QUrl &urlFile);
-
-    //!
-    //! \brief beforeRm
-    //! \param md5File
-    //! \param urlFile
-    //! \return
-    //!
-    virtual ResultValue &beforeRm(const QUuid &md5File, const QUrl &urlFile);
-
-    //!
-    //! \brief afterBackup
-    //! \param backupFile
-    //! \return
-    //!
-    virtual ResultValue &afterBackup(const QUrl &backupFile);
-
-    //!
-    //! \brief beforeBackup
-    //! \param backupFile
-    //! \return
-    //!
-    virtual ResultValue &beforeBackup(const QUrl &backupFile);
 private:
     CacheIOPvt *p=nullptr;
 signals:
-    void cachePutted(const QUuid &md5File, const QUrl &urlFile);
-    void cacheGetted(const QUuid &md5File, const QUrl &urlFile);
-    void cacheRemoved(const QUuid &md5File, const QUrl &urlFile);
-    void cacheCopied(const QUuid &md5File, const QUrl &urlFile);
+    void afterPrepared();
+    void afterPut(const QUuid &md5File, const QUrl &urlFile);
+    void beforeGet(const QUuid &md5File, const QUrl &urlFile);
+    void beforeRm(const QUuid &md5File, const QUrl &urlFile);
+    void beforeCp(const QUuid &md5File, const QUrl &urlFile);
+    void beforeBackup(const QUrl &backupFile, QUrl &destineFile);
 };
 
 } // namespace ServerService
