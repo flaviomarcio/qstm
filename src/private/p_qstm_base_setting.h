@@ -78,7 +78,7 @@ class SettingBaseTemplatePrv;
 class SettingBaseTemplate:public QStm::Object
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant stope READ scope WRITE setScope NOTIFY scopeChanged)
+    Q_PROPERTY(QVariant scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QString identification READ identification WRITE setIdentification NOTIFY identificationChanged)
     Q_PROPERTY(QVariantHash variables READ variables WRITE setVariables NOTIFY variablesChanged)
     Q_PROPERTY(QVariantHash configs READ configs WRITE setConfigs NOTIFY configsChanged)
