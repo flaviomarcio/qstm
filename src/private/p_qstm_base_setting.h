@@ -78,7 +78,7 @@ class SettingBaseTemplatePrv;
 class SettingBaseTemplate:public QStm::Object
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant scope READ scope WRITE setScope NOTIFY scopeChanged)
+    Q_PROPERTY(QStringList scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QString identification READ identification WRITE setIdentification NOTIFY identificationChanged)
     Q_PROPERTY(QVariantHash variables READ variables WRITE setVariables NOTIFY variablesChanged)
     Q_PROPERTY(QVariantHash configs READ configs WRITE setConfigs NOTIFY configsChanged)
@@ -242,7 +242,7 @@ public:
     //! \brief scope
     //! \return
     //!
-    virtual QVariant &scope() const;
+    virtual QStringList &scope() const;
 
     //!
     //! \brief identification

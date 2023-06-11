@@ -13,7 +13,7 @@ class SettingBaseTemplatePrv: public QObject
 {
 public:
     QObject *parent=nullptr;
-    QVariant scope, scopeParser;
+    QStringList scope, scopeParser;
     QString identification, identificationParser;
     QString name, nameParser;
     bool enabled=false;
@@ -546,9 +546,9 @@ QString &SettingBaseTemplate::name() const
     return p->name;
 }
 
-QVariant &SettingBaseTemplate::scope() const
+QStringList &SettingBaseTemplate::scope() const
 {
-    p->scopeParser=this->parseVariables(p->scope).toString();
+    p->scopeParser=this->parseVariables(p->scope).toStringList();
     return p->scopeParser;
 }
 
@@ -607,9 +607,16 @@ qlonglong SettingBaseTemplate::memoryLimit() const
 
 void SettingBaseTemplate::setScope(const QVariant &value)
 {
-    if(p->scope==value)
-        return;
-    p->scope=value;
+    Q_DECLARE_VU;
+    QStringList scope;
+    auto vList=value.toList();
+    for(auto &v: vList){
+        auto s=vu.toByteArray(v).trimmed();
+        if(s.isEmpty())
+            continue;
+        scope.append(s);
+    }
+    p->scope=scope;
 }
 
 void SettingBaseTemplate::setIdentification(const QString &value)
