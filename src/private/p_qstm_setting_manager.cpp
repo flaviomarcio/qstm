@@ -2,6 +2,10 @@
 #include "../qstm_util_variant.h"
 #include "../qstm_macro.h"
 
+static const auto __hostName="hostName";
+static const auto __port="port";
+static const auto __name="name";
+
 QStm::SettingManagerPvt::SettingManagerPvt(SettingManager *parent)
     : QObject{parent},
       settingsDefault{parent},
@@ -91,7 +95,6 @@ QStm::SettingBase *QStm::SettingManagerPvt::settingCreate(QObject *parent)
 
 QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
 {
-    auto &p=*this;
     QVariantHash vValue=value;
     if(vValue.isEmpty())
         return *this->parent;
@@ -99,7 +102,7 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
     if(name.isEmpty())
         return *this->parent;
 
-    auto setting=p.settings.value(name);
+    auto setting=this->settings.value(name);
     if(setting!=nullptr)
         setting->deleteLater();
 
@@ -114,7 +117,7 @@ QStm::SettingManager &QStm::SettingManagerPvt::insert(const QVariantHash &value)
     setting=this->settingCreate(this);
     setting->fromHash(vValue);
     setting->setName(name);
-    p.settings.insert(setting->name(), setting);
+    this->settings.insert(setting->name(), setting);
     return *this->parent;
 }
 
@@ -134,7 +137,6 @@ bool QStm::SettingManagerPvt::v_load(const QVariant &v)
 
 bool QStm::SettingManagerPvt::load(QObject *settingsObject)
 {
-    auto &p=*this;
     if(settingsObject==nullptr)
         return false;
 
@@ -153,7 +155,7 @@ bool QStm::SettingManagerPvt::load(QObject *settingsObject)
         auto argReturn=Q_RETURN_ARG(QVariant, invokeReturn);
         if(!metaMethod.invoke(settingsObject, argReturn))
             continue;
-        return p.v_load(invokeReturn);
+        return this->v_load(invokeReturn);
     }
     return false;
 }
@@ -161,7 +163,6 @@ bool QStm::SettingManagerPvt::load(QObject *settingsObject)
 bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
 {
     QVariantList vList;
-    auto &p=*this;
     for(auto &fileName:settingsFileName){
         QFile file(fileName);
         if(fileName.isEmpty())
@@ -197,16 +198,15 @@ bool QStm::SettingManagerPvt::load(const QStringList &settingsFileName)
     }
     Q_DECLARE_VU;
     auto vHash=vu.vMerge(vList).toHash();
-    if(p.load(vHash))
+    if(this->load(vHash))
         this->settingsFileName=settingsFileName;
     else
         this->settingsFileName.clear();
-    return p.isLoaded();
+    return this->isLoaded();
 }
 
 bool QStm::SettingManagerPvt::load(const QString &fileName)
 {
-    auto &p=*this;
     QFile file(fileName);
     if(fileName.trimmed().isEmpty()){
         sWarning()<<QStringLiteral("not file settings");
@@ -232,16 +232,15 @@ bool QStm::SettingManagerPvt::load(const QString &fileName)
     }
 
     sWarning()<<QStringLiteral("loaded settings: %1").arg(file.fileName());
-    return p.load(vHash);
+    return this->load(vHash);
 }
 
 bool QStm::SettingManagerPvt::load(const QVariantHash &settingsIn)
 {
-    auto &p=*this;
     this->envs.reset();
     auto settingsBody=this->envs.parser(settingsIn).toHash();
     this->envs.customEnvs(settingsBody.value(__variables));
-    p.settingBody=settingsIn;
+    this->settingBody=settingsIn;
 
     {//variables
 
@@ -295,14 +294,13 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsIn)
         }
     }
 
-    auto serviceSettings=settingsBody.contains(__services)?settingsBody.value(__services).toHash():p.settingBody;
+    auto serviceSettings=settingsBody.contains(__services)?settingsBody.value(__services).toHash():this->settingBody;
     serviceSettings=this->envs.parser(serviceSettings).toHash();
-    //Envs envDefault(serviceSettings.value(__default));
-    auto defaultSetting=this->envs.parser(serviceSettings.value(__default)).toHash();
+    auto defaultSetting=serviceSettings.value(__default).toHash();
 
-    p.settingsDefault=defaultSetting;
+    this->settingsDefault=defaultSetting;
 
-    if(serviceSettings.contains(QStringLiteral("hostName")) && serviceSettings.contains(QStringLiteral("port"))){
+    if(serviceSettings.contains(__hostName) && serviceSettings.contains(__port)){
         this->insert(serviceSettings);
         return this->isLoaded();
     }
@@ -311,10 +309,7 @@ bool QStm::SettingManagerPvt::load(const QVariantHash &settingsIn)
     while (i.hasNext()) {
         i.next();
         auto value=i.value().toHash();
-        //value=envDefault.parser(value).toHash();
-        //value=this->envs.parser(value).toHash();
-        value.insert(QStringLiteral("name"), i.key().trimmed());
-
+        value.insert(__name, i.key().trimmed());
         {
             QHashIterator<QString, QVariant> i(defaultSetting);
             while (i.hasNext()) {

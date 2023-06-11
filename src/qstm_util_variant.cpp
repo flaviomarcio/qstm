@@ -404,7 +404,7 @@ public:
             vDestineTypeId = vSourceTypeId;
 
         if(vDestineTypeId != vSourceTypeId)
-            return {};
+            return vSourceIn;//send merge subistituimos pelo novo valor
 
         switch (vDestine.typeId()) {
         case QMetaType::QVariantList:

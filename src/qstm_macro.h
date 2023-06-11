@@ -94,11 +94,11 @@
 
 #define __FUNCTION_UUID__ QCryptographicHash::hash(__PRETTY_FUNCTION__, QCryptographicHash::Md5).toHex()
 
-#define Q_STM_DECLARE_BUILDER(CLASS) public:\
-static CLASS &builder(QObject *parent){ \
+#define Q_STM_DECLARE_BUILDER(CLASS, ARG_CLASS) public: \
+static CLASS &builder(ARG_CLASS *parent){ \
         auto object=new CLASS{parent}; \
         return *object; \
 } \
-    auto build(){ \
-        return this; \
+auto build(){ \
+    return this; \
 }

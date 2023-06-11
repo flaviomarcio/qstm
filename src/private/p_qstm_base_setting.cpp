@@ -607,6 +607,8 @@ qlonglong SettingBaseTemplate::memoryLimit() const
 
 void SettingBaseTemplate::setScope(const QVariant &value)
 {
+    if(p->scope==value)
+        return;
     p->scope=value;
 }
 
@@ -617,6 +619,8 @@ void SettingBaseTemplate::setIdentification(const QString &value)
 
 void SettingBaseTemplate::setName(const QString &value)
 {
+    if(p->name==value)
+        return;
     p->name = value.trimmed();
 }
 
@@ -639,31 +643,43 @@ void SettingBaseTemplate::setConfigs(const QVariant &value)
 
 void SettingBaseTemplate::setEnabled(const bool &value)
 {
+    if(p->enabled==value)
+        return;
     p->enabled=value;
 }
 
 void SettingBaseTemplate::setActivityLimit(const QVariant &value)
 {
+    if(p->activityLimit==value)
+        return;
     p->activityLimit=value;
 }
 
 void SettingBaseTemplate::setActivityInterval(const QVariant &value)
 {
+    if(p->activityInterval==value)
+        return;
     p->activityInterval=value;
 }
 
 void SettingBaseTemplate::setActivityIntervalInitial(const QVariant &value)
 {
+    if(p->activityInterval==value)
+        return;
     p->activityIntervalInitial=value;
 }
 
 void SettingBaseTemplate::setActivityThread(const QVariant &value)
 {
+    if(p->activityThread==value)
+        return;
     p->activityThread=value.toInt();
 }
 
 void SettingBaseTemplate::setMemoryLimit(const QVariant &value)
 {
+    if(p->memoryLimit==value)
+        return;
     p->memoryLimit=value;
 }
 
