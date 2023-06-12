@@ -230,18 +230,22 @@ public:
                 vSettingsServices={{__default, vSettingDefault}};
                 Q_V_HASH_ITERATOR (vSettingsMerge){
                     i.next();
-                    if(i.key().toLower()==__default)
+                    auto serviceName=i.key().trimmed().toLower();
+                    if(serviceName==__default)
                         continue;
-                    auto vSettingService=i.value();
-                    vSettingService=vu.vMerge(vSettingDefault, vSettingService);
-                    vSettingsServices.insert(i.key().toLower(), vSettingService);
+
+                    auto vSettingService=i.value().toHash();
+                    {
+                        vSettingService.insert(__name, serviceName);
+                        vSettingService=vu.vMerge(vSettingDefault, vSettingService).toHash();
+                        vSettingsServices.insert(serviceName, vSettingService);
+                    }
                 }
                 vSettingsBody.insert(__services, vSettingsServices);
             }
             Q_V_HASH_ITERATOR (vSettingsServices){
                 i.next();
                 auto vSettingService=i.value().toHash();
-                vSettingService.insert(__name, i.key().trimmed().toLower());
                 this->insert(vSettingService);
             }
         }

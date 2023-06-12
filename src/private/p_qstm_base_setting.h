@@ -24,6 +24,9 @@
 
 namespace QStm {
 
+static const auto defaultLimit = "1y";
+static const auto defaultInterval = "1m";
+
 namespace Private{
 class SettingBaseTemplatePrv;
 //!

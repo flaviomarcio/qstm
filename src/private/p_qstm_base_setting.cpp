@@ -4,9 +4,6 @@
 #include "../qstm_util_date.h"
 #include "../qstm_envs.h"
 
-static const auto defaultLimit = "1y";
-static const auto defaultInterval = "1m";
-
 namespace QStm {
 
 namespace Private {

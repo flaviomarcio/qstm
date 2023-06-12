@@ -460,18 +460,16 @@ public:
                 const auto &k=i.key();
                 const auto &vb=i.value();
                 auto &va=aHash[k];
-                if(!va.isValid() || va.isNull()){
+                if(!va.isValid() || va.isNull())
                     va=vb;
-                }
-                else{
+                else
                     aHash.insert(k, vMerge(va,vb));
-                }
             }
             return aHash;
         }
 
         default:
-            return {};
+            return vSourceIn;
         }
     }
 
