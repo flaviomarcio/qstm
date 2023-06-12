@@ -24,9 +24,6 @@
 
 namespace QStm {
 
-#define defaultLimit QByteArrayLiteral("1y")
-#define defaultInterval QByteArrayLiteral("1m")
-
 namespace Private{
 class SettingBaseTemplatePrv;
 //!
@@ -167,12 +164,6 @@ public:
     //! \return
     //!
     virtual qlonglong activityIntervalInitial() const;
-
-    //!
-    //! \brief activityInitial
-    //! \return
-    //!
-    virtual qlonglong activityInitial() const;
 
     //!
     //! \brief activityThread

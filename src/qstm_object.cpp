@@ -63,6 +63,9 @@ public:
         auto &metaObject = *this->parent->metaObject();
         for(int col = 0; col < metaObject.propertyCount(); ++col) {
             auto property = metaObject.property(col);
+            if(!property.isReadable())
+                continue;
+
             QVariant value;
             switch (property.typeId()) {
             case QMetaType::User:

@@ -131,31 +131,31 @@ public:
     //! \param value
     //! \return
     //!
-    virtual const QVariantHash settingBody(const QString &settingName);
+    virtual QVariantHash settingBody(const QString &settingName) const;
 
     //!
     //! \brief arguments
     //! \return
     //!arguments with settings
-    virtual QVariantHash arguments() const;
+    virtual QVariantHash &arguments() const;
 
     //!
     //! \brief setArguments
     //! \param value
     //!
-    virtual void setArguments(const QVariantHash &value);
+    virtual SettingManager &setArguments(const QVariantHash &value);
 
     //!
     //! \brief variables
     //! \return
     //!
-    virtual QVariantHash variables() const;
+    virtual QVariantHash &variables() const;
 
     //!
     //! \brief setVariables
     //! \param value
     //!
-    virtual void setVariables(const QVariantHash &value);
+    virtual SettingManager &setVariables(const QVariantHash &value);
 
     //!
     //! \brief rootDir

@@ -383,32 +383,48 @@ QVariantHash &SettingManager::settingBody() const
     return p->settingBody;
 }
 
-const QVariantHash SettingManager::settingBody(const QString &settingName)
+QVariantHash SettingManager::settingBody(const QString &settingName)const
 {
-    const auto setting=p->settings.value(settingName.trimmed().toLower());
-    if(!setting)
+    if(!p->settingBody.contains(__services))
         return {};
-    return setting->toHash();
+
+    auto settingServices=p->settingBody.value(__services).toHash();
+    if(settingServices.isEmpty())
+        return {};
+
+    auto key=settingName.trimmed().toLower();
+    if(!settingServices.contains(key))
+        return {};
+
+    auto vSetting=settingServices.value(key).toHash();
+    if(vSetting.isEmpty())
+        return {};
+
+    vSetting=p->envs.parser(vSetting).toHash();
+
+    return vSetting;
 }
 
-QVariantHash SettingManager::arguments() const
+QVariantHash &SettingManager::arguments() const
 {
     return p->arguments;
 }
 
-void SettingManager::setArguments(const QVariantHash &value)
+SettingManager &SettingManager::setArguments(const QVariantHash &value)
 {
     p->arguments=p->envs.parser(value).toHash();
+    return *this;
 }
 
-QVariantHash SettingManager::variables() const
+QVariantHash &SettingManager::variables() const
 {
     return p->envs.customEnvs();
 }
 
-void SettingManager::setVariables(const QVariantHash &value)
+SettingManager &SettingManager::setVariables(const QVariantHash &value)
 {
     p->envs.customEnvs(value);
+    return *this;
 }
 
 QVariantHash SettingManager::toHash() const

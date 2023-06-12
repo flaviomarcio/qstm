@@ -2,8 +2,10 @@
 #include "../qstm_macro.h"
 #include "../qstm_util_variant.h"
 #include "../qstm_util_date.h"
-#include "../qstm_util_meta_object.h"
 #include "../qstm_envs.h"
+
+static const auto defaultLimit = "1y";
+static const auto defaultInterval = "1m";
 
 namespace QStm {
 
@@ -19,6 +21,7 @@ static const auto __activityIntervalInitial="activityIntervalInitial";
 static const auto __activityThread="activityThread";
 static const auto __memoryLimit="memoryLimit";
 static const auto __connection="connection";
+static const auto __t100ms="100ms";
 
 class SettingBaseTemplatePrv: public QObject
 {
@@ -30,7 +33,7 @@ public:
     bool enabled=false;
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
-    QVariant activityIntervalInitial=defaultInterval;
+    QVariant activityIntervalInitial=__t100ms;
     int activityThread=0;
     QVariant memoryLimit=0;
     QStm::Envs envs;
@@ -357,32 +360,36 @@ bool SettingBaseTemplate::enabled() const
 
 qlonglong SettingBaseTemplate::activityLimit() const
 {
-    return p->getInterval(p->activityLimit, defaultLimit).toLongLong();
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityLimit);
+    return du.parseInterval(v, defaultInterval).toLongLong();
 }
 
 qlonglong SettingBaseTemplate::activityInterval() const
 {
-    return p->getInterval(p->activityInterval, defaultInterval).toLongLong();
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityInterval);
+    return du.parseInterval(v, defaultInterval).toLongLong();
 }
 
 qlonglong SettingBaseTemplate::activityIntervalInitial() const
 {
-    return p->getInterval(p->activityIntervalInitial, defaultInterval).toLongLong();
-}
-
-qlonglong SettingBaseTemplate::activityInitial() const
-{
-    return p->getInterval(p->activityIntervalInitial, defaultInterval).toLongLong();
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityIntervalInitial);
+    return du.parseInterval(v, defaultInterval).toLongLong();
 }
 
 int SettingBaseTemplate::activityThread() const
 {
-    return p->activityThread>0?p->activityThread:QThread::idealThreadCount();
+    return (p->activityThread>0)
+               ?p->activityThread
+               :QThread::idealThreadCount();
 }
 
 qlonglong SettingBaseTemplate::memoryLimit() const
 {
-    return p->getMemoryBytes(p->memoryLimit, 0).toLongLong();
+    auto v=this->envs().parser(p->memoryLimit);
+    return p->getMemoryBytes(v, 0).toLongLong();
 }
 
 QVariantHash &SettingBaseTemplate::connection() const
