@@ -8,15 +8,14 @@
 Q_INVOKABLE explicit Manager(QObject *parent = nullptr) : QStm::SettingManager(parent){} \
 Q_INVOKABLE explicit Manager(const QStringList&settingFileName, QObject *parent = nullptr):QStm::SettingManager{settingFileName, parent}{}\
 Q_INVOKABLE explicit Manager(const QString &settingFileName, QObject *parent = nullptr):QStm::SettingManager{settingFileName, parent} {}\
-Setting &setting(){ auto setting=&QStm::SettingManager::setting(); return*dynamic_cast<Setting*>(setting); } \
-Setting &setting(const QString &value){ auto setting=&QStm::SettingManager::setting(value); return*dynamic_cast<Setting*>(setting); } \
+Setting &setting(){ auto setting=&QStm::SettingManager::setting(); return *dynamic_cast<Setting*>(setting); } \
+Setting &setting(const QString &value){ auto setting=&QStm::SettingManager::setting(value); return *dynamic_cast<Setting*>(setting); } \
 Setting *settingClone(const QString &value, QObject *parent=nullptr){ auto setting=QStm::SettingManager::settingClone(value, parent); return dynamic_cast<Setting*>(setting); } \
 virtual QObject *settingCreate(QObject *parent=nullptr){ return new Setting{parent}; }
 
 
 namespace QStm {
 class SettingManagerPvt;
-
 
 //!
 //! \brief The SettingManager class
@@ -67,16 +66,10 @@ public:
 
     //!
     //! \brief setting
-    //! \return
-    //!
-    SettingBase &setting();
-
-    //!
-    //! \brief setting
     //! \param value
     //! \return
     //!
-    SettingBase &setting(const QString &value);
+    const SettingBase &setting(const QString &value) const;
 
     //!
     //! \brief settingClone
@@ -94,10 +87,24 @@ public:
 
     //!
     //! \brief load
-    //! \param settings
+    //! \param fileNames
     //! \return
     //!
-    virtual bool load(const QVariant &settings);
+    virtual bool load(const QStringList &fileNames);
+
+    //!
+    //! \brief load
+    //! \param fileName
+    //! \return
+    //!
+    virtual bool load(const QString &fileName);
+
+    //!
+    //! \brief load
+    //! \param vSettings
+    //! \return
+    //!
+    virtual bool load(const QVariantHash &vSettings);
 
     //!
     //! \brief load
@@ -105,19 +112,6 @@ public:
     //! \return
     //!
     virtual bool load(const SettingManager &manager);
-
-    //!
-    //! \brief load
-    //! \param settingsObject
-    //! \return
-    //!
-    virtual bool load(QObject *settingsObject);
-
-    //!
-    //! \brief settingsFileName
-    //! \return
-    //!
-    virtual QVariant settingsFileName() const;
 
     //!
     //! \brief operator <<

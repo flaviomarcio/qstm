@@ -12,7 +12,7 @@ class SettingBasePvt;
 class Q_STM_EXPORT SettingBase:public QStm::SettingBaseTemplate<SettingBase>
 {
     Q_OBJECT
-    QSTM_SETTING_OBJECT(SettingBase)
+
 public:
     enum Protocol {TcpSocket=1, UdpSocket=2, WebSocket=4, Mqtt=8, Amqp=16, Http=32};
     Q_ENUM(Protocol)
@@ -21,13 +21,14 @@ public:
     //! \param parent
     //!
     Q_INVOKABLE explicit SettingBase(QObject *parent=nullptr);
+    explicit SettingBase(const QVariantHash &vSetting, QObject *parent=nullptr);
 
 public:
     //!
     //! \brief url
     //! \return
     //!
-    virtual QVariant url() const;
+    virtual QVariant &url() const;
 
     //!
     //! \brief service

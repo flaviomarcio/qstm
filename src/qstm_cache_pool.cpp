@@ -71,7 +71,7 @@ CachePool &CachePool::instance(QThread*currentThread)
     auto &i=(*instancesMap)[currentThread];
     if(i==nullptr)
         i=new CachePool{};
-    return*i;
+    return *i;
 }
 
 CachePool &CachePool::clear()

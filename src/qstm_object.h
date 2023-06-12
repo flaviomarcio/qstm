@@ -17,7 +17,7 @@ static ClassName&instance()\
     static ClassName*static_##ClassName=nullptr;\
     if(static_##ClassName==nullptr)\
     static_##ClassName=new ClassName(nullptr);\
-    return*static_##ClassName;\
+    return *static_##ClassName;\
 }\
 static ClassName&i()\
 {\

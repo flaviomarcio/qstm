@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../qstm_object.h"
+#include "../qstm_envs.h"
 #include <math.h>
 #include <QVariant>
 #include <QVariantHash>
@@ -26,50 +27,6 @@ namespace QStm {
 #define defaultLimit QByteArrayLiteral("1y")
 #define defaultInterval QByteArrayLiteral("1m")
 
-
-
-#define QSTM_SETTING_OBJECT(ClassName)\
-public:\
-ClassName &operator=(ClassName &value)\
-{\
-    this->fromSetting(&value);\
-    return *this;\
-}\
-ClassName &operator=(const QVariant &value)\
-{\
-    this->fromVariant(value);\
-    return *this;\
-}\
-ClassName &operator=(const QVariantMap &value)\
-{\
-    this->fromMap(value);\
-    return *this;\
-}\
-ClassName &operator=(const QVariantHash &value)\
-{\
-    this->fromHash(value);\
-    return *this;\
-}\
-ClassName &operator+=(const QVariant &value){\
-    this->mergeVariant(value);\
-    return *this;\
-}\
-ClassName &operator+=(const QVariantMap &value)\
-{\
-    this->mergeVariant(value);\
-    return *this;\
-}\
-ClassName &operator+=(const QVariantHash &value)\
-{\
-    this->mergeVariant(value);\
-    return *this;\
-}\
-ClassName &operator<<(const QVariant &value)\
-{\
-    this->mergeVariant(value);\
-    return *this;\
-}
-
 namespace Private{
 class SettingBaseTemplatePrv;
 //!
@@ -81,7 +38,6 @@ class SettingBaseTemplate:public QStm::Object
     Q_PROPERTY(QStringList scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QString identification READ identification WRITE setIdentification NOTIFY identificationChanged)
     Q_PROPERTY(QVariantHash variables READ variables WRITE setVariables NOTIFY variablesChanged)
-    Q_PROPERTY(QVariantHash configs READ configs WRITE setConfigs NOTIFY configsChanged)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QVariant memoryLimit READ memoryLimit WRITE setMemoryLimit NOTIFY memoryLimitChanged)
@@ -89,6 +45,7 @@ class SettingBaseTemplate:public QStm::Object
     Q_PROPERTY(QVariant activityInterval READ activityInterval WRITE setActivityInterval NOTIFY activityIntervalChanged)
     Q_PROPERTY(QVariant activityIntervalInitial READ activityIntervalInitial WRITE setActivityIntervalInitial NOTIFY activityIntervalInitialChanged)
     Q_PROPERTY(QVariant activityThread READ activityThread WRITE setActivityThread NOTIFY activityThreadChanged)
+    Q_PROPERTY(QVariant connection READ connection WRITE setConnection NOTIFY memoryLimitChanged)
 
 public:
 
@@ -96,7 +53,21 @@ public:
     //! \brief SettingBaseTemplate
     //! \param parent
     //!
-    explicit SettingBaseTemplate(QObject *parent=nullptr);
+    Q_INVOKABLE explicit SettingBaseTemplate(QObject *parent=nullptr);
+    explicit SettingBaseTemplate(const QVariantHash &vSetting, QObject *parent=nullptr);
+
+    //!
+    //! \brief envs
+    //! \return
+    //!
+    QStm::Envs &envs()const;
+
+    //!
+    //! \brief envs
+    //! \param envName
+    //! \return
+    //!
+    QVariant envs(const QString &envName)const;
 
     //!
     //! \brief clear
@@ -107,27 +78,6 @@ public:
     //! \brief print
     //!
     virtual void print()const;
-
-    //!
-    //! \brief parseVariables
-    //! \param v
-    //! \return
-    //!
-    QVariant parseVariables(const QVariant &v) const;
-
-    //!
-    //! \brief variable
-    //! \param v
-    //! \return
-    //!
-    QVariant variable(const QString &v) const;
-
-    //!
-    //! \brief config
-    //! \param v
-    //! \return
-    //!
-    QVariant config(const QString &v) const;
 
     //!
     //! \brief parseAlpha
@@ -172,67 +122,6 @@ public:
     virtual bool isValid() const;
 
     //!
-    //! \brief toMap
-    //! \return
-    //!
-    virtual QVariantMap toMap() const;
-
-    //!
-    //! \brief toHash
-    //! \return
-    //!
-    virtual QVariantHash toHash() const;
-
-    //!
-    //! \brief fromHash
-    //! \param v
-    //! \return
-    //!
-    bool fromHash(const QVariantHash &v);
-
-    //!
-    //! \brief fromMap
-    //! \param v
-    //! \return
-    //!
-    bool fromMap(const QVariantMap &v);
-
-    //!
-    //! \brief fromVariant
-    //! \param v
-    //! \return
-    //!
-    bool fromVariant(const QVariant &v);
-
-    //!
-    //! \brief fromSetting
-    //! \param v
-    //! \return
-    //!
-    bool fromSetting(QObject *v);
-
-    //!
-    //! \brief mergeHash
-    //! \param v
-    //! \return
-    //!
-    virtual bool mergeHash(const QVariantHash &v);
-
-    //!
-    //! \brief mergeMap
-    //! \param v
-    //! \return
-    //!
-    virtual bool mergeMap(const QVariantMap &v);
-
-    //!
-    //! \brief mergeVariant
-    //! \param v
-    //! \return
-    //!
-    virtual bool mergeVariant(const QVariant &v);
-
-    //!
     //! \brief name
     //! \return
     //!
@@ -257,12 +146,6 @@ public:
     virtual const QVariantHash &variables() const;
 
     //!
-    //! \brief configs
-    //! \return
-    //!
-    virtual const QVariantHash &configs() const;
-
-    //!
     //! \brief enabled
     //! \return
     //!
@@ -272,7 +155,6 @@ public:
     //! \return
     //!
     virtual qlonglong activityLimit() const;
-
 
     //!
     //! \brief activityInterval
@@ -305,6 +187,12 @@ public:
     virtual qlonglong memoryLimit() const;
 
     //!
+    //! \brief connections
+    //! \return
+    //!
+    virtual QVariantHash &connection() const;
+
+    //!
     //! \brief setScope
     //! \param value
     //!
@@ -327,12 +215,6 @@ public:
     //! \param value
     //!
     void setVariables(const QVariantHash &value);
-
-    //!
-    //! \brief setConfigs
-    //! \param value
-    //!
-    void setConfigs(const QVariant &value);
 
     //!
     //! \brief setEnabled
@@ -370,6 +252,12 @@ public:
     //!
     void setMemoryLimit(const QVariant &value);
 
+    //!
+    //! \brief setConnections
+    //! \param value
+    //!
+    void setConnection(const QVariant &value);
+
 private:
     SettingBaseTemplatePrv*p=nullptr;
 signals:
@@ -377,13 +265,13 @@ signals:
     void identificationChanged();
     void nameChanged();
     void variablesChanged();
-    void configsChanged();
     void enabledChanged();
     void activityLimitChanged();
     void activityIntervalChanged();
     void activityIntervalInitialChanged();
     void activityThreadChanged();
     void memoryLimitChanged();
+    void connectionChanged();
 
 };
 
@@ -396,7 +284,10 @@ public:
 
     explicit SettingBaseTemplate(QObject *parent=nullptr):Private::SettingBaseTemplate{parent}
     {
+    }
 
+    explicit SettingBaseTemplate(const QVariantHash &vSetting, QObject *parent=nullptr):Private::SettingBaseTemplate{vSetting, parent}
+    {
     }
 
     //!
@@ -459,6 +350,12 @@ public:
     virtual T &setMemoryLimit(const QVariant &value)
     {
         Private::SettingBaseTemplate::setMemoryLimit(value);
+        return *dynamic_cast<T*>(this);
+    }
+
+    virtual T &setConnection(const QVariant &value)
+    {
+        Private::SettingBaseTemplate::setConnection(value);
         return *dynamic_cast<T*>(this);
     }
 };

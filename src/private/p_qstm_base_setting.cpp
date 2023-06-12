@@ -9,6 +9,17 @@ namespace QStm {
 
 namespace Private {
 
+static const auto __scope="scope";
+static const auto __identification="identification";
+static const auto __name="name";
+static const auto __enabled="enabled";
+static const auto __activityLimit="activityLimit";
+static const auto __activityInterval="activityInterval";
+static const auto __activityIntervalInitial="activityIntervalInitial";
+static const auto __activityThread="activityThread";
+static const auto __memoryLimit="memoryLimit";
+static const auto __connection="connection";
+
 class SettingBaseTemplatePrv: public QObject
 {
 public:
@@ -22,12 +33,24 @@ public:
     QVariant activityIntervalInitial=defaultInterval;
     int activityThread=0;
     QVariant memoryLimit=0;
-    QStm::Envs variables;
-    QVariantHash configs;
+    QStm::Envs envs;
+    QVariantHash connection;
 
-    explicit SettingBaseTemplatePrv(QObject *parent=nullptr):QObject{parent}
+    explicit SettingBaseTemplatePrv(const QVariantHash &vSetting, QObject *parent):QObject{parent}, parent{parent}
     {
-        this->parent=parent;
+        Q_DECLARE_VU;
+        if(!vSetting.isEmpty()){
+            this->scope=vu.toStringList(vSetting.value(__scope));
+            this->identification=vSetting.value(__identification).toString().trimmed();
+            this->name=vSetting.value(__name).toString().trimmed();
+            this->enabled=vSetting.value(__enabled).toBool();
+            this->activityLimit=vSetting.value(__activityLimit);
+            this->activityInterval=vSetting.value(__activityInterval);
+            this->activityIntervalInitial=vSetting.value(__activityIntervalInitial);
+            this->activityThread=vSetting.value(__activityThread).toInt();
+            this->memoryLimit=vSetting.value(__memoryLimit);
+            this->connection=vSetting.value(__connection).toHash();
+        }
     }
 
     static const QVariant getAlpha(const QVariant &v)
@@ -130,9 +153,23 @@ public:
 };
 
 
-SettingBaseTemplate::SettingBaseTemplate(QObject *parent):QStm::Object{parent}
+SettingBaseTemplate::SettingBaseTemplate(QObject *parent):QStm::Object{parent}, p{new SettingBaseTemplatePrv{{},this}}
 {
-    this->p = new SettingBaseTemplatePrv{this};
+}
+
+SettingBaseTemplate::SettingBaseTemplate(const QVariantHash &vSetting, QObject *parent):QStm::Object{parent}, p{new SettingBaseTemplatePrv{vSetting, this}}
+{
+
+}
+
+Envs &SettingBaseTemplate::envs() const
+{
+    return p->envs;
+}
+
+QVariant SettingBaseTemplate::envs(const QString &envName) const
+{
+    return p->envs.value(envName);
 }
 
 void SettingBaseTemplate::clear()
@@ -199,21 +236,6 @@ void SettingBaseTemplate::print() const
     sInfo()<<QStringLiteral(" ");
 }
 
-
-QVariant SettingBaseTemplate::variable(const QString &v) const
-{
-    return p->variables.parser(v);
-}
-
-QVariant SettingBaseTemplate::config(const QString &v) const
-{
-    return this->configs().value(v.trimmed().toLower());
-}
-
-QVariant SettingBaseTemplate::parseVariables(const QVariant &v) const
-{
-    return p->variables.parser(v);
-}
 const QVariant SettingBaseTemplate::parseAlpha(const QVariant &v)
 {
     return SettingBaseTemplatePrv::getAlpha(v);
@@ -305,269 +327,27 @@ bool SettingBaseTemplate::isValid() const
     return false;
 }
 
-QVariantMap SettingBaseTemplate::toMap() const
-{
-    if(!this->isValid())
-        return {};
-
-    QVariantMap __return;
-    for (int row = 0; row < this->metaObject()->propertyCount(); ++row) {
-        auto property=this->metaObject()->property(row);
-        if(QByteArray{property.name()}==QT_STRINGIFY2(objectName))
-            continue;
-
-        const auto key=property.name();
-        const auto value = property.read(this);
-        if(!value.isNull())
-            __return.insert(key, value);
-    }
-    return __return;
-
-}
-
-QVariantHash SettingBaseTemplate::toHash() const
-{
-    if(!this->isValid())
-        return {};
-
-    QVariantHash __return;
-    for (int row = 0; row < this->metaObject()->propertyCount(); ++row) {
-        auto property=this->metaObject()->property(row);
-        if(QByteArray{property.name()}==QT_STRINGIFY2(objectName))
-            continue;
-
-        const auto key=property.name();
-        const auto value = property.read(this);
-        if(!value.isNull())
-            __return.insert(key, value);
-    }
-    return __return;
-
-}
-
-bool SettingBaseTemplate::fromHash(const QVariantHash &v)
-{
-    this->clear();
-    Q_DECLARE_VU;
-    QVariantHash vHash;
-    QHashIterator<QString, QVariant> i(v);
-    while (i.hasNext()){
-        i.next();
-        vHash.insert(i.key().toLower(), i.value());
-    }
-
-    auto metaObject = this->metaObject();
-    QStm::MetaObjectUtil metaObjectUtil(*metaObject);
-    auto propertyList=metaObjectUtil.toPropertyList();
-    bool __return=!v.isEmpty();
-    for(auto &property:propertyList){
-        if(QByteArray{property.name()}==QT_STRINGIFY2(objectName))
-            continue;
-
-        auto key = QString::fromUtf8(property.name()).toLower();
-
-        auto value = vHash.value(key);
-        if(value.isNull() || !value.isValid())
-            continue;
-
-        if(property.write(this,value))
-            continue;
-
-        switch (property.typeId()) {
-        case QMetaType::Int:
-        case QMetaType::UInt:
-            property.write(this,value.toInt());
-            break;
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-            property.write(this,value.toLongLong());
-            break;
-        case QMetaType::Double:
-            property.write(this,value.toDouble());
-            break;
-        case QMetaType::QVariantHash:
-            property.write(this, vu.toHash(value));
-            break;
-        case QMetaType::QVariantMap:
-            property.write(this, vu.toMap(value));
-            break;
-        case QMetaType::QVariantList:
-            property.write(this, vu.toList(value));
-            break;
-        case QMetaType::QStringList:
-            property.write(this, vu.toStringList(value));
-            break;
-        default:
-            __return=false;
-        }
-    }
-    return __return;
-}
-
-bool SettingBaseTemplate::fromMap(const QVariantMap &v)
-{
-    return this->fromHash(QVariant(v).toHash());
-}
-
-bool SettingBaseTemplate::fromVariant(const QVariant &v)
-{
-    Q_DECLARE_VU;
-    auto vv=vu.toVariantObject(v);
-    switch (vv.typeId()) {
-    case QMetaType::QVariantHash:
-    case QMetaType::QVariantMap:
-        return this->fromHash(vv.toHash());
-    case QMetaType::QVariantList:{
-        for(auto &h:vv.toList())
-            if(!this->fromHash(h.toHash()))
-                return false;
-        return true;
-    }
-    default:
-        return true;
-    }
-}
-
-bool SettingBaseTemplate::fromSetting(QObject *v)
-{
-    auto o=dynamic_cast<QStm::Object*>(v);
-    if(!o)return {};
-    return this->fromHash(o->toHash());
-}
-
-bool SettingBaseTemplate::mergeHash(const QVariantHash &v)
-{
-    Q_DECLARE_VU;
-    QVariantHash vHash;
-    QHashIterator<QString, QVariant> i(v);
-    while (i.hasNext()){
-        i.next();
-        vHash.insert(i.key().toLower(), i.value());
-    }
-
-    bool __return=false;
-    auto metaObject = this->metaObject();
-    QStm::MetaObjectUtil metaObjectUtil(*metaObject);
-    auto propertyList=metaObjectUtil.toPropertyList();
-    for(auto &property:propertyList){
-        auto key = QString::fromUtf8(property.name()).toLower();
-
-        if(key==QT_STRINGIFY2(objectName))
-            continue;
-
-        auto value = vHash.value(key);
-        if(value.isNull() || !value.isValid())
-            continue;
-
-        if(property.write(this, value)){
-            __return=true;
-            continue;
-        }
-
-        switch (property.typeId()) {
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        {
-            property.write(this,value.toInt());
-            break;
-        }
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-        {
-            if(property.write(this,value.toLongLong()))
-                __return=true;
-            break;
-        }
-        case QMetaType::Double:
-        {
-            if(property.write(this,value.toDouble()))
-                __return=true;
-            break;
-        }
-        case QMetaType::QVariantHash:
-        {
-            if(property.write(this, vu.toHash(value)))
-                __return=true;
-            break;
-        }
-        case QMetaType::QVariantMap:
-        {
-            if(property.write(this, vu.toMap()))
-                __return=true;
-            break;
-        }
-        case QMetaType::QVariantList:
-        {
-            if(property.write(this, vu.toList()))
-                __return=true;
-            break;
-        }
-        case QMetaType::QStringList:{
-            if(property.write(this, vu.toStringList()))
-                __return=true;
-            break;
-        }
-        default:
-            break;
-        }
-    }
-    return __return;
-}
-
-bool SettingBaseTemplate::mergeMap(const QVariantMap &v)
-{
-    return this->mergeHash(QVariant(v).toHash());
-}
-
-bool SettingBaseTemplate::mergeVariant(const QVariant &v)
-{
-    Q_DECLARE_VU;
-    auto vv=vu.toVariantObject(v);
-    switch (vv.typeId()) {
-    case QMetaType::QVariantHash:
-    case QMetaType::QVariantMap:
-        return this->mergeHash(vv.toHash());
-    case QMetaType::QVariantList:
-    {
-        for(auto &h:vv.toList())
-            if(!this->mergeHash(h.toHash()))
-                return false;
-        break;
-    }
-    default:
-        break;
-    }
-    return true;
-}
-
 QString &SettingBaseTemplate::name() const
 {
-    p->nameParser=this->parseVariables(p->name).toString();
+    p->nameParser=p->envs.parser(p->name).toString();
     return p->name;
 }
 
 QStringList &SettingBaseTemplate::scope() const
 {
-    p->scopeParser=this->parseVariables(p->scope).toStringList();
+    p->scopeParser=p->envs.parser(p->scope).toStringList();
     return p->scopeParser;
 }
 
 QString &SettingBaseTemplate::identification() const
 {
-    p->identificationParser=this->parseVariables(p->identification).toString();
+    p->identificationParser=p->envs.parser(p->identification).toString();
     return p->identificationParser;
 }
 
 const QVariantHash &SettingBaseTemplate::variables() const
 {
-    return p->variables.customEnvs();
-}
-
-const QVariantHash &SettingBaseTemplate::configs() const
-{
-    if(!p->configs.isEmpty())
-        p->configs=p->variables.parser(p->configs).toHash();
-    return p->configs;
+    return p->envs.customEnvs();
 }
 
 bool SettingBaseTemplate::enabled() const
@@ -605,6 +385,11 @@ qlonglong SettingBaseTemplate::memoryLimit() const
     return p->getMemoryBytes(p->memoryLimit, 0).toLongLong();
 }
 
+QVariantHash &SettingBaseTemplate::connection() const
+{
+    return p->connection;
+}
+
 void SettingBaseTemplate::setScope(const QVariant &value)
 {
     Q_DECLARE_VU;
@@ -633,19 +418,7 @@ void SettingBaseTemplate::setName(const QString &value)
 
 void SettingBaseTemplate::setVariables(const QVariantHash &value)
 {
-    p->variables.customEnvs(value);
-}
-
-void SettingBaseTemplate::setConfigs(const QVariant &value)
-{
-    Q_DECLARE_VU;
-    p->configs.clear();
-    auto vHash=vu.toHash(value);
-    QHashIterator<QString, QVariant> i(vHash);
-    while(i.hasNext()){
-        i.next();
-        p->configs.insert(i.key().trimmed().toLower(), i.value());
-    }
+    p->envs.customEnvs(value);
 }
 
 void SettingBaseTemplate::setEnabled(const bool &value)
@@ -688,6 +461,13 @@ void SettingBaseTemplate::setMemoryLimit(const QVariant &value)
     if(p->memoryLimit==value)
         return;
     p->memoryLimit=value;
+}
+
+void SettingBaseTemplate::setConnection(const QVariant &value)
+{
+    if(p->connection==value)
+        return;
+    p->connection=value.toHash();
 }
 
 } // namespace Private

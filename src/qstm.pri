@@ -7,7 +7,6 @@ QT += sql
 
 HEADERS += \
     $$PWD/private/p_qstm_base_setting.h \
-    $$PWD/private/p_qstm_setting_manager.h \
     $$PWD/private/p_qstm_startup.h \
     $$PWD/qstm.h \
     $$PWD/qstm_cache_io.h \
@@ -46,7 +45,6 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/private/p_qstm_base_setting.cpp \
-    $$PWD/private/p_qstm_setting_manager.cpp \
     $$PWD/private/p_qstm_startup.cpp \
     $$PWD/qstm_cache_io.cpp \
     $$PWD/qstm_cache_pool.cpp \
