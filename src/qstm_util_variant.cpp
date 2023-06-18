@@ -446,9 +446,8 @@ public:
     }
 };
 
-VariantUtil::VariantUtil(const QVariant &v):QVariant{v}
+VariantUtil::VariantUtil(const QVariant &v):QVariant{v}, p{new VariantUtilPvt{this}}
 {
-    this->p = new VariantUtilPvt{this};
 }
 
 VariantUtil::~VariantUtil()
