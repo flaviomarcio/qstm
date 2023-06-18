@@ -16,8 +16,9 @@ class Q_STM_EXPORT CacheIO : public QObject
 {
     Q_OBJECT
 public:
-    explicit CacheIO(QObject *parent = nullptr);
+    Q_INVOKABLE explicit CacheIO(QObject *parent = nullptr);
     explicit CacheIO(const QString &root, QObject *parent = nullptr);
+    explicit CacheIO(CacheIO &parent);
 
     //!
     //! \brief lastError
@@ -39,10 +40,17 @@ public:
     virtual CacheIO &rootName(const QString &newRootName);
 
     //!
+    //! \brief scopeName
+    //! \return
+    //!
+    virtual QString &scopeName();
+    virtual CacheIO &scopeName(const QString &newScopeName);
+
+    //!
     //! \brief storagePath
     //! \return
     //!
-    virtual QVariant &storage();
+    virtual QString &storage() const;
     virtual CacheIO &storage(const QVariant &newStorage);
 
     //!
@@ -71,6 +79,8 @@ public:
     //!
     virtual bool put(QUuid &outMD5, const QByteArray &bytes);
     virtual bool put(QUuid &outMD5, QFile &srcFile);
+    virtual bool put(const QByteArray &bytes);
+    virtual bool put(QFile &srcFile);
 
     //!
     //! \brief get
@@ -79,6 +89,7 @@ public:
     //!
 
     virtual bool get(const QUuid &md5File, QByteArray &outBytes);
+    virtual bool get(const QUuid &md5File, QUrl &outFile);
     //!
     //! \brief rm
     //! \param srcFile

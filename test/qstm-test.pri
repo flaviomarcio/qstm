@@ -1,31 +1,32 @@
-include($$PWD/../qstm.pri)
-
-#INCLUDEPATH+=$$PWD
+TARGET = app
+TEMPLATE = app
 
 CONFIG += console
 CONFIG -= debug_and_release
 CONFIG += testcase
-LIBS += -L/usr/local/lib -lgmock
-LIBS += -L/usr/local/lib -lgtest
+QT += testlib
+
+LC_ALL=en_US.UTF-8
+
+include($$PWD/../qstm.pri)
 
 Q_STM_TEST=true
 QMAKE_CXXFLAGS += -DQ_STM_TEST=\\\"$$Q_STM_TEST\\\"
 
+INCLUDEPATH+=$$PWD/src
+
 HEADERS += \
     $$PWD/qstm_test.h \
-    $$PWD/qstm_test_unit.h \
-    $$PWD/qstm_test_functional.h
+    $$PWD/qstm_test_main.h \
+    $$PWD/qstm_unit_test_date_util.h \
+    $$PWD/qstm_unit_test_double_util.h \
+    $$PWD/qstm_unit_test_envs.h \
+    $$PWD/qstm_unit_test_formatting_util.h \
+    $$PWD/qstm_unit_test_object.h \
+    $$PWD/qstm_unit_test_result_value.h \
+    $$PWD/qstm_unit_test_setting.h \
+    $$PWD/qstm_unit_test_variant_util.h \
 
 SOURCES += \
-    #$$PWD/main.cpp \
     $$PWD/qstm_test.cpp \
-    $$PWD/qstm_unit_test_envs.cpp \
-    $$PWD/qstm_unit_test_result_value.cpp \
-    $$PWD/qstm_unit_test_object.cpp \
-    $$PWD/qstm_unit_test_variant_util.cpp \
-    $$PWD/qstm_unit_test_setting.cpp \
-    $$PWD/qstm_unit_test_manager.cpp \
-    $$PWD/qstm_unit_test_date_util.cpp \
-    $$PWD/qstm_unit_test_double_util.cpp \
-    $$PWD/qstm_functional_test_manager.cpp \
-    $$PWD/qstm_unit_test_formatting_util.cpp
+    $$PWD/qstm_test_main.cpp \

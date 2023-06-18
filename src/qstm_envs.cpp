@@ -99,7 +99,7 @@ public:
     QVariantHash dirEnvs=*static_DirEnvs;
     QVariantHash systemEnvs=*static_SystemEnvs;
     QVariantHash argumentEnvs;
-    QVariantHash customEnvs;
+    QVariantHash customEnvs, customEnvsOut;
     bool invalidEnvsClean;
     QVariant invalidEnvsValue;
     bool ignoreSystemEnvs=false;
@@ -741,7 +741,15 @@ Envs &Envs::resetArgumentEnvs()
 
 QVariantHash &Envs::customEnvs() const
 {
-    return p->customEnvs;
+    QVariantHash v;
+    QHashIterator<QString, QVariant> i(p->customEnvs);
+    while(i.hasNext()){
+        i.next();
+        auto key=i.key();
+        key=key.replace("$","").replace("{","").replace("}","");
+        v.insert(key, i.value());
+    }
+    return (p->customEnvsOut=v);
 }
 
 Envs &Envs::customEnvs(const QVariant &newCustomEnvs)

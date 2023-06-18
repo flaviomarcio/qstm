@@ -15,28 +15,105 @@ static const auto __tree_md5="/tree-md5";
 class CacheIOPvt:public QObject{
 public:
     CacheIO *parent=nullptr;
-    QString lastError, root, storageDir, storageTree, storageBackup;
-    QVariant storage;
+    QString lastError, rootName, scopeName, storageDir, storageTree, storageBackup;
+    QString storage;
     explicit CacheIOPvt(CacheIO*parent):QObject{parent}
     {
         this->parent=parent;
+        this->readParent();
         this->cachePrepare();
     }
 
-    static QByteArray toMd5(const QByteArray &bytes)
+    void readParent()
     {
+        if(!this->parent || !this->parent->parent())
+            return;
+        auto cacheParent=dynamic_cast<CacheIO*>(this->parent->parent());
+        if(!cacheParent)
+            return;
+
+        this->rootName=cacheParent->rootName().trimmed();
+        this->scopeName=cacheParent->scopeName().trimmed();
+        this->storageDir=cacheParent->storage().trimmed();
+
+    }
+
+    static QByteArray toMd5(const QVariant &v)
+    {
+        if(!v.isValid() || v.isNull())
+            return {};
+
+        QByteArray bytes;
+
+        //se ja for md5 ou uuid manteremos o uuid como md5 logo ja e um
+        switch (v.typeId()) {
+        case QMetaType::QUuid:
+        {
+            auto uuid=v.toUuid();
+            if(uuid.isNull())
+                return {};
+            auto suuid=uuid.toByteArray();
+            return suuid.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
+        }
+        case QMetaType::QUrl:{
+            auto url=v.toUrl();
+            if(!url.isValid())
+                return {};
+            bytes=url.toString().toUtf8();
+            break;
+        }
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        case QMetaType::QBitArray:
+        case QMetaType::QChar:
+        {
+            auto md5=bytes.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
+            if(md5.length()==32)
+                return md5;
+            break;
+        }
+        default:
+            bytes=v.toByteArray().trimmed();
+            break;
+        }
+        if(bytes.isEmpty())
+            return {};
         return QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex();
     }
 
-    static QUuid toMd5Uuid(const QByteArray &bytes)
+    static bool md5ParserUuid(const QString & vtext, QByteArray &outText)
     {
-        auto md5=toMd5(bytes);
-        return QUuid::fromString(QStringLiteral("{")+md5+QStringLiteral("}"));
+        QByteArray suuid;
+        auto text=vtext;
+        text.replace(QStringLiteral("-"),"").replace(QStringLiteral("{"),"").replace(QStringLiteral("}"),"");
+        if(text.length()==32){
+            int i=0;
+            for(auto &c:text){
+                ++i;
+                suuid.append(c.toLatin1());
+                if(i==8 || i==12 || i==16 || i==20)
+                    suuid.append(QByteArrayLiteral("-"));
+            }
+            outText=suuid;
+            return true;
+        }
+        outText={};
+        return false;
+    }
+
+    static QUuid toMd5Uuid(const QByteArray &md5)
+    {
+        QByteArray md5Out;
+        if(!md5ParserUuid(md5, md5Out))
+            return {};
+        auto suuid=QStringLiteral("{")+md5Out+QStringLiteral("}");
+        auto uuid=QUuid::fromString(suuid);
+        return uuid;
     }
 
     void cachePrepare()
     {
-        auto storage=this->storage.toString().trimmed();
+        auto storage=this->storage;
         this->storage=!storage.isEmpty()
                             ?storage:
                             QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
@@ -45,10 +122,11 @@ public:
 
     const QString &getStorageDir()
     {
-        auto storage=this->storage.toString().trimmed();
-        auto root="/"+(this->root.isEmpty()?__cache_io:this->root);
-        this->storageDir=storage+root;
-        return this->storageDir;
+        auto &storage=this->storageDir;
+        storage=this->storage.trimmed();
+        storage+='/'+(this->rootName.isEmpty()?__cache_io:this->rootName);
+        storage+=(this->scopeName.isEmpty()?"":'/'+this->scopeName);
+        return storage;
     }
 
     const QString &getStorageBackup()
@@ -96,15 +174,18 @@ public:
 
 };
 
-CacheIO::CacheIO(QObject *parent) : QObject{parent}
+CacheIO::CacheIO(QObject *parent) : QObject{parent}, p{new CacheIOPvt{this}}
 {
-    this->p=new CacheIOPvt{this};
 }
 
-CacheIO::CacheIO(const QString &root, QObject *parent) : QObject{parent}
+CacheIO::CacheIO(const QString &root, QObject *parent) : QObject{parent}, p{new CacheIOPvt{this}}
 {
-    this->p=new CacheIOPvt{this};
-    this->p->root=root.trimmed();
+    this->p->rootName=root.trimmed();
+}
+
+CacheIO::CacheIO(CacheIO &parent) : QObject{&parent}, p{new CacheIOPvt{this}}
+{
+
 }
 
 QString &CacheIO::lastError() const
@@ -119,24 +200,36 @@ bool CacheIO::backup()
 
 QString &CacheIO::rootName()
 {
-    return p->root;
+    return p->rootName;
 }
 
 CacheIO &CacheIO::rootName(const QString &newRootName)
 {
-    p->root=newRootName.trimmed();
+    p->rootName=newRootName.trimmed();
     p->cachePrepare();
     return *this;
 }
 
-QVariant &CacheIO::storage()
+QString &CacheIO::scopeName()
+{
+    return p->scopeName;
+}
+
+CacheIO &CacheIO::scopeName(const QString &newScopeName)
+{
+    p->scopeName=newScopeName.trimmed();
+    p->cachePrepare();
+    return *this;
+}
+
+QString &CacheIO::storage()const
 {
     return p->storage;
 }
 
 CacheIO &CacheIO::storage(const QVariant &newStorage)
 {
-    p->storage=newStorage;
+    p->storage=newStorage.toString().trimmed();
     p->cachePrepare();
     return *this;
 }
@@ -164,7 +257,7 @@ bool CacheIO::put(QUuid &outMD5, const QByteArray &bytes)
     outMD5={};
     auto md5File=p->toMd5Uuid(bytes);
     if(md5File.isNull()){
-        sWarning()<<QStringLiteral("Invalid bytes");
+        sWarning()<<(p->lastError=QStringLiteral("Invalid bytes"));
         return false;
     }
 
@@ -173,7 +266,7 @@ bool CacheIO::put(QUuid &outMD5, const QByteArray &bytes)
 
     if(!file.exists()){
         if(!file.open(QFile::Truncate | QFile::Unbuffered | QFile::WriteOnly)){
-            sWarning()<<file.errorString();
+            sWarning()<<(p->lastError=file.errorString());
             return false;
         }
         file.write(bytes);
@@ -181,6 +274,10 @@ bool CacheIO::put(QUuid &outMD5, const QByteArray &bytes)
         file.close();
     }
     outMD5=md5File;
+    if(outMD5.isNull()){
+        sWarning()<<(p->lastError=QStringLiteral("Invalid outMD5 md5"));
+        return false;
+    }
     return !outMD5.isNull();
 }
 
@@ -188,12 +285,24 @@ bool CacheIO::put(QUuid &outMD5, QFile &srcFile)
 {
     if(!srcFile.isOpen()){
         if(srcFile.open(QFile::Unbuffered | QFile::ReadOnly)){
-            sWarning()<<srcFile.errorString();
+            sWarning()<<(p->lastError=srcFile.errorString());
             return false;
         }
     }
     auto bytes=srcFile.readAll();
     return this->put(outMD5, bytes);
+}
+
+bool CacheIO::put(const QByteArray &bytes)
+{
+    QUuid outMD5;
+    return this->put(outMD5, bytes);
+}
+
+bool CacheIO::put(QFile &srcFile)
+{
+    QUuid outMD5;
+    return this->put(outMD5, srcFile);
 }
 
 bool CacheIO::get(const QUuid &md5File, QByteArray &outBytes)
@@ -202,17 +311,30 @@ bool CacheIO::get(const QUuid &md5File, QByteArray &outBytes)
     emit this->beforeGet(md5File, QUrl::fromLocalFile(file.fileName()));
 
     if(!file.exists()){
-        sWarning()<<QStringLiteral("cache not found: %1").arg(file.fileName());
+        sWarning()<<(p->lastError=QStringLiteral("cache not found: %1").arg(file.fileName()));
         return false;
     }
 
     if(!file.open(QFile::Unbuffered | QFile::ReadOnly)){
-        sWarning()<<file.errorString();
+        sWarning()<<(p->lastError=file.errorString());
         return false;
     }
 
     outBytes=file.readAll();
     file.close();
+    return true;
+}
+
+bool CacheIO::get(const QUuid &md5File, QUrl &outFile)
+{
+    QFile file(p->storagePath(md5File));
+    emit this->beforeGet(md5File, QUrl::fromLocalFile(file.fileName()));
+
+    if(!file.exists()){
+        sWarning()<<(p->lastError=QStringLiteral("cache not found: %1").arg(file.fileName()));
+        return false;
+    }
+    outFile=QUrl::fromLocalFile(file.fileName());
     return true;
 }
 
@@ -222,7 +344,7 @@ bool CacheIO::rm(const QUuid &md5File)
     emit this->beforeRm(md5File, QUrl::fromLocalFile(file.fileName()));
 
     if(!file.exists()){
-        sWarning()<<QStringLiteral("File not exists: %1").arg(file.fileName());
+        sWarning()<<(p->lastError=QStringLiteral("File not exists: %1").arg(file.fileName()));
         return false;
     }
 
@@ -235,7 +357,7 @@ bool CacheIO::cp(const QUuid &md5File, const QString &destine)
 {
     QFile file(p->storagePath(md5File));
     if(!file.exists()){
-        sWarning()<<QStringLiteral("Invalid source: %1").arg(file.fileName());
+        sWarning()<<(p->lastError=QStringLiteral("Invalid source: %1").arg(file.fileName()));
         return false;
     }
 
@@ -243,14 +365,14 @@ bool CacheIO::cp(const QUuid &md5File, const QString &destine)
     if(!dir.exists()){
         dir.mkpath(destine);
         if(!dir.exists()){
-            sWarning()<<QStringLiteral("Invalid destine: %1").arg(destine);
+            sWarning()<<(p->lastError=QStringLiteral("Invalid destine: %1").arg(destine));
             return false;
         }
     }
 
     auto newFileName=QStringLiteral("%1/%2").arg(destine, md5File.toString());
     if(!file.copy(newFileName)){
-        sWarning()<<file.errorString();
+        sWarning()<<(p->lastError=file.errorString());
         return false;
     }
 

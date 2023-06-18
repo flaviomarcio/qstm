@@ -1,40 +1,30 @@
 #include "./qstm_test.h"
-#include "../src/qstm_types.h"
-#include "../src/qstm_meta_types.h"
 
-namespace QStm
-{
+namespace QStm{
 
-SDKGoogleTest::SDKGoogleTest()
+ObjectTest::ObjectTest(QObject *parent):QObject{parent}
 {
     QLocale::setDefault(QLocale(QLocale::Portuguese, QLocale::Brazil));
 }
 
-bool SDKGoogleTest::clear()
+void ObjectTest::execute()
 {
-    return true;
-}
+    static const QByteArray prefix="test_";
 
-QStringList SDKGoogleTest::arguments() const
-{
-    return qApp->arguments();
-}
+    for (int i = 0; i < this->metaObject()->methodCount(); ++i) {
+        auto method=this->metaObject()->method(i);
 
-const QByteArray SDKGoogleTest::toMd5(const QVariant &v)
-{
-    QByteArray bytes;
-    if(!QMetaTypeUtilObjectMetaData.contains(v.typeId()))
-        bytes=v.toByteArray();
-    else
-        bytes=QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
-    return QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex();
-}
+        if(method.methodType()!=QMetaMethod::Method)
+            continue;
 
-const QVariant SDKGoogleTest::toVar(const QVariant &v)
-{
-    if(QMetaTypeUtilString.contains(v.typeId()))
-        return QJsonDocument::fromJson(v.toByteArray()).toVariant();
-    return v;
+        if(method.parameterCount()>0)
+            continue;
+
+        if(!method.name().startsWith(prefix))
+            continue;
+
+        method.invoke(this, Qt::DirectConnection);
+    }
 }
 
 }
