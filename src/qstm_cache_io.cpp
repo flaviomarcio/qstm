@@ -1,16 +1,90 @@
 #include "./qstm_cache_io.h"
-#include "./qstm_macro.h"
 #include <QDir>
 #include <QFile>
 #include <QStandardPaths>
 #include <QTimer>
 #include <QCryptographicHash>
 
+#ifdef QTREFORCE_QSTM
+#include "./qstm_macro.h"
+#include "./qstm_util_variant.h"
+#endif
+
 namespace QStm {
 
 static const auto __cache_io="cache-io";
 static const auto __backup="backup";
 static const auto __tree_md5="/tree-md5";
+
+#ifndef QTREFORCE_QSTM
+static QByteArray toMd5(const QVariant &v)
+{
+    if(!v.isValid() || v.isNull())
+        return {};
+
+    QByteArray bytes;
+
+    //se ja for md5 ou uuid manteremos o uuid como md5 logo ja e um
+    switch (v.typeId()) {
+    case QMetaType::QUuid:
+    {
+        auto uuid=v.toUuid();
+        if(uuid.isNull())
+            return {};
+        auto suuid=uuid.toByteArray();
+        return suuid.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
+    }
+    case QMetaType::QUrl:{
+        auto url=v.toUrl();
+        if(!url.isValid())
+            return {};
+        bytes=url.toString().toUtf8();
+        break;
+    }
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+    case QMetaType::QBitArray:
+    case QMetaType::QChar:
+    {
+        auto md5=bytes.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
+        if(md5.length()==32)
+            return md5;
+        break;
+    }
+    default:
+        bytes=v.toByteArray().trimmed();
+        break;
+    }
+    if(bytes.isEmpty())
+        return {};
+    return QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex();
+}
+
+static bool md5ParserUuid(const QString & vtext, QByteArray &outText)
+{
+    QByteArray suuid;
+    auto text=vtext;
+    text.replace(QStringLiteral("-"),"").replace(QStringLiteral("{"),"").replace(QStringLiteral("}"),"");
+    if(text.length()==32){
+        int i=0;
+        for(auto &c:text){
+            ++i;
+            suuid.append(c.toLatin1());
+            if(i==8 || i==12 || i==16 || i==20)
+                suuid.append(QByteArrayLiteral("-"));
+        }
+        outText=suuid;
+        return true;
+    }
+    outText={};
+    return false;
+}
+
+static QUuid toMd5Uuid(const QByteArray &v)
+{
+    qFaltal("copy source qstm_util_hash.h")
+}
+#endif
 
 class CacheIOPvt:public QObject{
 public:
@@ -36,79 +110,6 @@ public:
         this->scopeName=cacheParent->scopeName().trimmed();
         this->storageDir=cacheParent->storage().trimmed();
 
-    }
-
-    static QByteArray toMd5(const QVariant &v)
-    {
-        if(!v.isValid() || v.isNull())
-            return {};
-
-        QByteArray bytes;
-
-        //se ja for md5 ou uuid manteremos o uuid como md5 logo ja e um
-        switch (v.typeId()) {
-        case QMetaType::QUuid:
-        {
-            auto uuid=v.toUuid();
-            if(uuid.isNull())
-                return {};
-            auto suuid=uuid.toByteArray();
-            return suuid.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
-        }
-        case QMetaType::QUrl:{
-            auto url=v.toUrl();
-            if(!url.isValid())
-                return {};
-            bytes=url.toString().toUtf8();
-            break;
-        }
-        case QMetaType::QString:
-        case QMetaType::QByteArray:
-        case QMetaType::QBitArray:
-        case QMetaType::QChar:
-        {
-            auto md5=bytes.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
-            if(md5.length()==32)
-                return md5;
-            break;
-        }
-        default:
-            bytes=v.toByteArray().trimmed();
-            break;
-        }
-        if(bytes.isEmpty())
-            return {};
-        return QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex();
-    }
-
-    static bool md5ParserUuid(const QString & vtext, QByteArray &outText)
-    {
-        QByteArray suuid;
-        auto text=vtext;
-        text.replace(QStringLiteral("-"),"").replace(QStringLiteral("{"),"").replace(QStringLiteral("}"),"");
-        if(text.length()==32){
-            int i=0;
-            for(auto &c:text){
-                ++i;
-                suuid.append(c.toLatin1());
-                if(i==8 || i==12 || i==16 || i==20)
-                    suuid.append(QByteArrayLiteral("-"));
-            }
-            outText=suuid;
-            return true;
-        }
-        outText={};
-        return false;
-    }
-
-    static QUuid toMd5Uuid(const QByteArray &md5)
-    {
-        QByteArray md5Out;
-        if(!md5ParserUuid(md5, md5Out))
-            return {};
-        auto suuid=QStringLiteral("{")+md5Out+QStringLiteral("}");
-        auto uuid=QUuid::fromString(suuid);
-        return uuid;
     }
 
     void cachePrepare()
@@ -255,7 +256,12 @@ bool CacheIO::exists(const QUuid &md5File)
 bool CacheIO::put(QUuid &outMD5, const QByteArray &bytes)
 {
     outMD5={};
-    auto md5File=p->toMd5Uuid(bytes);
+#ifdef QTREFORCE_QSTM
+    Q_DECLARE_VU;
+    auto md5File=vu.toMd5Uuid(bytes);
+#else
+    auto md5File=toMd5Uuid(bytes);
+#endif
     if(md5File.isNull()){
         sWarning()<<(p->lastError=QStringLiteral("Invalid bytes"));
         return false;

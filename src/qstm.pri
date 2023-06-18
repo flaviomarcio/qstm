@@ -41,6 +41,7 @@ HEADERS += \
     $$PWD/qstm_util_meta_object.h \
     $$PWD/qstm_util_path.h \
     $$PWD/qstm_util_variant.h \
+    $$PWD/qstm_util_hash.h \
     $$PWD/qstm_vvm.h \
 
 SOURCES += \
@@ -73,5 +74,6 @@ SOURCES += \
     $$PWD/qstm_util_meta_object.cpp \
     $$PWD/qstm_util_path.cpp \
     $$PWD/qstm_util_variant.cpp \
+    $$PWD/qstm_util_hash.cpp \
     $$PWD/qstm_vvm.cpp \
 

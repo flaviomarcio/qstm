@@ -22,6 +22,7 @@ HEADERS += \
     $$PWD/qstm_unit_test_double_util.h \
     $$PWD/qstm_unit_test_envs.h \
     $$PWD/qstm_unit_test_formatting_util.h \
+    $$PWD/qstm_unit_test_hash_util.h \
     $$PWD/qstm_unit_test_object.h \
     $$PWD/qstm_unit_test_result_value.h \
     $$PWD/qstm_unit_test_setting.h \

@@ -1,5 +1,6 @@
 #include "./qstm_util_variant.h"
 #include "./qstm_util_date.h"
+#include "./qstm_util_hash.h"
 #include <QCryptographicHash>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -154,56 +155,6 @@ public:
         }
     }
 
-    static QByteArray toMd5(const QVariant &v)
-    {
-        if(!v.isValid() || v.isNull())
-            return {};
-
-        QByteArray bytes;
-
-        //se ja for md5 ou uuid manteremos o uuid como md5 logo ja e um
-        switch (v.typeId()) {
-        case QMetaType::QUuid:
-        {
-            auto uuid=v.toUuid();
-            if(uuid.isNull())
-                return {};
-            auto suuid=uuid.toByteArray();
-            return suuid.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
-        }
-        case QMetaType::QUrl:{
-            auto url=v.toUrl();
-            if(!url.isValid())
-                return {};
-            bytes=url.toString().toUtf8();
-            break;
-        }
-        case QMetaType::QString:
-        case QMetaType::QByteArray:
-        case QMetaType::QBitArray:
-        case QMetaType::QChar:
-        {
-            bytes=v.toByteArray();
-            auto md5=QByteArray{bytes}.replace(QByteArrayLiteral("{"), "").replace(QByteArrayLiteral("}"), "").replace(QByteArrayLiteral("-"), "");
-            if(md5.length()==32){
-                QString smd5;
-                if(md5ParserUuid(md5, smd5)){
-                    auto uuid=QUuid::fromString(QStringLiteral("{")+smd5+QStringLiteral("}"));
-                    if(!uuid.isNull())
-                        return md5;
-                }
-            }
-            break;
-        }
-        default:
-            bytes=v.toByteArray().trimmed();
-            break;
-        }
-        if(bytes.isEmpty())
-            return {};
-        return QCryptographicHash::hash(bytes, QCryptographicHash::Md5).toHex();
-    }
-
     static QByteArray toByteArray(const QVariant &v)
     {
         switch (v.typeId()) {
@@ -286,40 +237,6 @@ public:
         default:
             return false;
         }
-    }
-
-    static bool md5ParserUuid(const QString & vtext, QString &outText)
-    {
-        QByteArray suuid;
-        auto text=vtext;
-        text.replace(QStringLiteral("-"),"").replace(QStringLiteral("{"),"").replace(QStringLiteral("}"),"");
-        if(text.length()==32){
-            int i=0;
-            for(auto &c:text){
-                ++i;
-                suuid.append(c.toLatin1());
-                if(i==8 || i==12 || i==16 || i==20)
-                    suuid.append(QByteArrayLiteral("-"));
-            }
-            outText=suuid;
-            return true;
-        }
-        outText={};
-        return false;
-    }
-
-    static QUuid md5toUuid(const QString &md5)
-    {
-        auto smd5=md5;
-        if(md5ParserUuid(smd5, smd5))
-            return QUuid::fromString(QStringLiteral("{")+smd5+QStringLiteral("}"));
-
-        smd5=VariantUtilPvt::toMd5(md5);
-
-        if(md5ParserUuid(smd5, smd5))
-            return QUuid::fromString(QStringLiteral("{")+smd5+QStringLiteral("}"));
-
-        return {};
     }
 
     QVariant vUnion(const QVariant &v)
@@ -422,6 +339,7 @@ public:
         if(vDestineTypeId != vSourceTypeId)
             return vSourceIn;//send merge subistituimos pelo novo valor
 
+        Q_DECLARE_HU;
         switch (vDestine.typeId()) {
         case QMetaType::QVariantList:
         case QMetaType::QStringList:
@@ -437,7 +355,7 @@ public:
                     case QMetaType::QVariantMap:
                     case QMetaType::QVariantPair:
                     {
-                        keyList.append(toMd5(v));
+                        keyList.append(hu.toMd5(v));
                         continue;
                     }
                     default:
@@ -453,7 +371,7 @@ public:
                     case QMetaType::QVariantHash:
                     case QMetaType::QVariantMap:
                     case QMetaType::QVariantPair:
-                        key=toMd5(v);
+                        key=hu.toMd5(v);
                         break;
                     default:
                         key=toByteArray(v);
@@ -511,11 +429,12 @@ public:
         case QMetaType::QVariantList:
         case QMetaType::QStringList:
         {
+            Q_DECLARE_HU;
             auto vMap=v.toList();
             auto vAdd=QVariantHash();
             for(auto &v:vMap){
                 const auto value=vDeduplicate(v);
-                const auto key=toMd5(value);
+                const auto key=hu.toMd5(value);
                 if(!vAdd.contains(key))
                     vAdd.insert(key,value);
             }
@@ -545,60 +464,26 @@ VariantUtil&VariantUtil::operator=(const QVariant &v)
 
 bool VariantUtil::isUuid(const QVariant &v) const
 {
-    switch (v.typeId()) {
-    case QMetaType::QUuid:
-        return !v.toUuid().isNull();
-    case QMetaType::QByteArray:
-    case QMetaType::QString:
-    {
-        auto uuid=p->md5toUuid(p->toByteArray(v));
-        return !uuid.isNull();
-    }
-    default:
-        return false;
-    }
+    Q_DECLARE_HU;
+    return hu.isUuid(v);
 }
 
 bool VariantUtil::isUuid(const QVariant &v, QUuid &uuidSet) const
 {
-
-    switch (v.typeId()) {
-    case QMetaType::QUuid:
-    {
-        uuidSet=v.toUuid();
-        return !uuidSet.isNull();
-    }
-    default:
-        QString text=v.toString();
-        QUuid uuid;
-        if(p->md5ParserUuid(text,text))
-            uuid=QUuid::fromString(text);
-
-        if(uuid.isNull())
-            return false;
-
-        uuidSet=uuid;
-        return true;
-    }
+    Q_DECLARE_HU;
+    return hu.isUuid(v,uuidSet);
 }
 
 bool VariantUtil::isHex(const QVariant &v)const
 {
-    bool __isHex=false;
-    for(auto &c:v.toString()){
-        if (!isxdigit(c.toLatin1()))
-            return false;
-        __isHex=true;
-    }
-    return __isHex;
+    Q_DECLARE_HU;
+    return hu.isHex(v);
 }
 
 bool VariantUtil::isBase64(const QVariant &v) const
 {
-    auto result = QByteArray::fromBase64Encoding(v.toByteArray());
-    if (result.decodingStatus == QByteArray::Base64DecodingStatus::Ok)
-        return true;
-    return false;
+    Q_DECLARE_HU;
+    return hu.isBase64(v);
 }
 
 const QString VariantUtil::toStr(const QVariant &v)
@@ -802,34 +687,36 @@ bool VariantUtil::canConvertJson(const QVariant &v, QVariant &vOut) const
 const QByteArray VariantUtil::toMd5(const QVariant &v)
 {
     __setValue(v);
-    return p->toMd5(v);
+    Q_DECLARE_HU;
+    return hu.toMd5(v);
 }
 
 const QByteArray VariantUtil::toHex(const QVariant &v)
 {
     __setValue(v);
-    return this->toByteArray().toHex();
+    Q_DECLARE_HU;
+    return hu.toHex(v);
 }
 
 const QUuid VariantUtil::toUuid(const QVariant &v)
 {
     __setValue(v);
-    if(this->typeId()==QMetaType::QUuid)
-        return QVariant::toUuid();
-    return p->md5toUuid(this->toStr(v));
+    Q_DECLARE_HU;
+    return hu.toUuid(v);
 }
 
 const QString VariantUtil::toUuidSimple(const QVariant &v)
 {
     __setValue(v);
-    auto __return=this->toUuid().toString();
-    return __return.toLower().replace(QStringLiteral("{"), QString{}).replace(QStringLiteral("}"), QString{});
+    Q_DECLARE_HU;
+    return hu.toUuidSimple(v);
 }
 
 const QUuid VariantUtil::toMd5Uuid(const QVariant &v)
 {
-    auto md5=this->toMd5(v);
-    return this->toUuid(md5);
+    __setValue(v);
+    Q_DECLARE_HU;
+    return hu.toMd5Uuid(v);
 }
 
 const QVariantList VariantUtil::takeList(const QByteArray &keyName)
