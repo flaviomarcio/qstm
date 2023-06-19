@@ -1,6 +1,3 @@
-TARGET = app
-TEMPLATE = app
-
 CONFIG += console
 CONFIG -= debug_and_release
 CONFIG += testcase

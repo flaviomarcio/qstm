@@ -1,7 +1,5 @@
 #include "qstm_test_main.h"
-#include <QTimer>
 #include <QTest>
-#include <QCoreApplication>
 
 #include "./qstm_test_main.h"
 #include "./qstm_unit_test_date_util.h"

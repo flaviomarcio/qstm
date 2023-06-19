@@ -115,12 +115,6 @@ public:
     Q_INVOKABLE virtual QVariant resultVariantInfo() const;
 
     //!
-    //! \brief resultMap
-    //! \return
-    //!
-    virtual QVariantMap resultMap() const;
-
-    //!
     //! \brief resultHash
     //! \return
     //!

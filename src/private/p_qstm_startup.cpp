@@ -56,8 +56,8 @@ void StartUpRunner::runnerStart()
     }
     for(int i=0; i<=max; i++){
         auto v=hash.value(i);
-        qInfo()<<QT_STRINGIFY2(QStm::StartUp)<<QStringLiteral(": module[%1]==%2").arg(i).arg(v->metaObject()->className());
         if(v){
+            qInfo()<<QT_STRINGIFY2(QStm::StartUp)<<QStringLiteral(": module[%1]==%2").arg(i).arg(v->metaObject()->className());
             for(auto &func:v->methods())
                 func();
         }

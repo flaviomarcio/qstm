@@ -1,7 +1,6 @@
 QT += core
 QT += network
 QT += websockets
-QT += sql
 
 #INCLUDEPATH+=$$PWD
 
