@@ -93,7 +93,7 @@ void ObjectWrapper::clear()
         if(staticIgnoreMethods->contains(pName))
             continue;
 
-        auto obj=property.read(this).value<QObject*>();
+        auto obj=property.read(this).value<QObject *>();
         if(obj){
             obj->setProperty(QByteArrayLiteral("values"), {});
             continue;
@@ -227,7 +227,7 @@ bool ObjectWrapper::setValues(const QVariant &v)
             }
         }
         else{
-            auto objReady=property.read(this).value<QObject*>();
+            auto objReady=property.read(this).value<QObject *>();
             switch(value.typeId()){
             case QMetaType::UnknownType:
             {
@@ -291,7 +291,7 @@ bool ObjectWrapper::afterSetProperty(const QMetaProperty &property, const QVaria
 
 const QVariant ObjectWrapper::parserVariant(const QVariant &v)
 {
-    const auto o=v.value<QObject*>();
+    const auto o=v.value<QObject *>();
     if(o){
         auto v=ObjectWrapper::extractHash(o);
         return v;
@@ -324,9 +324,9 @@ const QVariant ObjectWrapper::parserVariant(const QVariant &v)
         }
 
         {
-            auto vOut=v.value<QObject*>();
+            auto vOut=v.value<QObject *>();
             if(vOut)
-                return QVariant::fromValue<QObject*>(vOut);
+                return QVariant::fromValue<QObject *>(vOut);
         }
 
         {
@@ -383,7 +383,7 @@ const QVariantHash ObjectWrapper::extractHash(const QObject *object, const QStri
 
         auto value=property.read(object);
 
-        auto obj=value.value<QObject*>();
+        auto obj=value.value<QObject *>();
         if(obj)
             value = extractHash(obj);
 

@@ -4,8 +4,7 @@
 #include <QList>
 #include <QMetaProperty>
 #include <QMetaMethod>
-#include <QMetaMethod>
-#include <QMetaProperty>
+#include <QVariantHash>
 #include "./qstm_global.h"
 
 namespace QStm {
@@ -13,34 +12,65 @@ class MetaObjectUtilPvt;
 //!
 //! \brief The MetaObjectUtil class
 //!util class to operation objects
-class Q_STM_EXPORT MetaObjectUtil{
+class Q_STM_EXPORT MetaObjectUtil:public QObject
+{
+    Q_OBJECT
 public:
     //!
     //! \brief MetaObjectUtil
     //!
-    explicit MetaObjectUtil();
+    explicit MetaObjectUtil(QObject *parent=nullptr);
 
     //!
     //! \brief MetaObjectUtil
     //! \param metaObject
     //!
-    explicit MetaObjectUtil(const QMetaObject&metaObject);
+    explicit MetaObjectUtil(const QMetaObject &objectMetaObject, QObject *parent=nullptr);
 
     //!
+    //! \brief invoke
+    //! \param object
+    //! \param method
+    //! \param returnValue
+    //! \param args
+    //! \return
     //!
-    ~MetaObjectUtil();
+    static bool invoke(QObject *object, const QMetaMethod &method, QVariant &returnValue, const QVariantHash &args={});
 
-    MetaObjectUtil&operator=(const QMetaObject&v);
-    MetaObjectUtil&operator+=(const QMetaObject&v);
-    MetaObjectUtil&operator-=(const QMetaObject&v);
-    MetaObjectUtil&operator<<(const QMetaObject&v);
+    //!
+    //! \brief invoke
+    //! \param object
+    //! \param method
+    //! \param returnValue
+    //! \param args
+    //! \return
+    //!
+    static bool invoke(QObject *object, const QByteArray &methodName, QVariant &returnValue, const QVariantHash &args={});
+
+    //!
+    //! \brief invoke
+    //! \param methodName
+    //! \param returnValue
+    //! \param args
+    //! \return
+    //!
+    bool invoke(const QMetaMethod &methodName, QVariant &returnValue, const QVariantHash &args={});
+
+    //!
+    //! \brief invoke
+    //! \param methodName
+    //! \param returnValue
+    //! \param args
+    //! \return
+    //!
+    bool invoke(const QByteArray &methodName, QVariant &returnValue, const QVariantHash &args={});
 
     //!
     //! \brief newInstance
     //! \param parent
     //! \return
     //!create object using QMetaObject
-    virtual QObject*newInstance(QObject *parent=nullptr);
+    QObject *newInstance(QObject *parent=nullptr);
 
     //!
     //! \brief newInstance
@@ -48,43 +78,28 @@ public:
     //! \param parent
     //! \return
     //!create object using QMetaObject
-    virtual QObject*newInstance(const QMetaObject&metaObject, QObject *parent);
+    QObject *newInstance(const QMetaObject &metaObject, QObject *parent);
 
     //!
     //! \brief method
     //! \param name
     //! \return
     //!return QMetaMethod by name
-    virtual QMetaMethod method(const QString &name);
+    QMetaMethod method(const QString &name) const;
 
     //!
     //! \brief property
     //! \param name
     //! \return
     //!return QMetaProperty by name
-    virtual QMetaProperty property(const QByteArray &name);
-
-    //!
-    //! \brief toMap
-    //! \param object
-    //! \return
-    //!extract propertys values with object and set in QVariantMap
-    virtual const QVariantMap toMap(const QObject*object)const;
+    QMetaProperty property(const QByteArray &name) const;
 
     //!
     //! \brief toHash
     //! \param object
     //! \return
     //!extract propertys values with object and set in QVariantHash
-    virtual const QVariantHash toHash(const QObject*object) const;
-
-    //!
-    //! \brief writeMap
-    //! \param object
-    //! \param v
-    //! \return
-    //!write values in property using QVariantMap
-    virtual bool writeMap(QObject*object, const QVariantMap&v);
+    const QVariantHash toHash(const QObject *object) const;
 
     //!
     //! \brief writeHash
@@ -92,21 +107,37 @@ public:
     //! \param v
     //! \return
     //!write values in property using QVariantHash
-    virtual bool writeHash(QObject*object, const QVariantHash &v);
+    bool writeHash(QObject *object, const QVariantHash &v);
+
+    //!
+    //! \brief toMethodList
+    //! \param object
+    //! \return
+    //!
+    //! return list method of object
+    const QList<QMetaMethod> toMethodList(const QObject *object=nullptr) const;
+
+    //!
+    //! \brief toMethodHash
+    //! \param object
+    //! \return
+    //!
+    //! return QHash methodof object
+    const QHash<QByteArray,QMetaMethod> toMethodHash(const QObject *object=nullptr) const;
 
     //!
     //! \brief toPropertyList
     //! \param object
     //! \return
     //!return list propertys of object
-    virtual const QList<QMetaProperty> toPropertyList(const QObject*object=nullptr) const;
+    const QList<QMetaProperty> toPropertyList(const QObject *object=nullptr) const;
 
     //!
     //! \brief toPropertyMap
     //! \param object
     //! \return
     //!return QHash propertys of object
-    virtual const QHash<QByteArray,QMetaProperty> toPropertyMap(const QObject*object=nullptr) const;
+    const QHash<QByteArray,QMetaProperty> toPropertyHash(const QObject *object=nullptr) const;
 
     //!
     //! \brief newInstance
@@ -114,18 +145,24 @@ public:
     //! \return
     //! //!create newInstance the object and converty to type.note, object a will be deleted, when different type
     template <class T>
-    T*newInstance(QObject *parent){
-        QMetaObject&__metaObject=T::staticMetaObject;
-        if((__metaObject.inherits(parent->metaObject())) || (&__metaObject == parent->metaObject())){
-            auto object=this->newInstance(parent);
-            if(object!=nullptr){
-                auto __return=dynamic_cast<T>(object);
-                if(__return==nullptr)
-                    delete object;
-                return __return;
-            }
+    T *newInstance(QObject *parent)
+    {
+        QMetaObject &__metaObject=T::staticMetaObject;
+        if(!__metaObject.inherits(parent->metaObject()))
+            return nullptr;
+        if(&__metaObject != parent->metaObject())
+            return nullptr;
+
+        auto object=this->newInstance(parent);
+        if(!object)
+            return nullptr;
+
+        auto __return=dynamic_cast<T>(object);
+        if(!__return){
+            delete object;
+            return nullptr;
         }
-        return nullptr;
+        return __return;
     }
 
 private:

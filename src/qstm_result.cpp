@@ -334,7 +334,7 @@ public:
             }
 
             {
-                auto *object=value.value<QObject*>();
+                auto *object=value.value<QObject *>();
                 if(object){
                     this->clearReturn();
                     MetaObjectUtil util;

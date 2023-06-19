@@ -1,29 +1,77 @@
 #include "./qstm_util_meta_object.h"
-#include "./qstm_macro.h"
-#include <QCoreApplication>
 #include <QUuid>
 #include <QUrl>
 #include <QBitArray>
 #include <QStringList>
 #include <QJsonDocument>
 #include <QDateTime>
+#include <QMetaMethodArgument>
 
 namespace QStm {
 
-class MetaObjectUtilPvt{
+static const auto __objectName="objectName";
+
+class MetaObjectUtilPvt:public QObject{
 public:
     MetaObjectUtil*parent=nullptr;
-    QList<const QMetaObject*> metaObjectList;
-    explicit MetaObjectUtilPvt(MetaObjectUtil*parent)
-    {
-        this->parent=parent;
-    }
-    virtual ~MetaObjectUtilPvt()
+    const QMetaObject objectMetaObject;
+    explicit MetaObjectUtilPvt(const QMetaObject &objectMetaObject, MetaObjectUtil *parent):QObject{parent}, parent{parent},objectMetaObject{objectMetaObject}
     {
     }
 
-    bool writeProperty(QObject*object, const QMetaProperty&property, const QVariant &value)
+    static QHash<QByteArray, QMetaMethod> toMethodHash(const QMetaObject &metaObject)
     {
+        QHash<QByteArray, QMetaMethod> __return;
+        for(int col = 0; col < metaObject.methodCount(); ++col) {
+            auto method = metaObject.method(col);
+            if(method.name()==__objectName)
+                continue;
+            __return.insert(method.name(), method);
+        }
+        return __return;
+    }
+
+    static QList<QMetaMethod> toMethodList(const QMetaObject &metaObject)
+    {
+        QList<QMetaMethod> __return;
+        for(int col = 0; col < metaObject.methodCount(); ++col) {
+            auto method = metaObject.method(col);
+            if(method.name()==__objectName)
+                continue;
+            __return.append(method);
+        }
+        return __return;
+    }
+
+    static QHash<QByteArray, QMetaProperty> toPropertyHash(const QMetaObject &metaObject)
+    {
+        QHash<QByteArray, QMetaProperty> __return;
+        for(int col = 0; col < metaObject.propertyCount(); ++col) {
+            auto property = metaObject.property(col);
+            if(property.name()==__objectName)
+                continue;
+            __return.insert(property.name(), property);
+        }
+        return __return;
+    }
+
+    static QList<QMetaProperty> toPropertyList(const QMetaObject &metaObject)
+    {
+        QList<QMetaProperty> __return;
+        for(int col = 0; col < metaObject.propertyCount(); ++col) {
+            auto property = metaObject.property(col);
+            if(property.name()==__objectName)
+                continue;
+            __return.append(property);
+        }
+        return __return;
+    }
+
+    static bool writeProperty(QObject *object, const QMetaProperty &property, const QVariant &value)
+    {
+        if(!property.isWritable())
+            return true;
+
         QVariant vValue=value;
 
         if(property.write(object, vValue))
@@ -172,146 +220,121 @@ public:
     }
 };
 
-MetaObjectUtil::MetaObjectUtil()
+MetaObjectUtil::MetaObjectUtil(QObject *parent):QObject{parent}, p{new MetaObjectUtilPvt{*parent->metaObject(), this}}
 {
-    this->p = new MetaObjectUtilPvt{this};
 }
 
-MetaObjectUtil::MetaObjectUtil(const QMetaObject &metaObject)
+MetaObjectUtil::MetaObjectUtil(const QMetaObject &objectMetaObject, QObject *parent): QObject{parent}, p{new MetaObjectUtilPvt{objectMetaObject, this}}
 {
-    this->p = new MetaObjectUtilPvt{this};
-
-    p->metaObjectList.clear();
-    p->metaObjectList.append(&metaObject);
 }
 
-MetaObjectUtil::~MetaObjectUtil()
+bool MetaObjectUtil::invoke(QObject *object, const QMetaMethod &method, QVariant &returnValue, const QVariantHash &args)
 {
-    delete p;
+    returnValue={};
+    auto argReturn = Q_RETURN_ARG(QVariant, returnValue);
+    QHash<int,QMetaMethodArgument> vars;
+    for (int var = 0; var < method.parameterNames().count(); ++var) {
+        auto name=method.parameterNames().at(var);
+        auto typeName=method.parameterTypeName(var);
+        auto value=args.value(name);
+        auto arg=QtPrivate::Invoke::argument(typeName, value);
+        vars.insert(vars.count(), arg);
+    }
+
+    auto arg00=vars.value(0);
+    auto arg01=vars.value(1);
+    auto arg02=vars.value(2);
+    auto arg03=vars.value(3);
+    auto arg04=vars.value(4);
+    auto arg05=vars.value(5);
+    auto arg06=vars.value(6);
+    auto arg07=vars.value(7);
+    auto arg08=vars.value(8);
+    auto arg09=vars.value(9);
+
+    //invoke QNotation method
+    if (!method.invoke(object, arg00, arg01, arg02, arg03, arg04, arg05, arg06, arg07, arg08, arg09, Qt::DirectConnection, argReturn))
+        return false;
+
+    return true;
 }
 
-MetaObjectUtil &MetaObjectUtil::operator=(const QMetaObject &v)
+bool MetaObjectUtil::invoke(QObject *object, const QByteArray &methodName, QVariant &returnValue, const QVariantHash &args)
 {
-
-    p->metaObjectList.clear();
-    p->metaObjectList.append(&v);
-    return *this;
+    MetaObjectUtil metaObjectUtil(object);
+    auto metaMethod=metaObjectUtil.method(methodName);
+    if(!metaMethod.isValid())
+        return false;
+    return invoke(object, methodName, returnValue, args);
 }
 
-MetaObjectUtil &MetaObjectUtil::operator+=(const QMetaObject &v)
+bool MetaObjectUtil::invoke(const QMetaMethod &methodName, QVariant &returnValue, const QVariantHash &args)
 {
 
-    p->metaObjectList.clear();
-    p->metaObjectList.append(&v);
-    return *this;
 }
 
-MetaObjectUtil &MetaObjectUtil::operator-=(const QMetaObject &v)
+QObject *MetaObjectUtil::newInstance(QObject *parent)
 {
-
-    Q_UNUSED(v)
-    p->metaObjectList.clear();
-    p->metaObjectList<<&QObject::staticMetaObject;
-    return *this;
-}
-
-MetaObjectUtil &MetaObjectUtil::operator<<(const QMetaObject &v)
-{
-
-    p->metaObjectList.clear();
-    p->metaObjectList.append(&v);
-    return *this;
-}
-
-QObject *MetaObjectUtil::newInstance(QObject *parent){
-
-    auto &__metaObject=*p->metaObjectList.first();
-    auto object=__metaObject.newInstance(Q_ARG(QObject*, parent));
-    return object;
+    return p->objectMetaObject.newInstance(Q_ARG(QObject *, parent));
 }
 
 QObject *MetaObjectUtil::newInstance(const QMetaObject &metaObject, QObject *parent)
 {
-    auto &__metaObject=metaObject;
-    auto object=__metaObject.newInstance(Q_ARG(QObject*, parent));
-    return object;
+    return metaObject.newInstance(Q_ARG(QObject *, parent));
 }
 
-QMetaMethod MetaObjectUtil::method(const QString &name)
+QMetaMethod MetaObjectUtil::method(const QString &name)const
 {
-
     auto __name=name.toLower().trimmed();
-    for(auto &metaObject:p->metaObjectList){
-        for(int i = 0; i < metaObject->methodCount(); ++i) {
-            auto method = metaObject->method(i);
-            auto name__=method.name().toLower();
-            if(name__ != __name)
-                continue;
-
-            return method;
-        }
+    for(int i = 0; i < p->objectMetaObject.methodCount(); ++i) {
+        auto method = p->objectMetaObject.method(i);
+        auto name__=method.name().toLower();
+        if(name__ != __name)
+            continue;
+        return method;
     }
-    return QMetaMethod();
+    return {};
 }
 
-QMetaProperty MetaObjectUtil::property(const QByteArray &name)
+QMetaProperty MetaObjectUtil::property(const QByteArray &name)const
 {
-
     auto __name=name.toLower().trimmed();
-    for(auto &metaObject:p->metaObjectList){
-        for(int i = 0; i < metaObject->propertyCount(); ++i) {
-            auto property = metaObject->property(i);
-            auto name__=QByteArray{property.name()}.toLower();
-            if(name__ != __name)
-                continue;
-
-            return property;
-        }
+    for(int i = 0; i < p->objectMetaObject.propertyCount(); ++i) {
+        auto property = p->objectMetaObject.property(i);
+        if(property.name()==__objectName)
+            continue;
+        auto name__=QByteArray{property.name()}.toLower();
+        if(name__ != __name)
+            continue;
+        return property;
     }
-    return QMetaProperty();
-}
-
-const QVariantMap MetaObjectUtil::toMap(const QObject *object) const
-{
-    return QVariant(this->toHash(object)).toMap();
+    return {};
 }
 
 const QVariantHash MetaObjectUtil::toHash(const QObject *object)const
 {
     QVariantHash __return;
     auto &metaObject = *object->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        __return.insert(property.name(), property.read(object));
-    }
-    return __return;
-}
-
-bool MetaObjectUtil::writeMap(QObject *object, const QVariantMap &v)
-{
-
-    bool __return=false;
-    auto vProperty=this->toPropertyMap(object);
-    Q_V_MAP_ITERATOR(v){
-        i.next();
-        auto k=i.key().toUtf8();
-        auto &v=i.value();
-        auto property=vProperty.value(k);
-        if(p->writeProperty(object, property, v))
-            __return=true;
+    auto vProperty=p->toPropertyList(metaObject);
+    for(auto &property:vProperty){
+        auto value=(property.isReadable())
+                         ?property.read(object)
+                         :QVariant{};
+        __return.insert(property.name(), value);
     }
     return __return;
 }
 
 bool MetaObjectUtil::writeHash(QObject *object, const QVariantHash &v)
 {
-
     bool __return=false;
-    auto vProperty=this->toPropertyMap(object);
-    Q_V_HASH_ITERATOR(v){
+    auto &metaObject = *object->metaObject();
+    auto vProperty=p->toPropertyHash(metaObject);
+    QHashIterator<QString, QVariant> i(v);
+    while (i.hasNext()){
         i.next();
-        auto k=i.key().toUtf8();
-        auto &v=i.value();
+        const auto k=i.key().toUtf8();
+        const auto &v=i.value();
         auto property=vProperty.value(k);
         if(p->writeProperty(object, property, v))
             __return=true;
@@ -319,41 +342,36 @@ bool MetaObjectUtil::writeHash(QObject *object, const QVariantHash &v)
     return __return;
 }
 
-const QList<QMetaProperty> MetaObjectUtil::toPropertyList(const QObject *object) const
+const QList<QMetaMethod> MetaObjectUtil::toMethodList(const QObject *object) const
 {
-
-    QList<const QMetaObject*> __metaObject;
-    if(object!=nullptr){
-        __metaObject<<object->metaObject();
-    }
-    else{
-        __metaObject=p->metaObjectList;
-    }
-    auto &metaObject =*__metaObject.first();
-
-    QList<QMetaProperty> __return;
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        __return<<property;
-    }
-    return __return;
+    const auto &metaObject=(object!=nullptr)
+                                 ?(*object->metaObject())
+                                 :p->objectMetaObject;
+    return p->toMethodList(metaObject);
 }
 
-const QHash<QByteArray, QMetaProperty> MetaObjectUtil::toPropertyMap(const QObject *object) const
+const QHash<QByteArray, QMetaMethod> MetaObjectUtil::toMethodHash(const QObject *object) const
 {
+    const auto &metaObject=(object!=nullptr)
+                                 ?(*object->metaObject())
+                                 :p->objectMetaObject;
+    return p->toMethodHash(metaObject);
+}
 
-    auto __metaObject=p->metaObjectList;
-    if(object!=nullptr){
-        __metaObject.clear();
-        __metaObject<<object->metaObject();
-    }
-    auto &metaObject =*__metaObject.first();
-    QHash<QByteArray, QMetaProperty> __return;
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        __return[property.name()]=property;
-    }
-    return __return;
+const QList<QMetaProperty> MetaObjectUtil::toPropertyList(const QObject *object) const
+{
+    const auto &metaObject=(object!=nullptr)
+                                 ?(*object->metaObject())
+                                 :p->objectMetaObject;
+    return p->toPropertyList(metaObject);
+}
+
+const QHash<QByteArray, QMetaProperty> MetaObjectUtil::toPropertyHash(const QObject *object) const
+{
+    const auto &metaObject=(object!=nullptr)
+                                 ?(*object->metaObject())
+                                 :p->objectMetaObject;
+    return p->toPropertyHash(metaObject);
 }
 
 }

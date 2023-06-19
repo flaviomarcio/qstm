@@ -159,7 +159,7 @@ public:
 ////! \param p
 ////! \return
 ////!
-//int qTypeId(const QMetaProperty&p);
+//int qTypeId(const QMetaProperty &p);
 
 //!
 //! \brief qIsNumeric
