@@ -691,7 +691,7 @@ bool DateUtil::setDistantRange(QDateTime &vA, QDateTime &vB)
     return vA<vB;
 }
 
-bool DateUtil::validBetween(const QDateTime&vVal, const QDateTime &vMin, const QDateTime &vMax)
+bool DateUtil::validBetween(const QDateTime &vVal, const QDateTime &vMin, const QDateTime &vMax)
 {
     QDateTime vMax__(vMax);
 
