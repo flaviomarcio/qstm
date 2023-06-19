@@ -156,14 +156,14 @@ public:
     //! \param map
     //! \return
     //!
-    Q_INVOKABLE virtual bool fromMap(const QVariantMap &map);
+    Q_INVOKABLE virtual bool fromMap(const QVariantMap &value);
 
     //!
     //! \brief fromMap
     //! \param map
     //! \return
     //!
-    Q_INVOKABLE virtual bool fromHash(const QVariantHash &map);
+    Q_INVOKABLE virtual bool fromHash(const QVariantHash &value);
 
     //!
     //! \brief storedProperty

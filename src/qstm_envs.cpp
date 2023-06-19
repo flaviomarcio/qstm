@@ -412,6 +412,8 @@ public:
             auto key=i.key().trimmed().toUtf8();
             auto value=i.value().toByteArray().trimmed();
             qputenv(key, value);
+            this->systemEnvs.insert(key,value);
+            static_SystemEnvs->insert(key,value);
         }
     }
 
@@ -693,6 +695,13 @@ Envs &Envs::systemEnvs(QFile &envs)
 {
     Q_DECLARE_VU;
     p->putSystemEnvs(p->readEnvFile(envs));
+    return *this;
+}
+
+Envs &Envs::resetSystemEnvs()
+{
+    Q_DECLARE_VU;
+    p->systemEnvs.clear();
     return *this;
 }
 

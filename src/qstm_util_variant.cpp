@@ -986,45 +986,48 @@ const QVariantHash VariantUtil::toAttributes(const QVariant &v, const QVariant &
 const QVariant VariantUtil::toType(int typeId, const QVariant &v)
 {
     __setValue(v);
-    switch (typeId) {
+    auto __typeId=QMetaType::Type(typeId);
+    switch (__typeId) {
+    case QMetaType::QVariant:
+        return *this;
     case QMetaType::QUuid:
-        return this->toUuid(v);
+        return this->toUuid(*this);
     case QMetaType::QUrl:
-        return this->toUrl(v);
+        return this->toUrl(*this);
     case QMetaType::QString:
-        return this->toStr(v);
+        return this->toStr(*this);
     case QMetaType::QByteArray:
     case QMetaType::QBitArray:
     case QMetaType::QChar:
-        return this->toByteArray(v);
+        return this->toByteArray(*this);
     case QMetaType::QVariantHash:
-        return this->toHash(v);
+        return this->toHash(*this);
     case QMetaType::QVariantMap:
-        return this->toMap(v);
+        return this->toMap(*this);
     case QMetaType::QVariantPair:
-        return QVariant::fromValue(this->toPair(v));
+        return QVariant::fromValue(this->toPair(*this));
     case QMetaType::QStringList:
-        return this->toStringList(v);
+        return this->toStringList(*this);
     case QMetaType::QVariantList:
-        return this->toList(v);
+        return this->toList(*this);
     case QMetaType::Int:
     case QMetaType::UInt:
-        return this->toInt(v);
+        return this->toInt(*this);
     case QMetaType::LongLong:
     case QMetaType::ULongLong:
-        return this->toLongLong(v);
+        return this->toLongLong(*this);
     case QMetaType::Double:
-        return this->toDouble(v);
+        return this->toDouble(*this);
     case QMetaType::QDate:
-        return this->toDate(v);
+        return this->toDate(*this);
     case QMetaType::QTime:
-        return this->toTime(v);
+        return this->toTime(*this);
     case QMetaType::QDateTime:
-        return this->toDateTime(v);
+        return this->toDateTime(*this);
     case QMetaType::Bool:
-        return this->toBool(v);
+        return this->toBool(*this);
     default:
-        return {};
+        return *this;
     }
 }
 

@@ -21,21 +21,17 @@ static const auto __obj="obj";
 
 class ObjectPvt:public QObject{
 public:
-    CachePool *_cachePool=nullptr;
-    QByteArray storedMd5;
-    ResultValue result;
     QObject *parent=nullptr;
-    explicit ObjectPvt(QObject *parent):QObject{parent}, result{parent}
+    ResultValue result;
+    CachePool *cachePool=nullptr;
+    QByteArray storedMd5;
+    explicit ObjectPvt(QObject *parent)
+        :
+        QObject{parent},
+        parent{parent},
+        result{parent},
+        cachePool{&CachePool::instance()}
     {
-        this->parent=parent;
-    }
-
-
-    CachePool &cachePool()
-    {
-        if(this->_cachePool==nullptr)
-            this->_cachePool=&CachePool::instance();
-        return *this->_cachePool;
     }
 
     static const QByteArray toMd5(const QVariant &value)
@@ -82,17 +78,32 @@ public:
         return __return;
     }
 
+    bool fromHash(const QVariantHash &value)
+    {
+        bool __return=false;
+        auto &metaObject = *this->parent->metaObject();
+        Q_DECLARE_VU;
+        for(int col = 0; col < metaObject.propertyCount(); ++col) {
+            auto property = metaObject.property(col);
+            auto valueSet=value.value(property.name());
+            valueSet=vu.toType(property.typeId(), valueSet);
+            if(!property.write(this->parent, valueSet))
+                continue;
+            __return=true;
+        }
+        return __return;
+    }
 
 };
 
-Object::Object(QObject *parent):QObject{parent}
+Object::Object(QObject *parent):QObject{parent}, p{new ObjectPvt(this)}
 {
-    this->p = new ObjectPvt(this);
+
 }
 
 CachePool &Object::cachePool()
 {
-    return p->cachePool();
+    return *p->cachePool;
 }
 
 ResultValue &Object::lr()const
@@ -220,33 +231,17 @@ bool Object::fromVar(const QVariant &v)
     default:
         break;
     }
-    return this->fromHash(vHash);
+    return p->fromHash(vHash);
 }
 
-bool Object::fromMap(const QVariantMap&map)
+bool Object::fromMap(const QVariantMap &value)
 {
-    bool __return=false;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        if(!property.write(this, map.value(property.name())))
-            continue;
-        __return=true;
-    }
-    return __return;
+    return p->fromHash(QVariant{value}.toHash());
 }
 
-bool Object::fromHash(const QVariantHash &map)
+bool Object::fromHash(const QVariantHash &value)
 {
-    bool __return=false;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        if(!property.write(this, map.value(property.name())))
-            continue;
-        __return=true;
-    }
-    return __return;
+    return p->fromHash(value);
 }
 
 ResultValue &Object::storedProperty()

@@ -6,7 +6,6 @@ QT += sql
 #INCLUDEPATH+=$$PWD
 
 HEADERS += \
-    $$PWD/private/p_qstm_base_setting.h \
     $$PWD/private/p_qstm_startup.h \
     $$PWD/qstm.h \
     $$PWD/qstm_cache_io.h \
@@ -45,7 +44,6 @@ HEADERS += \
     $$PWD/qstm_vvm.h \
 
 SOURCES += \
-    $$PWD/private/p_qstm_base_setting.cpp \
     $$PWD/private/p_qstm_startup.cpp \
     $$PWD/qstm_cache_io.cpp \
     $$PWD/qstm_cache_pool.cpp \

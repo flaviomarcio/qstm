@@ -15,6 +15,7 @@ class Q_STM_EXPORT Envs : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant argumentEnvs READ argumentEnvs WRITE argumentEnvs RESET resetArgumentEnvs NOTIFY argumentEnvsChanged)
+    Q_PROPERTY(QVariant systemEnvs READ systemEnvs WRITE systemEnvs RESET resetSystemEnvs NOTIFY systemEnvsChanged)
     Q_PROPERTY(QVariant customEnvs READ customEnvs WRITE customEnvs RESET resetCustomEnvs NOTIFY customEnvsChanged)
     Q_PROPERTY(bool invalidEnvsClean READ invalidEnvsClean WRITE invalidEnvsClean RESET resetInvalidEnvsClean NOTIFY invalidEnvsCleanChanged)
     Q_PROPERTY(QVariant invalidEnvsValue READ invalidEnvsValue WRITE invalidEnvsValue RESET resetInvalidEnvsValue NOTIFY invalidEnvsValueChanged)
@@ -52,6 +53,7 @@ public:
     Envs &systemEnvs(const QVariant &envs);
     Envs &systemEnvs(const QString &env, const QVariant &value);
     Envs &systemEnvs(QFile &envs);
+    Envs &resetSystemEnvs();
 
     //!
     //! \brief contains
@@ -154,6 +156,7 @@ public:
 private:
     EnvsPvt *p=nullptr;
 signals:
+    void systemEnvsChanged();
     void argumentEnvsChanged();
     void customEnvsChanged();
     void invalidEnvsCleanChanged();
