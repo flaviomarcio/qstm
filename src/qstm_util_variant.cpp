@@ -537,27 +537,27 @@ const QChar VariantUtil::toChar(const QVariant &v)
 {
     __setValue(v);
     QString bytes;
-    switch (v.typeId()) {
+    switch (this->typeId()) {
     case QMetaType::QVariantHash:
     case QMetaType::QVariantMap:
     case QMetaType::QVariantPair:
     case QMetaType::QVariantList:
     case QMetaType::QStringList:
-        bytes=QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
+        bytes=QJsonDocument::fromVariant(*this).toJson(QJsonDocument::Compact);
         break;
     case QMetaType::QUuid:
-        bytes=v.toUuid().toString();
+        bytes=QVariant::toUuid().toString();
         break;
     case QMetaType::QUrl:
     {
-        auto url=v.toUrl();
+        auto url=QVariant::toUrl();
         if(url.isEmpty())
             return {};
         bytes=url.toString();
         break;
     }
     default:
-        bytes=v.toByteArray();
+        bytes=QVariant::toByteArray();
     }
     if(bytes.isEmpty())
         return {};
@@ -579,42 +579,42 @@ qlonglong VariantUtil::toLongLong(const QVariant &v)
 const QDate VariantUtil::toDate(const QVariant &v)
 {
     __setValue(v);
-    DateUtil du(*this);
-    return du.toDate();
+    Q_DECLARE_DU;
+    return du.toDate(*this);
 }
 
 const QTime VariantUtil::toTime(const QVariant &v)
 {
     __setValue(v);
-    DateUtil du(*this);
-    return du.toTime();
+    Q_DECLARE_DU;
+    return du.toTime(*this);
 }
 
 const QDateTime VariantUtil::toDateTime(const QVariant &v)
 {
     __setValue(v);
-    DateUtil du(*this);
-    return du.toDateTime();
+    Q_DECLARE_DU;
+    return du.toDateTime(*this);
 }
 
 double VariantUtil::toDouble(const QVariant &v)
 {
     __setValue(v);
-    switch (v.typeId()) {
+    switch (this->typeId()) {
     case QMetaType::Long:
     case QMetaType::LongLong:
     case QMetaType::ULongLong:
     case QMetaType::Int:
     case QMetaType::UInt:
     case QMetaType::Double:
-        return v.toDouble();
+        return QVariant::toDouble();
     case QMetaType::UnknownType:
     case QMetaType::QString:
     case QMetaType::QByteArray:
     case QMetaType::QChar:
     case QMetaType::QBitArray:
     {
-        auto vText=v.toString().trimmed();
+        auto vText=QVariant::toString().trimmed();
         if(vText=="" || vText==QStringLiteral("0"))
             return 0;
         if(vText==QStringLiteral("-1"))
@@ -631,7 +631,7 @@ double VariantUtil::toDouble(const QVariant &v)
         }
         else{
             bool ok=false;
-            auto vv = v.toDouble(&ok);
+            auto vv = QVariant::toDouble(&ok);
             if(ok)
                 return vv;
             return 0;
@@ -687,35 +687,35 @@ const QByteArray VariantUtil::toMd5(const QVariant &v)
 {
     __setValue(v);
     Q_DECLARE_HU;
-    return hu.toMd5(v);
+    return hu.toMd5(*this);
 }
 
 const QByteArray VariantUtil::toHex(const QVariant &v)
 {
     __setValue(v);
     Q_DECLARE_HU;
-    return hu.toHex(v);
+    return hu.toHex(*this);
 }
 
 const QUuid VariantUtil::toUuid(const QVariant &v)
 {
     __setValue(v);
     Q_DECLARE_HU;
-    return hu.toUuid(v);
+    return hu.toUuid(*this);
 }
 
 const QString VariantUtil::toUuidSimple(const QVariant &v)
 {
     __setValue(v);
     Q_DECLARE_HU;
-    return hu.toUuidSimple(v);
+    return hu.toUuidSimple(*this);
 }
 
 const QUuid VariantUtil::toMd5Uuid(const QVariant &v)
 {
     __setValue(v);
     Q_DECLARE_HU;
-    return hu.toMd5Uuid(v);
+    return hu.toMd5Uuid(*this);
 }
 
 const QVariantList VariantUtil::takeList(const QByteArray &keyName)
@@ -811,7 +811,7 @@ const QStringList VariantUtil::toStringList(const QVariant &v)
 const QVariantList VariantUtil::toList(const QVariant &v)
 {
     __setValue(v);
-    auto newV=this->toVariantObject(v);
+    auto newV=this->toVariantObject(*this);
     switch (newV.typeId()) {
     case QMetaType::QVariantList:
     case QMetaType::QStringList:
@@ -847,14 +847,14 @@ QVariantPair VariantUtil::toPair() const
 const QVariantPair VariantUtil::toPair(const QVariant &v)
 {
     __setValue(v);
-    return p->toPair(v);
+    return p->toPair(*this);
 }
 
 const QVariantPair VariantUtil::toPair(const QVariant &key, const QVariant &value)
 {
     QVariant v=QVariant::fromValue(QVariantPair{key, value});
     __setValue(v);
-    return p->toPair(v);
+    return p->toPair(*this);
 }
 
 QVariantHash VariantUtil::toHash()const
@@ -865,7 +865,7 @@ QVariantHash VariantUtil::toHash()const
 const QVariantHash VariantUtil::toHash(const QVariant &v)
 {
     __setValue(v);
-    return p->toHash(v);
+    return p->toHash(*this);
 }
 
 const QVariantHash VariantUtil::toHash(const QVariant &key, const QVariant &value)
