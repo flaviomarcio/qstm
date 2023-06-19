@@ -9,7 +9,6 @@
 
 namespace QStm {
 
-static const auto __objectName="objectName";
 
 class MetaObjectUtilPvt:public QObject{
 public:
@@ -21,6 +20,7 @@ public:
 
     static QHash<QByteArray, QMetaMethod> toMethodHash(const QMetaObject &metaObject)
     {
+        static const QByteArray __objectName=QByteArrayLiteral("objectName");
         QHash<QByteArray, QMetaMethod> __return;
         for(int col = 0; col < metaObject.methodCount(); ++col) {
             auto method = metaObject.method(col);
@@ -33,6 +33,7 @@ public:
 
     static QList<QMetaMethod> toMethodList(const QMetaObject &metaObject)
     {
+        static const QByteArray __objectName=QByteArrayLiteral("objectName");
         QList<QMetaMethod> __return;
         for(int col = 0; col < metaObject.methodCount(); ++col) {
             auto method = metaObject.method(col);
@@ -45,6 +46,7 @@ public:
 
     static QHash<QByteArray, QMetaProperty> toPropertyHash(const QMetaObject &metaObject)
     {
+        static const QByteArray __objectName=QByteArrayLiteral("objectName");
         QHash<QByteArray, QMetaProperty> __return;
         for(int col = 0; col < metaObject.propertyCount(); ++col) {
             auto property = metaObject.property(col);
@@ -57,6 +59,7 @@ public:
 
     static QList<QMetaProperty> toPropertyList(const QMetaObject &metaObject)
     {
+        static const QByteArray __objectName=QByteArrayLiteral("objectName");
         QList<QMetaProperty> __return;
         for(int col = 0; col < metaObject.propertyCount(); ++col) {
             auto property = metaObject.property(col);
@@ -307,6 +310,7 @@ QMetaMethod MetaObjectUtil::method(const QString &name)const
 
 QMetaProperty MetaObjectUtil::property(const QByteArray &name)const
 {
+    static const QByteArray __objectName=QByteArrayLiteral("objectName");
     auto __name=name.toLower().trimmed();
     for(int i = 0; i < p->objectMetaObject.propertyCount(); ++i) {
         auto property = p->objectMetaObject.property(i);

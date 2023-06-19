@@ -768,7 +768,7 @@ const QStringList VariantUtil::toStringList(const QVariant &v)
     {
         QStringList outList;
         auto vList=v.toList();
-        for(auto&v:vList){
+        for(auto &v:vList){
             switch (v.typeId()) {
             case QMetaType::QVariantList:
             case QMetaType::QStringList:
