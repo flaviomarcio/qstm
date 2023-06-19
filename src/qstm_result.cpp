@@ -515,7 +515,6 @@ QVariantHash ResultValue::resultHash() const
 
 QVariantList ResultValue::resultList() const
 {
-
     auto &v=p->returnItem.resultVariant;
     switch (v.typeId()) {
     case QMetaType::QVariantHash:
