@@ -508,11 +508,6 @@ QVariant ResultValue::resultVariantInfo() const
     }
 }
 
-QVariantMap ResultValue::resultMap() const
-{
-    return p->returnItem.resultVariant.toMap();
-}
-
 QVariantHash ResultValue::resultHash() const
 {
     return p->returnItem.resultVariant.toHash();
