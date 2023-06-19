@@ -230,6 +230,10 @@ MetaObjectUtil::MetaObjectUtil(const QMetaObject &objectMetaObject, QObject *par
 
 bool MetaObjectUtil::invoke(QObject *object, const QMetaMethod &method, QVariant &returnValue, const QVariantHash &args)
 {
+
+    if(!object || !method.isValid())
+        return false;
+
     returnValue={};
     auto argReturn = Q_RETURN_ARG(QVariant, returnValue);
     QHash<int,QMetaMethodArgument> vars;
@@ -262,15 +266,20 @@ bool MetaObjectUtil::invoke(QObject *object, const QMetaMethod &method, QVariant
 bool MetaObjectUtil::invoke(QObject *object, const QByteArray &methodName, QVariant &returnValue, const QVariantHash &args)
 {
     MetaObjectUtil metaObjectUtil(object);
-    auto metaMethod=metaObjectUtil.method(methodName);
-    if(!metaMethod.isValid())
-        return false;
-    return invoke(object, methodName, returnValue, args);
+    auto method=metaObjectUtil.method(methodName);
+    return invoke(object, method, returnValue, args);
 }
 
 bool MetaObjectUtil::invoke(const QMetaMethod &methodName, QVariant &returnValue, const QVariantHash &args)
 {
+    QScopedPointer<QObject> obj(this->newInstance());
+    return this->invoke(obj.data(), methodName, returnValue, args);
+}
 
+bool MetaObjectUtil::invoke(const QByteArray &methodName, QVariant &returnValue, const QVariantHash &args)
+{
+    QScopedPointer<QObject> obj(this->newInstance());
+    return this->invoke(obj.data(), methodName, returnValue, args);
 }
 
 QObject *MetaObjectUtil::newInstance(QObject *parent)
