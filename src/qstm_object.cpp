@@ -1,4 +1,5 @@
 #include "./qstm_object.h"
+#include "./qstm_util_hash.h"
 #include "./qstm_util_variant.h"
 #include <QRandomGenerator>
 #include <QCryptographicHash>
@@ -21,6 +22,7 @@ static const auto __obj="obj";
 
 class ObjectPvt:public QObject{
 public:
+    const QByteArray __objectName=QByteArrayLiteral("objectName");
     QObject *parent=nullptr;
     ResultValue result;
     CachePool *cachePool=nullptr;
@@ -34,21 +36,11 @@ public:
     {
     }
 
-    static const QByteArray toMd5(const QVariant &value)
-    {
-        Q_DECLARE_VU;
-        return vu.toMd5(value);
-    }
-
     QByteArray storedMd5Make() const
     {
-        auto &metaObject = *this->parent->metaObject();
-        QVariantHash vBody;
-        for(int col = 0; col < metaObject.propertyCount(); ++col) {
-            auto property = metaObject.property(col);
-            vBody[property.name()]=property.read(this->parent);
-        }
-        return this->toMd5(vBody);
+        auto value=toDictionary<QVariantHash>(true);
+        Q_DECLARE_HU;
+        return hu.toMd5(value);
     }
 
     template<class T>
@@ -62,15 +54,21 @@ public:
             if(!property.isReadable())
                 continue;
 
+            if(property.name()==__objectName)
+                continue;
+
             QVariant value;
             switch (property.typeId()) {
             case QMetaType::User:
             case 65538/*CustomType*/:
-                value=property.read(this).toInt();
+                value=property.read(this->parent).toInt();
                 break;
             default:
-                value=property.read(this);
+                value=property.read(this->parent);
             }
+            if(value.isNull() || !value.isValid())
+                continue;
+
             if(!nullValuesAdd && vu.vIsEmpty(value))
                 continue;
             __return.insert(property.name(), value);
@@ -83,13 +81,30 @@ public:
         bool __return=false;
         auto &metaObject = *this->parent->metaObject();
         Q_DECLARE_VU;
+        static const auto __objectName=QByteArrayLiteral("objectName");
         for(int col = 0; col < metaObject.propertyCount(); ++col) {
             auto property = metaObject.property(col);
-            auto valueSet=value.value(property.name());
-            valueSet=vu.toType(property.typeId(), valueSet);
-            if(!property.write(this->parent, valueSet))
+            if(!property.isWritable())
                 continue;
-            __return=true;
+
+            if(property.name()==__objectName)
+                continue;
+
+            auto valueSet=value.contains(property.name())
+                                ?value.value(property.name())
+                                :value.value(QByteArray(property.name()).toLower());
+            if(valueSet.isNull() || !valueSet.isValid()){
+                if(property.isResettable())
+                    property.reset(this->parent);
+                else
+                    property.write(this->parent, {});
+            }
+            else{
+                valueSet=vu.toType(property.typeId(), valueSet);
+                if(!property.write(this->parent, valueSet))
+                    continue;
+                __return=true;
+            }
         }
         return __return;
     }
@@ -114,21 +129,6 @@ ResultValue &Object::lr()const
 const QDateTime Object::now()
 {
     return QDateTime::currentDateTime();
-}
-
-const QByteArray Object::toMd5(const QByteArray &value)
-{
-    return ObjectPvt::toMd5(value);
-}
-
-const QByteArray Object::toMd5(const QString &value)
-{
-    return ObjectPvt::toMd5(value);
-}
-
-const QByteArray Object::toMd5(const QVariant &value)
-{
-    return ObjectPvt::toMd5(value);
 }
 
 const QUuid Object::uuidGenerator()
@@ -201,19 +201,19 @@ const QByteArray Object::randomGenerator()
     return QString::number(v).toUtf8();
 }
 
-QVariantMap Object::toMap()const
-{
-    return p->toDictionary<QVariantMap>(true);
-}
-
 QVariantHash Object::toHash() const
 {
-    return p->toDictionary<QVariantHash>(true);
+    return p->toDictionary<QVariantHash>(false);
 }
 
 QVariant Object::toVar()const
 {
-    return p->toDictionary<QVariantHash>(true);
+    return p->toDictionary<QVariantHash>(false);
+}
+
+QByteArray Object::toJson() const
+{
+    return QJsonDocument::fromVariant(this->toHash()).toJson(QJsonDocument::Compact);
 }
 
 bool Object::fromVar(const QVariant &v)

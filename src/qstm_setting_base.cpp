@@ -31,7 +31,6 @@ static const auto __memoryLimit="memoryLimit";
 static const auto __connection="connection";
 static const auto __t100ms="100ms";
 
-static const auto __url="url";
 static const auto __headers="headers";
 static const auto __parameters="parameters";
 static const auto __body="body";
@@ -55,9 +54,9 @@ class SettingBasePvt:public QObject{
 public:
 
     QObject *parent=nullptr;
-    QStringList scope, scopeParser;
-    QString identification, identificationParser;
-    QString name, nameParser;
+    QStringList scope;
+    QString identification;
+    QString name;
     bool enabled=false;
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
@@ -67,19 +66,18 @@ public:
     QStm::Envs envs;
     QVariantHash connection;
 
-    QVariant url;
-    QVariantHash headers, headersParser;
-    QVariantHash parameters, parametersParser;
+    QVariantHash headers;
+    QVariantHash parameters;
     QVariant body;
-    QString method, methodParser;
-    QString protocol, protocolParser;
-    QString driverName, driverNameParser;
-    QString hostName, hostNameParser;
+    QString method;
+    QString protocol;
+    QString driverName;
+    QString hostName;
     QVariant route;
     QVariantList routeList;
-    QString path, pathParser;
-    QString userName, userNameParser;
-    QString password, passwordParser;
+    QString path;
+    QString userName;
+    QString password;
     int port=-1;
     QString cacheDir;
     int cacheInterval=0;
@@ -105,9 +103,6 @@ public:
         this->activityThread=vSetting.value(__activityThread).toInt();
         this->memoryLimit=vSetting.value(__memoryLimit);
         this->connection=vSetting.value(__connection).toHash();
-
-
-        this->url=vSetting.value(__url).toString();
         this->headers=vSetting.value(__headers).toHash();
         this->parameters=vSetting.value(__parameters).toHash();
         this->body=vSetting.value(__body);
@@ -229,7 +224,6 @@ SettingBase::SettingBase(QObject *parent):QStm::Object{parent}, p{new SettingBas
 
 SettingBase::SettingBase(const QVariantHash &vSetting, QObject *parent):QStm::Object{parent}, p{new SettingBasePvt{vSetting, this}}
 {
-
 }
 
 Envs &SettingBase::envs() const
@@ -398,7 +392,7 @@ bool SettingBase::isValid() const
     return false;
 }
 
-QVariant &SettingBase::url()const
+const QVariant SettingBase::url()const
 {
     QVariantList vList;
     auto vRouteList=this->routeList();
@@ -413,14 +407,12 @@ QVariant &SettingBase::url()const
 
         vList.append(QStringLiteral("%1://%2").arg(this->protocol(),url));
     }
-    p->url=(vList.size()==1)?vList.first():vList;
-    return p->url;
+    return (vList.size()==1)?vList.first():vList;
 }
 
-const QString &SettingBase::name() const
+const QString SettingBase::name() const
 {
-    p->nameParser=p->envs.parser(p->name).toString();
-    return p->name;
+    return p->envs.parser(p->name).toString();
 }
 
 SettingBase &SettingBase::setName(const QVariant &value)
@@ -433,10 +425,9 @@ SettingBase &SettingBase::setName(const QVariant &value)
     return *this;
 }
 
-const QStringList &SettingBase::scope() const
+const QStringList SettingBase::scope() const
 {
-    p->scopeParser=p->envs.parser(p->scope).toStringList();
-    return p->scopeParser;
+    return p->envs.parser(p->scope).toStringList();
 }
 
 SettingBase &SettingBase::setScope(const QVariant &value)
@@ -455,10 +446,9 @@ SettingBase &SettingBase::setScope(const QVariant &value)
     return *this;
 }
 
-const QString &SettingBase::identification() const
+const QString SettingBase::identification() const
 {
-    p->identificationParser=p->envs.parser(p->identification).toString();
-    return p->identificationParser;
+    return p->envs.parser(p->identification).toString();
 }
 
 SettingBase &SettingBase::setIdentification(const QVariant &value)
@@ -469,7 +459,7 @@ SettingBase &SettingBase::setIdentification(const QVariant &value)
     return *this;
 }
 
-const QVariantHash &SettingBase::variables() const
+const QVariantHash SettingBase::variables() const
 {
     return p->envs.customEnvs();
 }
@@ -574,7 +564,7 @@ SettingBase &SettingBase::setMemoryLimit(const QVariant &value)
     return *this;
 }
 
-const QVariantHash &SettingBase::connection() const
+const QVariantHash SettingBase::connection() const
 {
     return p->connection;
 }
@@ -588,22 +578,9 @@ SettingBase &SettingBase::setConnection(const QVariant &value)
     return *this;
 }
 
-const QString &SettingBase::service() const
+const QVariantHash SettingBase::headers() const
 {
-    return this->identification();
-}
-
-SettingBase &SettingBase::setService(const QVariant &value)
-{
-    this->setIdentification(value);
-    emit identificationChanged();
-    return *this;
-}
-
-const QVariantHash &SettingBase::headers() const
-{
-    p->headersParser=this->envs().parser(p->headers).toHash();
-    return p->headersParser;
+    return this->envs().parser(p->headers).toHash();
 }
 
 SettingBase &SettingBase::setHeaders(const QVariant &value)
@@ -614,11 +591,10 @@ SettingBase &SettingBase::setHeaders(const QVariant &value)
     return *this;
 }
 
-const QString &SettingBase::protocol() const
+const QString SettingBase::protocol() const
 {
     MetaEnum<Protocol> eProtocol=this->envs().parser(p->protocol);
-    p->protocolParser=eProtocol.name();
-    return p->protocolParser;
+    return eProtocol.name();
 }
 
 SettingBase &SettingBase::setProtocol(const QVariant &value)
@@ -629,10 +605,9 @@ SettingBase &SettingBase::setProtocol(const QVariant &value)
     return *this;
 }
 
-QString SettingBase::method() const
+const QString SettingBase::method() const
 {
-    p->methodParser=this->envs().parser(p->method).toString();
-    return p->methodParser;
+    return this->envs().parser(p->method).toString();
 }
 
 SettingBase &SettingBase::setMethod(const QVariant &value)
@@ -643,10 +618,9 @@ SettingBase &SettingBase::setMethod(const QVariant &value)
     return *this;
 }
 
-QString &SettingBase::driverName() const
+const QString SettingBase::driverName() const
 {
-    p->driverNameParser=this->envs().parser(p->driverName).toString();
-    return p->driverNameParser;
+    return this->envs().parser(p->driverName).toString();
 }
 
 SettingBase &SettingBase::setDriverName(const QVariant &value)
@@ -657,10 +631,9 @@ SettingBase &SettingBase::setDriverName(const QVariant &value)
     return *this;
 }
 
-QString &SettingBase::hostName() const
+const QString SettingBase::hostName() const
 {
-    p->hostNameParser=this->envs().parser(p->hostName).toString();
-    return p->hostNameParser;
+    return this->envs().parser(p->hostName).toString();
 }
 
 SettingBase &SettingBase::setHostName(const QVariant &value)
@@ -671,10 +644,9 @@ SettingBase &SettingBase::setHostName(const QVariant &value)
     return *this;
 }
 
-QString &SettingBase::userName() const
+const QString SettingBase::userName() const
 {
-    p->userNameParser=this->envs().parser(p->userName).toString();
-    return p->userNameParser;
+    return this->envs().parser(p->userName).toString();
 }
 
 SettingBase &SettingBase::setUserName(const QVariant &value)
@@ -685,10 +657,9 @@ SettingBase &SettingBase::setUserName(const QVariant &value)
     return *this;
 }
 
-QString &SettingBase::password() const
+const QString SettingBase::password() const
 {
-    p->passwordParser=this->envs().parser(p->route).toString();
-    return p->passwordParser;
+    return this->envs().parser(p->route).toString();
 }
 
 SettingBase &SettingBase::setPassword(const QVariant &value)
@@ -717,19 +688,19 @@ QVariant SettingBase::route() const
     return this->envs().parser(p->route).toString();
 }
 
-QVariantList &SettingBase::routeList() const
+const QVariantList SettingBase::routeList() const
 {
-    const auto &vRoute=p->route;
-    QVariantList vRouteList=vRoute.toList();
+    Q_DECLARE_VU;
+    QVariantList vRouteList=vu.toList(p->route);
     if(vRouteList.isEmpty()){
-        auto route=vRoute.toString().trimmed();
+        auto route=p->route.toString().trimmed();
         if(!route.isEmpty())
             vRouteList.append(route);
     }
     for(auto &v:vRouteList)
         v=this->envs().parser(v.toString().trimmed());
-    p->routeList=vRouteList;
-    return p->routeList;
+
+    return p->routeList=vRouteList.isEmpty()?QVariantList{"/"}:vRouteList;
 }
 
 SettingBase &SettingBase::setRoute(const QVariant &value)
@@ -739,10 +710,9 @@ SettingBase &SettingBase::setRoute(const QVariant &value)
     return *this;
 }
 
-QString &SettingBase::path() const
+const QString SettingBase::path() const
 {
-    p->pathParser=this->envs().parser(p->path).toString();
-    return p->pathParser;
+    return this->envs().parser(p->path).toString();
 }
 
 SettingBase &SettingBase::setPath(const QVariant &value)
@@ -753,10 +723,9 @@ SettingBase &SettingBase::setPath(const QVariant &value)
     return *this;
 }
 
-QVariantHash &SettingBase::parameters() const
+const QVariantHash SettingBase::parameters() const
 {
-    p->parametersParser=this->envs().parser(p->parameters).toHash();
-    return p->parametersParser;
+    return this->envs().parser(p->parameters).toHash();
 }
 
 SettingBase &SettingBase::setParameters(const QVariant &value)
@@ -767,7 +736,7 @@ SettingBase &SettingBase::setParameters(const QVariant &value)
     return *this;
 }
 
-QVariant &SettingBase::body() const
+const QVariant SettingBase::body() const
 {
     return p->body;
 }

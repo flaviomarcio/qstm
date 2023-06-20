@@ -59,27 +59,6 @@ public:
     static const QDateTime now();
 
     //!
-    //! \brief toMd5
-    //! \param value
-    //! \return
-    //!
-    static const QByteArray toMd5(const QByteArray &value);
-
-    //!
-    //! \brief toMd5
-    //! \param value
-    //! \return
-    //!
-    static const QByteArray toMd5(const QString &value);
-
-    //!
-    //! \brief toMd5
-    //! \param value
-    //! \return
-    //!
-    static const QByteArray toMd5(const QVariant &value);
-
-    //!
     //! \brief uuidGenerator
     //! \return
     //!
@@ -127,12 +106,6 @@ public:
     static const QString makeObjectName(const QVariant &v);
 
     //!
-    //! \brief toMap
-    //! \return
-    //!
-    Q_INVOKABLE virtual QVariantMap toMap() const;
-
-    //!
     //! \brief toHash
     //! \return
     //!
@@ -143,6 +116,12 @@ public:
     //! \return
     //!
     Q_INVOKABLE virtual QVariant toVar() const;
+
+    //!
+    //! \brief toJson
+    //! \return
+    //!
+    Q_INVOKABLE virtual QByteArray toJson() const;
 
     //!
     //! \brief fromVar

@@ -30,7 +30,6 @@ class Q_STM_EXPORT SettingBase:public QStm::Object
     Q_PROPERTY(QVariant activityIntervalInitial READ activityIntervalInitial WRITE setActivityIntervalInitial NOTIFY activityIntervalInitialChanged)
     Q_PROPERTY(QVariant activityThread READ activityThread WRITE setActivityThread NOTIFY activityThreadChanged)
     Q_PROPERTY(QVariant connection READ connection WRITE setConnection NOTIFY memoryLimitChanged)
-    Q_PROPERTY(QString service READ service WRITE setService NOTIFY serviceChanged)
     Q_PROPERTY(QVariant headers READ headers WRITE setHeaders NOTIFY headersChanged)
     Q_PROPERTY(QVariant protocol READ protocol WRITE setProtocol NOTIFY protocolChanged)
     Q_PROPERTY(QVariant method READ method WRITE setMethod NOTIFY methodChanged)
@@ -113,13 +112,13 @@ public:
     //! \brief url
     //! \return
     //!
-    QVariant &url() const;
+    const QVariant url() const;
 
     //!
     //! \brief name
     //! \return
     //!
-    const QString &name() const;
+    const QString name() const;
     SettingBase &setName(const QVariant &value);
     SettingBase &name(const QVariant &value){ return this->setName(value);}
 
@@ -127,7 +126,7 @@ public:
     //! \brief scope
     //! \return
     //!
-    const QStringList &scope() const;
+    const QStringList scope() const;
     SettingBase &setScope(const QVariant &value);
     SettingBase &scope(const QVariant &value){ return this->setScope(value);}
 
@@ -135,7 +134,7 @@ public:
     //! \brief identification
     //! \return
     //!
-    const QString &identification() const;
+    const QString identification() const;
     SettingBase &setIdentification(const QVariant &value);
     SettingBase &identification(const QVariant &value){ return this->setIdentification(value);}
 
@@ -143,7 +142,7 @@ public:
     //! \brief variables
     //! \return
     //!
-    const QVariantHash &variables() const;
+    const QVariantHash variables() const;
     SettingBase &setVariables(const QVariant &value);
     SettingBase &variables(const QVariant &value){ return this->setVariables(value);}
 
@@ -199,23 +198,15 @@ public:
     //! \brief connections
     //! \return
     //!
-    const QVariantHash &connection() const;
+    const QVariantHash connection() const;
     SettingBase &setConnection(const QVariant &value);
     SettingBase &connection(const QVariant &value){ return this->setConnection(value);}
-
-    //!
-    //! \brief service
-    //! \return
-    //!
-    const QString &service() const;
-    SettingBase &setService(const QVariant &value);
-    SettingBase &service(const QVariant &value){ return this->setService(value);}
 
     //!
     //! \brief headers
     //! \return
     //!
-    const QVariantHash &headers() const;
+    const QVariantHash headers() const;
     SettingBase &setHeaders(const QVariant &value);
     SettingBase &headers(const QVariant &value){ return this->setHeaders(value);}
 
@@ -223,7 +214,7 @@ public:
     //! \brief protocol
     //! \return
     //!
-    const QString &protocol() const;
+    const QString protocol() const;
     SettingBase &setProtocol(const QVariant &value);
     SettingBase &protocol(const QVariant &value){ return this->setProtocol(value);}
 
@@ -231,7 +222,7 @@ public:
     //! \brief method
     //! \return
     //!
-    QString method() const;
+    const QString method() const;
     SettingBase &setMethod(const QVariant &value);
     SettingBase &method(const QVariant &value){ return this->setMethod(value);}
 
@@ -239,7 +230,7 @@ public:
     //! \brief driverName
     //! \return
     //!
-    QString &driverName() const;
+    const QString driverName() const;
     SettingBase &setDriverName(const QVariant &value);
     SettingBase &driverName(const QVariant &value){ return this->setDriverName(value);}
 
@@ -247,7 +238,7 @@ public:
     //! \brief hostName
     //! \return
     //!
-    QString &hostName() const;
+    const QString hostName() const;
     SettingBase &setHostName(const QVariant &value);
     SettingBase &hostName(const QVariant &value){ return this->setHostName(value);}
 
@@ -255,7 +246,7 @@ public:
     //! \brief userName
     //! \return
     //!
-    QString &userName() const;
+    const QString userName() const;
     SettingBase &setUserName(const QVariant &value);
     SettingBase &userName(const QVariant &value){ return this->setUserName(value);}
 
@@ -263,7 +254,7 @@ public:
     //! \brief password
     //! \return
     //!
-    QString &password() const;
+    const QString password() const;
     SettingBase &setPassword(const QVariant &value);
     SettingBase &password(const QVariant &value){ return this->setPassword(value);}
 
@@ -287,13 +278,13 @@ public:
     //! \brief routeList
     //! \return
     //!
-    QVariantList &routeList() const;
+    const QVariantList routeList() const;
 
     //!
     //! \brief path
     //! \return
     //!
-    QString &path() const;
+    const QString path() const;
     SettingBase &setPath(const QVariant &value);
     SettingBase &path(const QVariant &value){ return this->setPath(value);}
 
@@ -301,7 +292,7 @@ public:
     //! \brief parameters
     //! \return
     //!
-    QVariantHash &parameters() const;
+    const QVariantHash parameters() const;
     SettingBase &setParameters(const QVariant &value);
     SettingBase &parameters(const QVariant &value){ return this->setParameters(value);}
 
@@ -309,7 +300,7 @@ public:
     //! \brief body
     //! \return
     //!
-    QVariant &body() const;
+    const QVariant body() const;
     SettingBase &setBody(const QVariant &value);
     SettingBase &body(const QVariant &value){ return this->setBody(value);}
 

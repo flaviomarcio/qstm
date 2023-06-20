@@ -36,6 +36,7 @@ HEADERS += \
     $$PWD/qstm_util_date.h \
     $$PWD/qstm_util_double.h \
     $$PWD/qstm_util_formatting.h \
+    $$PWD/qstm_util_map.h \
     $$PWD/qstm_util_meta_object.h \
     $$PWD/qstm_util_path.h \
     $$PWD/qstm_util_variant.h \
@@ -68,6 +69,7 @@ SOURCES += \
     $$PWD/qstm_util_date.cpp \
     $$PWD/qstm_util_double.cpp \
     $$PWD/qstm_util_formatting.cpp \
+    $$PWD/qstm_util_map.cpp \
     $$PWD/qstm_util_meta_object.cpp \
     $$PWD/qstm_util_path.cpp \
     $$PWD/qstm_util_variant.cpp \
