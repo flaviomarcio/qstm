@@ -52,8 +52,6 @@ static void make_static_variables()
         ,{"appName", qApp->applicationName()}
     };
 
-    *static_DirEnvs=envsDir;
-    *static_SystemEnvs=envsDir;
     QVariantHash systemEnvironment;
 #ifdef Q_OS_IOS
     Q_UNUSED(systemEnvironment)

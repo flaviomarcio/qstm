@@ -70,9 +70,9 @@ public:
     QVariant url;
     QVariantHash headers, headersParser;
     QVariantHash parameters, parametersParser;
-    QVariant body, bodyParser;
+    QVariant body;
     QString method, methodParser;
-    QVariant protocol, protocolParser;
+    QString protocol, protocolParser;
     QString driverName, driverNameParser;
     QString hostName, hostNameParser;
     QVariant route;
@@ -112,7 +112,7 @@ public:
         this->parameters=vSetting.value(__parameters).toHash();
         this->body=vSetting.value(__body);
         this->method=vSetting.value(__method).toString();
-        this->protocol=vSetting.value(__protocol);
+        this->protocol=vSetting.value(__protocol).toString();
         this->driverName=vSetting.value(__driverName).toString();
         this->hostName=vSetting.value(__hostName).toString();
         this->route=vSetting.value(__route);
@@ -398,71 +398,45 @@ bool SettingBase::isValid() const
     return false;
 }
 
-QString &SettingBase::name() const
+QVariant &SettingBase::url()const
+{
+    QVariantList vList;
+    auto vRouteList=this->routeList();
+    if(vRouteList.isEmpty() && !this->route().toString().isEmpty())
+        vRouteList.append(this->route());
+
+    for(auto &v:vRouteList){
+        auto route=v.toString().trimmed();
+        auto url=QStringLiteral("%1:%2/%3").arg(this->hostName()).arg(this->port()).arg(route);
+        while(url.contains(QStringLiteral("//")))
+            url=url.replace(QStringLiteral("//"), QStringLiteral("/"));
+
+        vList.append(QStringLiteral("%1://%2").arg(this->protocol(),url));
+    }
+    p->url=(vList.size()==1)?vList.first():vList;
+    return p->url;
+}
+
+const QString &SettingBase::name() const
 {
     p->nameParser=p->envs.parser(p->name).toString();
     return p->name;
 }
 
-QStringList &SettingBase::scope() const
+SettingBase &SettingBase::setName(const QVariant &value)
+{
+    if(p->name==value)
+        return *this;
+    Q_DECLARE_VU;
+    p->name = vu.toStr(value).trimmed();
+    emit nameChanged();
+    return *this;
+}
+
+const QStringList &SettingBase::scope() const
 {
     p->scopeParser=p->envs.parser(p->scope).toStringList();
     return p->scopeParser;
-}
-
-QString &SettingBase::identification() const
-{
-    p->identificationParser=p->envs.parser(p->identification).toString();
-    return p->identificationParser;
-}
-
-const QVariantHash &SettingBase::variables() const
-{
-    return p->envs.customEnvs();
-}
-
-bool SettingBase::enabled() const
-{
-    return p->enabled;
-}
-
-qlonglong SettingBase::activityLimit() const
-{
-    Q_DECLARE_DU;
-    auto v=this->envs().parser(p->activityLimit);
-    return du.parseInterval(v, defaultInterval).toLongLong();
-}
-
-qlonglong SettingBase::activityInterval() const
-{
-    Q_DECLARE_DU;
-    auto v=this->envs().parser(p->activityInterval);
-    return du.parseInterval(v, defaultInterval).toLongLong();
-}
-
-qlonglong SettingBase::activityIntervalInitial() const
-{
-    Q_DECLARE_DU;
-    auto v=this->envs().parser(p->activityIntervalInitial);
-    return du.parseInterval(v, defaultInterval).toLongLong();
-}
-
-int SettingBase::activityThread() const
-{
-    return (p->activityThread>0)
-               ?p->activityThread
-               :QThread::idealThreadCount();
-}
-
-qlonglong SettingBase::memoryLimit() const
-{
-    auto v=this->envs().parser(p->memoryLimit);
-    return p->getMemoryBytes(v, 0).toLongLong();
-}
-
-QVariantHash &SettingBase::connection() const
-{
-    return p->connection;
 }
 
 SettingBase &SettingBase::setScope(const QVariant &value)
@@ -481,36 +455,51 @@ SettingBase &SettingBase::setScope(const QVariant &value)
     return *this;
 }
 
-SettingBase &SettingBase::setIdentification(const QString &value)
+const QString &SettingBase::identification() const
 {
-    p->identification=value;
+    p->identificationParser=p->envs.parser(p->identification).toString();
+    return p->identificationParser;
+}
+
+SettingBase &SettingBase::setIdentification(const QVariant &value)
+{
+    Q_DECLARE_VU;
+    p->identification=vu.toStr(value);
     emit identificationChanged();
     return *this;
 }
 
-SettingBase &SettingBase::setName(const QString &value)
+const QVariantHash &SettingBase::variables() const
 {
-    if(p->name==value)
-        return *this;
-    p->name = value.trimmed();
-    emit nameChanged();
-    return *this;
+    return p->envs.customEnvs();
 }
 
-SettingBase &SettingBase::setVariables(const QVariantHash &value)
+SettingBase &SettingBase::setVariables(const QVariant &value)
 {
     p->envs.customEnvs(value);
     emit variablesChanged();
     return *this;
 }
 
-SettingBase &SettingBase::setEnabled(const bool &value)
+bool SettingBase::enabled() const
+{
+    return p->enabled;
+}
+
+SettingBase &SettingBase::setEnabled(const QVariant &value)
 {
     if(p->enabled==value)
         return *this;
-    p->enabled=value;
+    p->enabled=value.toBool();
     emit enabledChanged();
     return *this;
+}
+
+qlonglong SettingBase::activityLimit() const
+{
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityLimit);
+    return du.parseInterval(v, defaultInterval).toLongLong();
 }
 
 SettingBase &SettingBase::setActivityLimit(const QVariant &value)
@@ -520,6 +509,13 @@ SettingBase &SettingBase::setActivityLimit(const QVariant &value)
     p->activityLimit=value;
     emit activityLimitChanged();
     return *this;
+}
+
+qlonglong SettingBase::activityInterval() const
+{
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityInterval);
+    return du.parseInterval(v, defaultInterval).toLongLong();
 }
 
 SettingBase &SettingBase::setActivityInterval(const QVariant &value)
@@ -540,6 +536,20 @@ SettingBase &SettingBase::setActivityIntervalInitial(const QVariant &value)
     return *this;
 }
 
+qlonglong SettingBase::activityIntervalInitial() const
+{
+    Q_DECLARE_DU;
+    auto v=this->envs().parser(p->activityIntervalInitial);
+    return du.parseInterval(v, defaultInterval).toLongLong();
+}
+
+int SettingBase::activityThread() const
+{
+    return (p->activityThread>0)
+               ?p->activityThread
+               :QThread::idealThreadCount();
+}
+
 SettingBase &SettingBase::setActivityThread(const QVariant &value)
 {
     if(p->activityThread==value)
@@ -547,6 +557,12 @@ SettingBase &SettingBase::setActivityThread(const QVariant &value)
     p->activityThread=value.toInt();
     emit activityThreadChanged();
     return *this;
+}
+
+qlonglong SettingBase::memoryLimit() const
+{
+    auto v=this->envs().parser(p->memoryLimit);
+    return p->getMemoryBytes(v, 0).toLongLong();
 }
 
 SettingBase &SettingBase::setMemoryLimit(const QVariant &value)
@@ -558,6 +574,11 @@ SettingBase &SettingBase::setMemoryLimit(const QVariant &value)
     return *this;
 }
 
+const QVariantHash &SettingBase::connection() const
+{
+    return p->connection;
+}
+
 SettingBase &SettingBase::setConnection(const QVariant &value)
 {
     if(p->connection==value)
@@ -567,73 +588,44 @@ SettingBase &SettingBase::setConnection(const QVariant &value)
     return *this;
 }
 
-QVariant &SettingBase::url()const
-{
-    QVariantList vList;
-    auto vRouteList=this->routeList();
-    if(vRouteList.isEmpty() && !this->route().toString().isEmpty())
-        vRouteList.append(this->route());
-
-    for(auto &v:vRouteList){
-        auto route=v.toString().trimmed();
-        auto url=QStringLiteral("%1:%2/%3").arg(this->hostName()).arg(this->port()).arg(route);
-        while(url.contains(QStringLiteral("//")))
-            url=url.replace(QStringLiteral("//"), QStringLiteral("/"));
-
-
-        switch (protocol().typeId()) {
-        case QMetaType::QVariantList:
-        case QMetaType::QStringList:
-        {
-            auto record=this->protocol().toList();
-            for(const auto &v:record){
-                MetaEnum<Protocol> eProtocol=v;
-                vList.append(QStringLiteral("%1://%2").arg(eProtocol.name(),url));
-            }
-            break;
-        }
-        default:
-            const auto protocol=this->protocol().toString();
-            vList.append(QStringLiteral("%1://%2").arg(protocol,url));
-        }
-    }
-    p->url=(vList.size()==1)?vList.first():vList;
-    return p->url;
-}
-
-QString &SettingBase::service() const
+const QString &SettingBase::service() const
 {
     return this->identification();
 }
 
-SettingBase &SettingBase::setService(const QString &value)
+SettingBase &SettingBase::setService(const QVariant &value)
 {
     this->setIdentification(value);
+    emit identificationChanged();
     return *this;
 }
 
-QVariantHash &SettingBase::headers() const
+const QVariantHash &SettingBase::headers() const
 {
     p->headersParser=this->envs().parser(p->headers).toHash();
     return p->headersParser;
 }
 
-SettingBase &SettingBase::setHeaders(const QVariantHash &value)
+SettingBase &SettingBase::setHeaders(const QVariant &value)
 {
-    p->headers = value;
+    Q_DECLARE_VU;
+    p->headers = vu.toHash(value);
+    emit headersChanged();
     return *this;
 }
 
-QVariant &SettingBase::protocol() const
+const QString &SettingBase::protocol() const
 {
-    p->protocolParser=this->envs().parser(p->protocol).toString();
-    return p->protocol;
+    MetaEnum<Protocol> eProtocol=this->envs().parser(p->protocol);
+    p->protocolParser=eProtocol.name();
+    return p->protocolParser;
 }
 
 SettingBase &SettingBase::setProtocol(const QVariant &value)
 {
     MetaEnum<Protocol> eProtocol=value;
     p->protocol=eProtocol.name();
+    emit protocolChanged();
     return *this;
 }
 
@@ -643,9 +635,11 @@ QString SettingBase::method() const
     return p->methodParser;
 }
 
-SettingBase &SettingBase::setMethod(const QString &value)
+SettingBase &SettingBase::setMethod(const QVariant &value)
 {
-    p->method=value;
+    Q_DECLARE_VU;
+    p->method=vu.toStr(value);
+    emit methodChanged();
     return *this;
 }
 
@@ -655,9 +649,11 @@ QString &SettingBase::driverName() const
     return p->driverNameParser;
 }
 
-SettingBase &SettingBase::setDriverName(const QString &value)
+SettingBase &SettingBase::setDriverName(const QVariant &value)
 {
-    p->driverName=value;
+    Q_DECLARE_VU;
+    p->driverName=vu.toStr(value);
+    emit driverNameChanged();
     return *this;
 }
 
@@ -667,9 +663,11 @@ QString &SettingBase::hostName() const
     return p->hostNameParser;
 }
 
-SettingBase &SettingBase::setHostName(const QString &value)
+SettingBase &SettingBase::setHostName(const QVariant &value)
 {
-    p->hostName = value.trimmed();
+    Q_DECLARE_VU;
+    p->hostName = vu.toStr(value).trimmed();
+    emit hostNameChanged();
     return *this;
 }
 
@@ -679,9 +677,11 @@ QString &SettingBase::userName() const
     return p->userNameParser;
 }
 
-SettingBase &SettingBase::setUserName(const QString &value)
+SettingBase &SettingBase::setUserName(const QVariant &value)
 {
-    p->userName = value.trimmed();
+    Q_DECLARE_VU;
+    p->userName = vu.toStr(value).trimmed();
+    emit userNameChanged();
     return *this;
 }
 
@@ -691,9 +691,11 @@ QString &SettingBase::password() const
     return p->passwordParser;
 }
 
-SettingBase &SettingBase::setPassword(const QString &value)
+SettingBase &SettingBase::setPassword(const QVariant &value)
 {
-    p->password = value.trimmed();
+    Q_DECLARE_VU;
+    p->password = vu.toStr(value).trimmed();
+    emit passwordChanged();
     return *this;
 }
 
@@ -702,9 +704,11 @@ int SettingBase::port() const
     return p->port;
 }
 
-SettingBase &SettingBase::setPort(int value)
+SettingBase &SettingBase::setPort(const QVariant &value)
 {
-    p->port = value;
+    Q_DECLARE_VU;
+    p->port = vu.toInt(value);
+    emit portChanged();
     return *this;
 }
 
@@ -731,6 +735,7 @@ QVariantList &SettingBase::routeList() const
 SettingBase &SettingBase::setRoute(const QVariant &value)
 {
     p->route = value;
+    emit routeChanged();
     return *this;
 }
 
@@ -740,9 +745,11 @@ QString &SettingBase::path() const
     return p->pathParser;
 }
 
-SettingBase &SettingBase::setPath(const QString &value)
+SettingBase &SettingBase::setPath(const QVariant &value)
 {
-    p->path = value.trimmed();
+    Q_DECLARE_VU;
+    p->path = vu.toStr(value).trimmed();
+    emit pathChanged();
     return *this;
 }
 
@@ -752,9 +759,11 @@ QVariantHash &SettingBase::parameters() const
     return p->parametersParser;
 }
 
-SettingBase &SettingBase::setParameters(const QVariantHash &value)
+SettingBase &SettingBase::setParameters(const QVariant &value)
 {
-    p->parameters=value;
+    Q_DECLARE_VU;
+    p->parameters=vu.toHash(value);
+    emit parametersChanged();
     return *this;
 }
 
@@ -766,6 +775,7 @@ QVariant &SettingBase::body() const
 SettingBase &SettingBase::setBody(const QVariant &value)
 {
     p->body=value;
+    emit bodyChanged();
     return *this;
 }
 
@@ -777,6 +787,7 @@ int SettingBase::cacheInterval() const
 SettingBase &SettingBase::setCacheInterval(const QVariant &value)
 {
     p->cacheInterval=value.toInt();
+    emit cacheIntervalChanged();
     return *this;
 }
 
@@ -788,6 +799,7 @@ bool SettingBase::cacheCleanup() const
 SettingBase &SettingBase::setCacheCleanup(const QVariant &value)
 {
     p->cacheCleanup=value.toBool();
+    emit cacheCleanupChanged();
     return *this;
 }
 
@@ -799,6 +811,7 @@ int SettingBase::cacheCleanupInterval() const
 SettingBase &SettingBase::setCacheCleanupInterval(const QVariant &value)
 {
     p->cacheCleanupInterval=value.toInt();
+    emit cacheCleanupIntervalChanged();
     return *this;
 }
 
