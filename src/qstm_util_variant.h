@@ -504,9 +504,3 @@ private:
 
 }
 
-typedef QStm::VariantUtil VariantUtil;
-
-
-Q_DECLARE_METATYPE(VariantUtil)
-Q_DECLARE_METATYPE(VariantUtil*)
-

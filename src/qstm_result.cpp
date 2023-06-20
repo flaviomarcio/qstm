@@ -471,15 +471,15 @@ QStm::ResultInfo &ResultValue::resultInfo()const
 
 ResultValue &ResultValue::printInfo(const QVariant &v)
 {
-    VariantUtil vu(v);
-    sInfo() << vu.toStr();
+    Q_DECLARE_VU;
+    sInfo() << vu.toStr(v);
     return *this;
 }
 
 ResultValue &ResultValue::printWarning(const QVariant &v)
 {
-    VariantUtil vu(v);
-    sWarning() << vu.toStr();
+    Q_DECLARE_VU;
+    sWarning() << vu.toStr(v);
     return *this;
 }
 

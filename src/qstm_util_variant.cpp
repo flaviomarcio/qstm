@@ -1365,36 +1365,36 @@ bool VariantUtil::vIsString(const QVariant &v)
 
 QVariant VariantUtil::convertTo(const QVariant &v, int typeId)
 {
-    VariantUtil vu(v);
+    Q_DECLARE_VU;
     switch (typeId) {
     case QMetaType::QUuid:
-        return vu.toUuid();
+        return vu.toUuid(v);
     case QMetaType::Int:
     case QMetaType::UInt:
-        return vu.toInt();
+        return vu.toInt(v);
     case QMetaType::LongLong:
     case QMetaType::ULongLong:
-        return vu.toLongLong();
+        return vu.toLongLong(v);
     case QMetaType::QDateTime:
-        return vu.toDateTime();
+        return vu.toDateTime(v);
     case QMetaType::QDate:
-        return vu.toDate();
+        return vu.toDate(v);
     case QMetaType::QTime:
-        return vu.toTime();
+        return vu.toTime(v);
     case QMetaType::QUrl:
-        return vu.toUrl();
+        return vu.toUrl(v);
     case QMetaType::Bool:
-        return vu.toBool();
+        return vu.toBool(v);
     case QMetaType::QVariantPair:
-        return vu.toHash();
+        return vu.toHash(v);
     case QMetaType::QVariantHash:
-        return vu.toHash();
+        return vu.toHash(v);
     case QMetaType::QVariantMap:
-        return vu.toMap();
+        return vu.toMap(v);
     case QMetaType::QVariantList:
-        return vu.toList();
+        return vu.toList(v);
     case QMetaType::QStringList:
-        return vu.toStringList();
+        return vu.toStringList(v);
     default:
         return v;
     }
