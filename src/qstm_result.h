@@ -16,7 +16,6 @@
 #include <QDateTime>
 #include "./qstm_global.h"
 #include "./qstm_result_info.h"
-#include "./qstm_types.h"
 
 #define __QSTM_DECLARE_RESULT_READ_OPERATOR(TYPE) \
     ResultValue &operator = (const TYPE value){ return this->setResult(value);}\

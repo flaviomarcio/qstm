@@ -9,7 +9,6 @@
 #include "../src/qstm_setting_manager.h"
 #include "../src/qstm_setting_base.h"
 #include "../src/qstm_svm.h"
-#include "../src/qstm_types.h"
 #include "../src/qstm_network_types.h"
 #include "../src/qstm_global.h"
 #include "../src/qstm_currency.h"

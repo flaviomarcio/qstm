@@ -30,7 +30,6 @@ HEADERS += \
     $$PWD/qstm_setting_file.h \
     $$PWD/qstm_setting_manager.h \
     $$PWD/qstm_startup.h \
-    $$PWD/qstm_types.h \
     $$PWD/qstm_url.h \
     $$PWD/qstm_util_date.h \
     $$PWD/qstm_util_double.h \
@@ -63,7 +62,6 @@ SOURCES += \
     $$PWD/qstm_setting_file.cpp \
     $$PWD/qstm_setting_manager.cpp \
     $$PWD/qstm_startup.cpp \
-    $$PWD/qstm_types.cpp \
     $$PWD/qstm_url.cpp \
     $$PWD/qstm_util_date.cpp \
     $$PWD/qstm_util_double.cpp \

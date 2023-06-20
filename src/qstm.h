@@ -20,7 +20,6 @@
 #include "./qstm_setting_manager.h"
 #include "./qstm_startup.h"
 #include "./qstm_svm.h"
-#include "./qstm_types.h"
 #include "./qstm_url.h"
 #include "./qstm_util_date.h"
 #include "./qstm_util_double.h"
