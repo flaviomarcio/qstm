@@ -31,7 +31,6 @@ HEADERS += \
     $$PWD/qstm_setting_manager.h \
     $$PWD/qstm_startup.h \
     $$PWD/qstm_types.h \
-    $$PWD/qstm_types_const.h \
     $$PWD/qstm_url.h \
     $$PWD/qstm_util_date.h \
     $$PWD/qstm_util_double.h \

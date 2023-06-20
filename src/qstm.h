@@ -32,4 +32,3 @@
 #include "./qstm_util_map.h"
 #include "./qstm_setting_file.h"
 #include "./qstm_vvm.h"
-#include "./qstm_types_const.h"
