@@ -50,13 +50,12 @@ static void initQtFlags()
 
 static void qtMessageHandlerCustomized(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    static auto timeFormat=QStringLiteral("hh:mm:ss");
     static auto logFormat=QStringLiteral("#%1-%2:%3");
     static auto printFormat=QByteArrayLiteral("%s\n");
 
     const static auto replaceText=QStringList{QT_STRINGIFY(ResultValue &),QT_STRINGIFY(ResultValue &),QT_STRINGIFY(QApp::),QStringLiteral("\"")};
-    auto line = context.line<=0?QTime::currentTime().toString(timeFormat):QString::number(context.line).rightJustified(5,'0');
-    auto message=logFormat.arg(msgTypeMap->value(type),line,msg);
+    auto line = QString::number(context.line).rightJustified(5,'0');
+    auto message=logFormat.arg(msgTypeMap->value(type),line.rightJustified(5,'0'),msg);
     for(auto &key:replaceText)
         message.replace(key, "");
     fprintf(stderr, printFormat, message.toUtf8().constData());
@@ -95,18 +94,23 @@ bool Log::qLogEnabled()
 
 void Log::enabled()
 {
-    static auto format="[%{if-debug}"
-                       "D%{endif}"
-                       "%{if-info}"
-                       "I%{endif}"
-                       "%{if-warning}"
-                       "W%{endif}"
-                       "%{if-critical}"
-                       "C%{endif}"
-                       "%{if-fatal}"
-                       "F%{endif} "
-                       "%{time yyyy.MM.dd h:mm:ss.zzz t}] "
-                       "| line: %{line} | func: %{function} | %{message}";
+//    static auto format="[%{if-debug}"
+//                         "D%{endif}"
+//                         "%{if-info}"
+//                         "I%{endif}"
+//                         "%{if-warning}"
+//                         "W%{endif}"
+//                         "%{if-critical}"
+//                         "C%{endif}"
+//                         "%{if-fatal}"
+//                         "F%{endif}"
+//                         " %{time yyyy.MM.ddTh:mm:ss.zzz}"
+//                         " line:%{line} %{function}] %{message}";
+#ifdef QT_DEBUG
+    static auto format="[%{time yyyy.MM.ddTh:mm:ss.zzz}|line:%{line}|%{function}] %{message}";
+#else
+    static auto format="[%{time yyyy.MM.ddTh:mm:ss.zzz}|%{function}] %{message}";
+#endif
     qSetMessagePattern(format);
     qInstallMessageHandler(qtMessageHandlerCustomized); // Install the handler local
 }

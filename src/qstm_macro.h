@@ -4,9 +4,9 @@
 #include <QThread>
 #include <QDebug>
 
-#define ___party_1 QString::number(qlonglong(QThread::currentThreadId()))+QStringLiteral(":")
+#define ___party_1 QString::number(qlonglong(QThread::currentThreadId()))+QStringLiteral(" ")
 
-#define ___party_2 QString(__PRETTY_FUNCTION__).replace(QStringLiteral("virtual"),QLatin1String("")).split(QStringLiteral("(")).first().trimmed()+QStringLiteral(":")
+#define ___party_2 QString(__PRETTY_FUNCTION__).replace(QStringLiteral("virtual"),QLatin1String("")).split(QStringLiteral("(")).first().trimmed()+QStringLiteral(" ")
 
 #define cDebug() qDebug()<<___party_1
 
@@ -16,17 +16,17 @@
 
 #define cWarning() qWarning()<<___party_1
 
-#define sDebug() qDebug()<<___party_1<<___party_2
+#define sDebug() qDebug()<<___party_1 + ___party_2
 
-#define sCritical() qCritical()<<___party_1<<___party_2
+#define sCritical() qCritical()<<___party_1 + ___party_2
 
-#define sInfo() qInfo()<<___party_1<<___party_2
+#define sInfo() qInfo()<<___party_1 + ___party_2
 
-#define sWarning() qWarning()<<___party_1<<___party_2
+#define sWarning() qWarning()<<___party_1 + ___party_2
 
-#define sDebugMethodStart()qDebug()<<___party_1<<___party_2<<QStringLiteral(":start")
+#define sDebugMethodStart()qDebug()<<___party_1 + ___party_2<<QStringLiteral(":start")
 
-#define sDebugMethodFinish()qDebug()<<___party_1<<___party_2<<QStringLiteral(":finish")
+#define sDebugMethodFinish()qDebug()<<___party_1 + ___party_2<<QStringLiteral(":finish")
 
 #define v_vl QVariantList()
 
