@@ -235,6 +235,21 @@ public:
         return this->type(value)>=this->_typeDefault;
     }
 
+    //!
+    //! \brief enums
+    //! \return
+    //!
+    static QVector<MetaEnum<ENUM>> enums()
+    {
+        QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
+        QVector<MetaEnum<ENUM>> list;
+        for (int i = 0; i < metaEnum.keyCount(); ++i){
+            MetaEnum<ENUM> e(i);
+            list.append(e);
+        }
+        return list;
+    }
+
 private:
     QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
     const ENUM _typeDefault=ENUM(metaEnum.keyToValue(metaEnum.key(0)));

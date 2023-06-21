@@ -302,6 +302,12 @@ MapUtil &MapUtil::append(QObject *value)
     return *this;
 }
 
+MapUtil &MapUtil::append(const QString &key, const QVariant &value)
+{
+    p->append(QVariantHash{{key, value}});
+    return *this;
+}
+
 MapUtil &MapUtil::remove(const QVariant &keys)
 {
     if(p->vSource.isEmpty())

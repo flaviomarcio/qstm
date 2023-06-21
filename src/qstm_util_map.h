@@ -120,6 +120,7 @@ public:
     //!
     MapUtil &append(const QVariant &value);
     MapUtil &append(QObject *value);
+    MapUtil &append(const QString &key, const QVariant &value);
 
     //!
     //! \brief remove
