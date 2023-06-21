@@ -18,7 +18,7 @@ public:
     //!
     MetaEnum()
     {
-        this->_type={};
+        this->_type=-1;
     }
 
     //!
@@ -47,13 +47,13 @@ public:
     ENUM operator = (const QVariant &value)
     {
         this->_type=this->type(value);
-        return this->_type;
+        return ENUM(this->_type);
     }
 
     ENUM operator = (const ENUM &value)
     {
         this->_type=value;
-        return this->_type;
+        return ENUM(this->_type);
     }
 
     //!
@@ -102,7 +102,9 @@ public:
     //!
     ENUM type()const
     {
-        return this->_type;
+        return this->_type==-1
+                   ?_typeDefault
+                   :ENUM(_type);
     }
 
     //!
@@ -127,13 +129,25 @@ public:
     }
 
     //!
+    //! \brief isValid
+    //! \return
+    //!
+    bool isValid()
+    {
+        if(this->_type==-1)
+            return false;
+        return !QByteArray{metaEnum.valueToKey(this->_type)}.isEmpty();
+    }
+
+    //!
     //! \brief name
     //! \return
     //!
     QByteArray name()const
     {
-        auto ivalue=static_cast<int>(this->_type);
-        return QByteArray{metaEnum.valueToKey(ivalue)};
+        if(this->_type==-1)
+            return {};
+        return QByteArray{metaEnum.valueToKey(this->_type)};
     }
 
     //!
@@ -173,23 +187,29 @@ public:
         }
         case QMetaType::QString:
         case QMetaType::QByteArray:
+        case QMetaType::QChar:
+        case QMetaType::QBitArray:
         {
+            bool ok;
+            auto i=value.toInt(&ok);
+            if(ok)
+                return ENUM(i);
+
             auto uName=value.toByteArray().trimmed();
             auto t =metaEnum.keyToValue(uName);
             if(t>=0)
                 return ENUM(t);
             for(int i=0; i< metaEnum.keyCount(); ++i){
                 auto v=QByteArray{metaEnum.key(i)};
-                if(v.toLower()==uName){
+                if(v.toLower()==uName)
                     return ENUM(metaEnum.keyToValue(v));
-                }
             }
             break;
         }
         default:
             break;
         }
-        return this->_typeDefault;
+        return ENUM(-1);
     }
 
     //!
@@ -221,7 +241,7 @@ public:
                 }
             }
         }
-        this->_type=_typeDefault;
+        this->_type=-1;
         return false;
     }
 
@@ -253,7 +273,7 @@ public:
 private:
     QMetaEnum metaEnum=QMetaEnum::fromType<ENUM>();
     const ENUM _typeDefault=ENUM(metaEnum.keyToValue(metaEnum.key(0)));
-    ENUM _type=_typeDefault;
+    int _type=-1;
 };
 
 } // namespace QMFE

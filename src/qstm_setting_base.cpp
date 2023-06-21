@@ -61,8 +61,8 @@ public:
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
     QVariant activityIntervalInitial=__t100ms;
-    int activityThread=0;
-    QVariant memoryLimit=0;
+    int activityThread=1;
+    QVariant memoryLimit;
     QStm::Envs envs;
     QVariantHash connection;
 
@@ -78,7 +78,7 @@ public:
     QString path;
     QString userName;
     QString password;
-    int port=-1;
+    int port=0;
     QString cacheDir;
     int cacheInterval=0;
     bool cacheCleanup=false;
@@ -238,14 +238,26 @@ QVariant SettingBase::envs(const QString &envName) const
 
 SettingBase &SettingBase::clear()
 {
+    static const auto __objectName="objectName";
     for (int row = 0; row < this->metaObject()->propertyCount(); ++row) {
         auto property=this->metaObject()->property(row);
-        if(QByteArray{property.name()}==QT_STRINGIFY2(objectName))
+
+        if(!property.isWritable() && !property.isResettable())
             continue;
+
+        if(QByteArray{property.name()}==__objectName)
+            continue;
+
+        if(property.isReadable()){
+            property.reset(this);
+            continue;
+        }
 
         switch (property.typeId()) {
         case QMetaType::Int:
         case QMetaType::UInt:
+        case QMetaType::Long:
+        case QMetaType::ULong:
         case QMetaType::LongLong:
         case QMetaType::ULongLong:
         case QMetaType::Double:
@@ -276,12 +288,24 @@ SettingBase &SettingBase::clear()
         case QMetaType::QByteArray:
         case QMetaType::QChar:
         case QMetaType::QBitArray:
-            property.write(this,{});
+            property.write(this,"");
+            break;
+        case QMetaType::Bool:
+            property.write(this,false);
             break;
         default:
             property.write(this, {});
         }
     }
+
+    p->protocol={};
+    p->activityLimit={};
+    p->activityInterval={};
+    p->activityIntervalInitial={};
+    p->activityThread=0;
+    p->memoryLimit={};
+    p->envs.clear();
+
     return *this;
 }
 
@@ -489,7 +513,7 @@ qlonglong SettingBase::activityLimit() const
 {
     Q_DECLARE_DU;
     auto v=this->envs().parser(p->activityLimit);
-    return du.parseInterval(v, defaultInterval).toLongLong();
+    return du.parseInterval(v).toLongLong();
 }
 
 SettingBase &SettingBase::setActivityLimit(const QVariant &value)
@@ -505,7 +529,7 @@ qlonglong SettingBase::activityInterval() const
 {
     Q_DECLARE_DU;
     auto v=this->envs().parser(p->activityInterval);
-    return du.parseInterval(v, defaultInterval).toLongLong();
+    return du.parseInterval(v).toLongLong();
 }
 
 SettingBase &SettingBase::setActivityInterval(const QVariant &value)
@@ -530,14 +554,12 @@ qlonglong SettingBase::activityIntervalInitial() const
 {
     Q_DECLARE_DU;
     auto v=this->envs().parser(p->activityIntervalInitial);
-    return du.parseInterval(v, defaultInterval).toLongLong();
+    return du.parseInterval(v).toLongLong();
 }
 
 int SettingBase::activityThread() const
 {
-    return (p->activityThread>0)
-               ?p->activityThread
-               :QThread::idealThreadCount();
+    return p->activityThread;
 }
 
 SettingBase &SettingBase::setActivityThread(const QVariant &value)
@@ -593,21 +615,30 @@ SettingBase &SettingBase::setHeaders(const QVariant &value)
 
 const QString SettingBase::protocol() const
 {
-    MetaEnum<Protocol> eProtocol=this->envs().parser(p->protocol);
-    return eProtocol.name();
+    if(p->protocol.isEmpty())
+        return {};
+    MetaEnum<Protocol> e=this->envs().parser(p->protocol);
+    if(!e.isValid())
+        return {};
+    return e.name();
 }
 
 SettingBase &SettingBase::setProtocol(const QVariant &value)
 {
-    MetaEnum<Protocol> eProtocol=value;
-    p->protocol=eProtocol.name();
+    Q_DECLARE_VU;
+    p->protocol=vu.toStr(value);
     emit protocolChanged();
     return *this;
 }
 
 const QString SettingBase::method() const
 {
-    return this->envs().parser(p->method).toString();
+    if(p->method.trimmed().isEmpty())
+        return {};
+    MetaEnum<Method> e=this->envs().parser(p->method);
+    if(!e.isValid())
+        return p->method;
+    return e.name();
 }
 
 SettingBase &SettingBase::setMethod(const QVariant &value)
@@ -659,7 +690,7 @@ SettingBase &SettingBase::setUserName(const QVariant &value)
 
 const QString SettingBase::password() const
 {
-    return this->envs().parser(p->route).toString();
+    return this->envs().parser(p->password).toString();
 }
 
 SettingBase &SettingBase::setPassword(const QVariant &value)
@@ -750,7 +781,7 @@ SettingBase &SettingBase::setBody(const QVariant &value)
 
 int SettingBase::cacheInterval() const
 {
-    return this->parseInterval(p->cacheInterval, defaultInterval).toInt();
+    return this->parseInterval(p->cacheInterval).toInt();
 }
 
 SettingBase &SettingBase::setCacheInterval(const QVariant &value)

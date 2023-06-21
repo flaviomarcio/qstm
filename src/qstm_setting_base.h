@@ -46,6 +46,19 @@ class Q_STM_EXPORT SettingBase:public QStm::Object
     Q_PROPERTY(QVariant cacheCleanup READ cacheCleanup WRITE setCacheCleanup NOTIFY cacheCleanupChanged)
     Q_PROPERTY(QVariant cacheCleanupInterval READ cacheCleanupInterval WRITE setCacheCleanupInterval NOTIFY cacheCleanupIntervalChanged)
 public:
+    enum Method {
+        HEAD = 1,
+        GET = 2,
+        POST = 4,
+        PUT = 8,
+        DELETE = 16,
+        OPTIONS = 32,
+        PATCH = 64,
+        TRACE = 128,
+    };
+
+    Q_ENUM(Method)
+
     enum Protocol {TcpSocket=1, UdpSocket=2, WebSocket=4, Mqtt=8, Amqp=16, Http=32};
     Q_ENUM(Protocol)
     //!

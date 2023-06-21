@@ -66,8 +66,66 @@ public:
             default:
                 value=property.read(this->parent);
             }
-            if(value.isNull() || !value.isValid())
+
+            if(value.isNull())
                 continue;
+
+            switch (value.typeId()) {
+            case QMetaType::Bool:
+                if(!value.toBool())
+                    continue;
+                break;
+            case QMetaType::QUuid:
+                if(value.toUuid().isNull())
+                    continue;
+                break;
+            case QMetaType::QUrl:
+                if(value.toUrl().isEmpty())
+                    continue;
+                break;
+            case QMetaType::QDate:
+                if(value.toDateTime().isNull())
+                    continue;
+                break;
+            case QMetaType::QTime:
+                if(value.toTime().isNull())
+                    continue;
+                break;
+            case QMetaType::QDateTime:
+                if(value.toDateTime().isNull())
+                    continue;
+                break;
+            case QMetaType::QString:
+            case QMetaType::QByteArray:
+            case QMetaType::QChar:
+            case QMetaType::QBitArray:
+                if(value.toString().trimmed().isEmpty())
+                    continue;
+                break;
+            case QMetaType::Int:
+            case QMetaType::UInt:
+            case QMetaType::Long:
+            case QMetaType::LongLong:
+            case QMetaType::ULong:
+            case QMetaType::ULongLong:
+            case QMetaType::Double:
+                if(value.toDouble()==0)
+                    continue;
+                break;
+            case QMetaType::QVariantList:
+            case QMetaType::QStringList:
+                if(value.toList().isEmpty())
+                    continue;
+                break;
+            case QMetaType::QVariantHash:
+            case QMetaType::QVariantMap:
+            case QMetaType::QVariantPair:
+                if(value.toHash().isEmpty())
+                    continue;
+                break;
+            default:
+                break;
+            }
 
             if(!nullValuesAdd && vu.vIsEmpty(value))
                 continue;

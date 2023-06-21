@@ -748,6 +748,9 @@ Envs &Envs::resetArgumentEnvs()
 
 QVariantHash &Envs::customEnvs() const
 {
+    if(p->customEnvs.isEmpty())
+        return p->customEnvsOut={};
+
     QVariantHash v;
     QHashIterator<QString, QVariant> i(p->customEnvs);
     while(i.hasNext()){
