@@ -94,19 +94,17 @@ Q_COREAPP_STARTUP_FUNCTION(init)
 
 class EnvsPvt: public QObject{
 public:
-    QVariantHash dirEnvs=*static_DirEnvs;
-    QVariantHash systemEnvs=*static_SystemEnvs;
+    const QVariantHash systemEnvs;
     QVariantHash argumentEnvs;
     QVariantHash customEnvs, customEnvsOut;
     bool invalidEnvsClean;
     QVariant invalidEnvsValue;
     bool ignoreSystemEnvs=false;
     bool ignoreArgumentEnvs=false;
-    bool ignoreDirEnvs=false;
     bool ignoreCustomEnvs=false;
     bool clearUnfoundEnvs=false;
     Envs *parent=nullptr;
-    explicit EnvsPvt(Envs *parent):QObject{parent}
+    explicit EnvsPvt(Envs *parent):QObject{parent}, systemEnvs(*static_SystemEnvs)
     {
         this->parent=parent;
     }
@@ -403,42 +401,39 @@ public:
 
     void putSystemEnvs(const QVariant &envs)
     {
+        Q_DECLARE_VU;
+        auto &systemEnvs=*static_SystemEnvs;
         auto vHash=toEnvHash(envs);
         QHashIterator<QString, QVariant> i(vHash);
         while(i.hasNext()){
             i.next();
-            auto key=i.key().trimmed().toUtf8();
-            auto value=i.value().toByteArray().trimmed();
+            auto key=__argVar->arg(i.key()).trimmed().toLower().toUtf8();
+            auto value=vu.toByteArray(i.value());
             qputenv(key, value);
-            this->systemEnvs.insert(key,value);
-            static_SystemEnvs->insert(key,value);
+            //this->systemEnvs.insert(key,value);
+            systemEnvs.insert(key,value);
         }
     }
 
     void reset()
     {
-        this->dirEnvs=*static_DirEnvs;
-        this->systemEnvs=*static_SystemEnvs;
+        //this->systemEnvs=*static_SystemEnvs;
         this->customEnvs.clear();
     }
 
     void clear()
     {
-        this->dirEnvs.clear();
-        this->systemEnvs.clear();
+//        this->systemEnvs.clear();
         this->customEnvs.clear();
         this->invalidEnvsClean=false;
         this->invalidEnvsValue={};
         this->ignoreSystemEnvs=false;
-        this->ignoreDirEnvs=false;
         this->ignoreCustomEnvs=false;
         this->clearUnfoundEnvs=false;
     }
 
     bool contains(const QString &env)const{
         auto key=(*__argVar).arg(env).toLower();
-        if(this->dirEnvs.contains(key))
-            return true;
         if(this->systemEnvs.contains(key))
             return true;
         return false;
@@ -450,8 +445,6 @@ public:
         auto value=parserDeclaredEnvs(vu.toByteArray(values));
 
         value = parser(value, *static_SystemEnvs);
-
-        value = parser(value, *static_DirEnvs);
 
         value = parser(value, vu.toHash(envs));
 
@@ -472,9 +465,6 @@ public:
         if(!envPvt->ignoreCustomEnvs)
             value = parser(value, envPvt->argumentEnvs);
 
-        if(!envPvt->ignoreDirEnvs)
-            value = parser(value, envPvt->dirEnvs);
-
         if(!envPvt->ignoreCustomEnvs)
             value = parser(value, envPvt->customEnvs);
 
@@ -494,8 +484,6 @@ public:
             key=(*__argVar).arg(env).toLower();
 
         auto value=envPvt->customEnvs.value(key).toString().trimmed();
-        if(value.isEmpty())
-            value=envPvt->dirEnvs.value(key).toString().trimmed();
 
         if(value.isEmpty())
             value=envPvt->systemEnvs.value(key).toString().trimmed();
@@ -696,13 +684,6 @@ Envs &Envs::systemEnvs(QFile &envs)
     return *this;
 }
 
-Envs &Envs::resetSystemEnvs()
-{
-    Q_DECLARE_VU;
-    p->systemEnvs.clear();
-    return *this;
-}
-
 bool Envs::contains(const QString &env) const
 {
     return p->contains(env);
@@ -879,26 +860,6 @@ Envs &Envs::ignoreArgumentEnvs(bool newIgnoreArgumentEnvs)
 Envs &Envs::resetIgnoreArgumentEnvs()
 {
     return ignoreArgumentEnvs({});
-}
-
-
-bool Envs::ignoreDirEnvs() const
-{
-    return p->ignoreDirEnvs;
-}
-
-Envs &Envs::ignoreDirEnvs(bool newIgnoreDirEnvs)
-{
-    if (p->ignoreDirEnvs == newIgnoreDirEnvs)
-        return *this;
-    p->ignoreDirEnvs = newIgnoreDirEnvs;
-    emit ignoreDirEnvsChanged();
-    return *this;
-}
-
-Envs &Envs::resetIgnoreDirEnvs()
-{
-    return ignoreDirEnvs({});
 }
 
 bool Envs::ignoreCustomEnvs() const
