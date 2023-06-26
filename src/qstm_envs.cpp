@@ -61,9 +61,16 @@ static void make_static_variables()
     auto lst = process.systemEnvironment();
     for (auto &v : lst) {
         auto s = v.split(__splitEnv);
-        auto env = s.first().trimmed();
-        auto value = s.last().trimmed();
-        systemEnvironment.insert(env, value);
+        if(s.size()>2){
+            auto env = s.takeFirst().trimmed();
+            auto value = s.join(__splitEnv);
+            systemEnvironment.insert(env, value);
+        }
+        else{
+            auto env = s.first().trimmed();
+            auto value = s.last().trimmed();
+            systemEnvironment.insert(env, value);
+        }
     }
 #endif
 

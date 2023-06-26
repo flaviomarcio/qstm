@@ -59,6 +59,13 @@ public:
             }
             break;
         }
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantPair:
+            bytes=QJsonDocument::fromVariant(v).toJson(QJsonDocument::Compact);
+            break;
         default:
             bytes=v.toByteArray().trimmed();
             break;
