@@ -16,6 +16,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString, __argVar,("${%1}"))
 Q_GLOBAL_STATIC_WITH_ARGS(QString, __argVarSetting,("%1=%2"))
 Q_GLOBAL_STATIC_WITH_ARGS(QString, __argText,("%1"))
 
+static const auto __envEmpty="${}";
 static const auto __argVarStartWith="${";
 static const auto __envUndefined="${?}";
 static const auto __envRegExt="\\${+([a-zA-Z0-9._-]+)}";
@@ -70,7 +71,10 @@ static void make_static_variables()
         QHashIterator<QString, QVariant> i(envsDir);
         while (i.hasNext()) {
             i.next();
-            auto k1=__argVar->arg(i.key()).trimmed().toLower();
+            auto key=i.key().trimmed().toLower();
+            if(key.isEmpty())
+                continue;
+            auto k1=__argVar->arg(key);
             *static_DirEnvs->insert(k1,i.value());
         }
     }
@@ -79,7 +83,10 @@ static void make_static_variables()
         QHashIterator<QString, QVariant> i(systemEnvironment);
         while (i.hasNext()) {
             i.next();
-            auto k1=__argVar->arg(i.key()).trimmed().toLower();
+            auto key=i.key().trimmed().toLower();
+            if(key.isEmpty())
+                continue;
+            auto k1=__argVar->arg(key);
             *static_SystemEnvs->insert(k1,i.value());
         }
     }
@@ -94,7 +101,8 @@ Q_COREAPP_STARTUP_FUNCTION(init)
 
 class EnvsPvt: public QObject{
 public:
-    const QVariantHash systemEnvs;
+    Envs *parent=nullptr;
+    QVariantHash systemEnvs;
     QVariantHash argumentEnvs;
     QVariantHash customEnvs, customEnvsOut;
     bool invalidEnvsClean;
@@ -103,10 +111,12 @@ public:
     bool ignoreArgumentEnvs=false;
     bool ignoreCustomEnvs=false;
     bool clearUnfoundEnvs=false;
-    Envs *parent=nullptr;
-    explicit EnvsPvt(Envs *parent):QObject{parent}, systemEnvs(*static_SystemEnvs)
+    explicit EnvsPvt(Envs *parent)
+        :
+        QObject{parent},
+        parent{parent},
+        systemEnvs(*static_SystemEnvs)
     {
-        this->parent=parent;
     }
 
 public:
@@ -370,6 +380,9 @@ private:
 
     static void addEnv(EnvsPvt*envPvt, QVariantHash &envs, const QString &envKey, const QVariant &envValue)
     {
+        if(envKey.trimmed().isEmpty() && envKey==__envEmpty)
+            return;
+
         Q_DECLARE_VU;
         static QRegularExpression re(__envRegExt);
         QString envValueText=parserDeclaredEnvs(vu.toStr(envValue)).trimmed();
@@ -402,22 +415,24 @@ public:
     void putSystemEnvs(const QVariant &envs)
     {
         Q_DECLARE_VU;
-        auto &systemEnvs=*static_SystemEnvs;
         auto vHash=toEnvHash(envs);
         QHashIterator<QString, QVariant> i(vHash);
         while(i.hasNext()){
             i.next();
-            auto key=__argVar->arg(i.key()).trimmed().toLower().toUtf8();
+            auto key=i.key().trimmed().toLower().toUtf8();
+            if(key.isEmpty())
+                continue;
+            key=__argVar->arg(key).toUtf8();
             auto value=vu.toByteArray(i.value());
             qputenv(key, value);
-            //this->systemEnvs.insert(key,value);
-            systemEnvs.insert(key,value);
+            static_SystemEnvs->insert(key,value);
+            this->systemEnvs.insert(key,value);
         }
     }
 
     void reset()
     {
-        //this->systemEnvs=*static_SystemEnvs;
+        this->systemEnvs=*static_SystemEnvs;
         this->customEnvs.clear();
     }
 
@@ -626,15 +641,12 @@ public:
 
 };
 
-Envs::Envs(QObject *parent)
-    : QObject{parent}
+Envs::Envs(QObject *parent): QObject{parent}, p{new EnvsPvt{this}}
 {
-    this->p=new EnvsPvt{this};
 }
 
-Envs::Envs(const QVariant &customEnvs, QObject *parent):QObject{parent}
+Envs::Envs(const QVariant &customEnvs, QObject *parent):QObject{parent}, p{new EnvsPvt{this}}
 {
-    this->p=new EnvsPvt{this};
     p->setEnvs(p, p->customEnvs, customEnvs);
 }
 

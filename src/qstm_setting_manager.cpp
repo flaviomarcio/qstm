@@ -17,6 +17,7 @@
 
 namespace QStm {
 
+static const auto __comma=",";
 static const auto __rootDir="rootdir";
 static const auto __arguments="arguments";
 static const auto __variables="variables";
@@ -172,11 +173,22 @@ public:
             this->envs.customEnvs(__rootDir,rootDir.isEmpty()?QStringLiteral("${HOME}/${APPNAME}"):rootDir);
 
             QVariantHash arguments;
-            auto varguments=vSettingsBody.value(__arguments);
+            auto varguments=this->envs.parser(vSettingsBody.value(__arguments));
             if(varguments.isNull() || !varguments.isValid())
                 varguments=this->arguments;
             else{
                 this->arguments.clear();
+
+                switch (varguments.typeId()) {
+                case QMetaType::QString:
+                case QMetaType::QByteArray:
+                case QMetaType::QChar:
+                case QMetaType::QBitArray:
+                    varguments=varguments.toString().split(__comma);
+                    break;
+                default:
+                    break;
+                }
 
                 switch (varguments.typeId()) {
                 case QMetaType::QVariantHash:
