@@ -16,6 +16,8 @@
 
 namespace QStm {
 
+
+static const auto __comma=",";
 static const auto defaultLimit = "1y";
 static const auto defaultInterval = "1m";
 
@@ -456,10 +458,56 @@ const QStringList SettingBase::scope() const
 
 SettingBase &SettingBase::setScope(const QVariant &value)
 {
+    if(value.isNull() || !value.isValid()){
+        p->scope.clear();
+        emit scopeChanged();
+        return *this;
+    }
+
     Q_DECLARE_VU;
+    QVariantList scopeValue;
+    switch (value.typeId()) {
+    case QMetaType::QVariantList:
+    case QMetaType::QStringList:
+    case QMetaType::QVariantHash:
+    case QMetaType::QVariantMap:
+    case QMetaType::QVariantPair:
+        scopeValue=vu.toList(value);
+        break;
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+    case QMetaType::QChar:
+    case QMetaType::QBitArray:
+    {
+        auto v=QJsonDocument::fromJson(value.toByteArray()).toVariant();
+        switch (v.typeId()) {
+        case QMetaType::QVariantList:
+        case QMetaType::QStringList:
+        case QMetaType::QVariantHash:
+        case QMetaType::QVariantMap:
+        case QMetaType::QVariantPair:
+            scopeValue=vu.toList(v);
+            break;
+        default:
+            auto scope=value.toString().trimmed();
+
+            if (!scope.isEmpty()){
+                if(scope.contains(__comma))
+                    scopeValue=vu.toList(scope.split(__comma));
+                else
+                    scopeValue=vu.toList(v);
+            }
+            break;
+        }
+        break;
+    }
+    default:
+        scopeValue=vu.toList(value);
+        break;
+    }
+
     QStringList scope;
-    auto vList=value.toList();
-    for(auto &v: vList){
+    for(auto &v: scopeValue){
         auto s=vu.toByteArray(v).trimmed();
         if(s.isEmpty())
             continue;
