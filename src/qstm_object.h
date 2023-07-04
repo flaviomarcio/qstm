@@ -145,6 +145,13 @@ public:
     Q_INVOKABLE virtual bool fromHash(const QVariantHash &value);
 
     //!
+    //! \brief fromObject
+    //! \param value
+    //! \return
+    //!
+    Q_INVOKABLE virtual bool fromObject(const QObject *value);
+
+    //!
     //! \brief storedProperty
     //! \return
     //!
