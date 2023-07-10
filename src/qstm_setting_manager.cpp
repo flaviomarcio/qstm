@@ -343,15 +343,11 @@ SettingManager &SettingManager::insert(const QVariantHash &value)
     return p->insert(value);
 }
 
-const SettingBase &SettingManager::setting(const QString &value)const
+SettingBase *SettingManager::setting(const QString &value)const
 {
     auto setting=p->settingGetCheck(value.toUtf8());
 
-    if(setting)
-        return *setting;
-
-    static const QStm::SettingBase settingDefault;
-    return settingDefault;
+    return setting;
 }
 
 SettingBase *SettingManager::settingClone(const QString &settingName, QObject *parent)
