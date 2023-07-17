@@ -3,10 +3,18 @@
 
 namespace QStm {
 
-StartUp::StartUp(QObject *parent)
-    : QObject{parent}
+QMutex *makeLockedMutex()
 {
-    this->p=new StartUpPvt{this};
+    auto mutex=new QMutex();
+    mutex->lock();
+    return mutex;
+}
+
+static QMutex *lockedMutex=makeLockedMutex();
+
+StartUp::StartUp(QObject *parent)
+    : QObject{parent}, p{new StartUpPvt{this}}
+{
 }
 
 bool StartUp::operator<(const StartUp *object) const
@@ -17,6 +25,17 @@ bool StartUp::operator<(const StartUp *object) const
 bool StartUp::operator>(const StartUp *object) const
 {
     return this->number()>object->number();
+}
+
+bool StartUp::lockedWait()
+{
+    QMutexLocker<QMutex> locker(lockedMutex);
+    return true;
+}
+
+void StartUp::lockedFinish()
+{
+    lockedMutex->unlock();
 }
 
 StartUp &StartUp::i()

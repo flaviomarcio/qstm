@@ -31,6 +31,7 @@ static const auto __activityIntervalInitial="activityIntervalInitial";
 static const auto __activityThread="activityThread";
 static const auto __memoryLimit="memoryLimit";
 static const auto __connection="connection";
+static const auto __configurations="configurations";
 static const auto __t100ms="100ms";
 
 static const auto __headers="headers";
@@ -66,6 +67,7 @@ public:
     int activityThread=1;
     QVariant memoryLimit;
     QStm::Envs envs;
+    QVariantHash configurations;
     QVariantHash connection;
 
     QVariantHash headers;
@@ -105,6 +107,7 @@ public:
         this->activityThread=vSetting.value(__activityThread).toInt();
         this->memoryLimit=vSetting.value(__memoryLimit);
         this->connection=vSetting.value(__connection).toHash();
+        this->configurations=vSetting.value(__configurations).toHash();
         this->headers=vSetting.value(__headers).toHash();
         this->parameters=vSetting.value(__parameters).toHash();
         this->body=vSetting.value(__body);
@@ -244,60 +247,13 @@ SettingBase &SettingBase::clear()
     for (int row = 0; row < this->metaObject()->propertyCount(); ++row) {
         auto property=this->metaObject()->property(row);
 
-        if(!property.isWritable() && !property.isResettable())
+        if(!property.isResettable())
             continue;
 
         if(QByteArray{property.name()}==__objectName)
             continue;
 
-        if(property.isReadable()){
-            property.reset(this);
-            continue;
-        }
-
-        switch (property.typeId()) {
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        case QMetaType::Long:
-        case QMetaType::ULong:
-        case QMetaType::LongLong:
-        case QMetaType::ULongLong:
-        case QMetaType::Double:
-            property.write(this,0);
-            break;
-        case QMetaType::QDate:
-            property.write(this,QDate());
-            break;
-        case QMetaType::QTime:
-            property.write(this,QTime());
-            break;
-        case QMetaType::QDateTime:
-            property.write(this,QDateTime());
-            break;
-        case QMetaType::QVariantHash:
-            property.write(this,QVariantHash());
-            break;
-        case QMetaType::QVariantMap:
-            property.write(this,QVariant());
-            break;
-        case QMetaType::QVariantList:
-            property.write(this,QVariantList());
-            break;
-        case QMetaType::QStringList:
-            property.write(this,QStringList());
-            break;
-        case QMetaType::QString:
-        case QMetaType::QByteArray:
-        case QMetaType::QChar:
-        case QMetaType::QBitArray:
-            property.write(this,"");
-            break;
-        case QMetaType::Bool:
-            property.write(this,false);
-            break;
-        default:
-            property.write(this, {});
-        }
+        property.reset(this);
     }
 
     p->protocol={};
@@ -451,6 +407,11 @@ SettingBase &SettingBase::setName(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetName()
+{
+    return this->setName({});
+}
+
 const QStringList SettingBase::scope() const
 {
     return p->envs.parser(p->scope).toStringList();
@@ -518,6 +479,11 @@ SettingBase &SettingBase::setScope(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetScope()
+{
+return this->setScope({});
+}
+
 const QString SettingBase::identification() const
 {
     return p->envs.parser(p->identification).toString();
@@ -529,6 +495,11 @@ SettingBase &SettingBase::setIdentification(const QVariant &value)
     p->identification=vu.toStr(value);
     emit identificationChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetIdentification()
+{
+return this->setIdentification({});
 }
 
 const QVariantHash SettingBase::variables() const
@@ -543,6 +514,30 @@ SettingBase &SettingBase::setVariables(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetVariables()
+{
+return this->setVariables({});
+}
+
+const QVariantHash SettingBase::configurations() const
+{
+    return p->configurations;
+}
+
+SettingBase &SettingBase::setConfigurations(const QVariant &value)
+{
+    if(p->configurations==value)
+        return *this;
+    p->configurations=value.toHash();
+    emit configurationsChanged();
+    return *this;
+}
+
+SettingBase &SettingBase::resetConfigurations()
+{
+return this->setConfigurations({});
+}
+
 bool SettingBase::enabled() const
 {
     return p->enabled;
@@ -555,6 +550,11 @@ SettingBase &SettingBase::setEnabled(const QVariant &value)
     p->enabled=value.toBool();
     emit enabledChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetEnabled()
+{
+return this->setEnabled({});
 }
 
 qlonglong SettingBase::activityLimit() const
@@ -573,6 +573,11 @@ SettingBase &SettingBase::setActivityLimit(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetActivityLimit()
+{
+return this->setActivityLimit({});
+}
+
 qlonglong SettingBase::activityInterval() const
 {
     Q_DECLARE_DU;
@@ -589,6 +594,11 @@ SettingBase &SettingBase::setActivityInterval(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetActivityInterval()
+{
+return this->setActivityInterval({});
+}
+
 SettingBase &SettingBase::setActivityIntervalInitial(const QVariant &value)
 {
     if(p->activityInterval==value)
@@ -596,6 +606,11 @@ SettingBase &SettingBase::setActivityIntervalInitial(const QVariant &value)
     p->activityIntervalInitial=value;
     emit activityIntervalInitialChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetActivityIntervalInitial()
+{
+return this->setActivityIntervalInitial({});
 }
 
 qlonglong SettingBase::activityIntervalInitial() const
@@ -619,6 +634,11 @@ SettingBase &SettingBase::setActivityThread(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetActivityThread()
+{
+return this->setActivityThread({});
+}
+
 qlonglong SettingBase::memoryLimit() const
 {
     auto v=this->envs().parser(p->memoryLimit);
@@ -632,6 +652,11 @@ SettingBase &SettingBase::setMemoryLimit(const QVariant &value)
     p->memoryLimit=value;
     emit memoryLimitChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetMemoryLimit()
+{
+return this->setMemoryLimit({});
 }
 
 const QVariantHash SettingBase::connection() const
@@ -648,6 +673,11 @@ SettingBase &SettingBase::setConnection(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetConnection()
+{
+return this->setConnection({});
+}
+
 const QVariantHash SettingBase::headers() const
 {
     return this->envs().parser(p->headers).toHash();
@@ -659,6 +689,11 @@ SettingBase &SettingBase::setHeaders(const QVariant &value)
     p->headers = vu.toHash(value);
     emit headersChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetHeaders()
+{
+return this->setHeaders({});
 }
 
 const QString SettingBase::protocol() const
@@ -679,6 +714,11 @@ SettingBase &SettingBase::setProtocol(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetProtocol()
+{
+return this->setProtocol({});
+}
+
 const QString SettingBase::method() const
 {
     if(p->method.trimmed().isEmpty())
@@ -697,6 +737,11 @@ SettingBase &SettingBase::setMethod(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetMethod()
+{
+return this->setMethod({});
+}
+
 const QString SettingBase::driverName() const
 {
     return this->envs().parser(p->driverName).toString();
@@ -708,6 +753,11 @@ SettingBase &SettingBase::setDriverName(const QVariant &value)
     p->driverName=vu.toStr(value);
     emit driverNameChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetDriverName()
+{
+return this->setDriverName({});
 }
 
 const QString SettingBase::hostName() const
@@ -723,6 +773,11 @@ SettingBase &SettingBase::setHostName(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetHostName()
+{
+return this->setHostName({});
+}
+
 const QString SettingBase::userName() const
 {
     return this->envs().parser(p->userName).toString();
@@ -734,6 +789,11 @@ SettingBase &SettingBase::setUserName(const QVariant &value)
     p->userName = vu.toStr(value).trimmed();
     emit userNameChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetUserName()
+{
+    return this->setUserName({});
 }
 
 const QString SettingBase::password() const
@@ -749,6 +809,11 @@ SettingBase &SettingBase::setPassword(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetPassword()
+{
+return this->setPassword({});
+}
+
 int SettingBase::port() const
 {
     return p->port;
@@ -760,6 +825,11 @@ SettingBase &SettingBase::setPort(const QVariant &value)
     p->port = vu.toInt(value);
     emit portChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetPort()
+{
+return this->setPort({});
 }
 
 QVariant SettingBase::route() const
@@ -789,6 +859,11 @@ SettingBase &SettingBase::setRoute(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetRoute()
+{
+return this->setRoute({});
+}
+
 const QString SettingBase::path() const
 {
     return this->envs().parser(p->path).toString();
@@ -800,6 +875,11 @@ SettingBase &SettingBase::setPath(const QVariant &value)
     p->path = vu.toStr(value).trimmed();
     emit pathChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetPath()
+{
+return this->setPath({});
 }
 
 const QVariantHash SettingBase::parameters() const
@@ -815,6 +895,11 @@ SettingBase &SettingBase::setParameters(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetParameters()
+{
+return this->setPath({});
+}
+
 const QVariant SettingBase::body() const
 {
     return p->body;
@@ -825,6 +910,11 @@ SettingBase &SettingBase::setBody(const QVariant &value)
     p->body=value;
     emit bodyChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetBody()
+{
+return this->setBody({});
 }
 
 int SettingBase::cacheInterval() const
@@ -839,6 +929,11 @@ SettingBase &SettingBase::setCacheInterval(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetCacheInterval()
+{
+    return this->setCacheInterval({});
+}
+
 bool SettingBase::cacheCleanup() const
 {
     return p->cacheCleanup;
@@ -851,6 +946,11 @@ SettingBase &SettingBase::setCacheCleanup(const QVariant &value)
     return *this;
 }
 
+SettingBase &SettingBase::resetCacheCleanup()
+{
+    return this->setCacheCleanup({});
+}
+
 int SettingBase::cacheCleanupInterval() const
 {
     return this->parseInterval(p->cacheCleanupInterval).toInt();
@@ -861,6 +961,11 @@ SettingBase &SettingBase::setCacheCleanupInterval(const QVariant &value)
     p->cacheCleanupInterval=value.toInt();
     emit cacheCleanupIntervalChanged();
     return *this;
+}
+
+SettingBase &SettingBase::resetCacheCleanupInterval()
+{
+    return this->setCacheCleanupInterval({});
 }
 
 }

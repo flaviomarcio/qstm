@@ -63,6 +63,7 @@ void StartUpRunner::runnerStart()
         }
     }
     emit runnerTerminate();
+    StartUp::lockedFinish();
 }
 
 }

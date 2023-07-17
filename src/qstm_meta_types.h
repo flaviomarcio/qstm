@@ -11,7 +11,7 @@
 //!
 //! \brief Consts to QMetaType
 static const int QMetaType_UnknownType  = QMetaType::UnknownType   ;
-static const int QMetaType_Void         = QMetaType::Void          ;
+static const int QMetaType_void         = QMetaType::Void          ;
 static const int QMetaType_Bool         = QMetaType::Bool          ;
 static const int QMetaType_User         = QMetaType::User          ;
 static const int QMetaType_Double       = QMetaType::Double        ;

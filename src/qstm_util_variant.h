@@ -9,7 +9,6 @@
 #include <QVariantHash>
 #include "./qstm_global.h"
 
-
 #define Q_DECLARE_VU QStm::VariantUtil vu
 
 namespace QStm {

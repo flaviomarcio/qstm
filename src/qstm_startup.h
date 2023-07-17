@@ -52,6 +52,13 @@ public:
     bool operator>(const StartUp *object) const;
 
     //!
+    //! \brief lockedWait
+    //! \return
+    //!
+    static bool lockedWait();
+    static void lockedFinish();
+
+    //!
     //! \brief i
     //! \return
     //!

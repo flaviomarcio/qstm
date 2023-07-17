@@ -52,32 +52,33 @@ class Q_STM_EXPORT SettingBase:public QStm::Object
 
     __Q_STM_OBJECT_CONFIG(SettingBase, QStm::Object)
 
-    Q_PROPERTY(QVariant scope READ scope WRITE setScope NOTIFY scopeChanged)
-    Q_PROPERTY(QVariant identification READ identification WRITE setIdentification NOTIFY identificationChanged)
-    Q_PROPERTY(QVariant variables READ variables WRITE setVariables NOTIFY variablesChanged)
-    Q_PROPERTY(QVariant enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
-    Q_PROPERTY(QVariant name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QVariant memoryLimit READ memoryLimit WRITE setMemoryLimit NOTIFY memoryLimitChanged)
-    Q_PROPERTY(QVariant activityLimit READ activityLimit WRITE setActivityLimit NOTIFY activityLimitChanged)
-    Q_PROPERTY(QVariant activityInterval READ activityInterval WRITE setActivityInterval NOTIFY activityIntervalChanged)
-    Q_PROPERTY(QVariant activityIntervalInitial READ activityIntervalInitial WRITE setActivityIntervalInitial NOTIFY activityIntervalInitialChanged)
-    Q_PROPERTY(QVariant activityThread READ activityThread WRITE setActivityThread NOTIFY activityThreadChanged)
-    Q_PROPERTY(QVariant connection READ connection WRITE setConnection NOTIFY memoryLimitChanged)
-    Q_PROPERTY(QVariant headers READ headers WRITE setHeaders NOTIFY headersChanged)
-    Q_PROPERTY(QVariant protocol READ protocol WRITE setProtocol NOTIFY protocolChanged)
-    Q_PROPERTY(QVariant method READ method WRITE setMethod NOTIFY methodChanged)
-    Q_PROPERTY(QVariant driverName READ driverName WRITE setDriverName NOTIFY driverNameChanged)
-    Q_PROPERTY(QVariant hostName READ hostName WRITE setHostName NOTIFY hostNameChanged)
-    Q_PROPERTY(QVariant userName READ userName WRITE setUserName NOTIFY userNameChanged)
-    Q_PROPERTY(QVariant password READ password WRITE setPassword NOTIFY passwordChanged)
-    Q_PROPERTY(QVariant port READ port WRITE setPort NOTIFY portChanged)
-    Q_PROPERTY(QVariant route READ route WRITE setRoute NOTIFY routeChanged)
-    Q_PROPERTY(QVariant path READ path WRITE setPath NOTIFY pathChanged)
-    Q_PROPERTY(QVariant parameters READ parameters WRITE setParameters NOTIFY parametersChanged)
-    Q_PROPERTY(QVariant body READ body WRITE setBody NOTIFY bodyChanged)
-    Q_PROPERTY(QVariant cacheInterval READ cacheInterval WRITE setCacheInterval NOTIFY cacheIntervalChanged)
-    Q_PROPERTY(QVariant cacheCleanup READ cacheCleanup WRITE setCacheCleanup NOTIFY cacheCleanupChanged)
-    Q_PROPERTY(QVariant cacheCleanupInterval READ cacheCleanupInterval WRITE setCacheCleanupInterval NOTIFY cacheCleanupIntervalChanged)
+    Q_PROPERTY(QVariant scope READ scope WRITE setScope RESET resetScope NOTIFY scopeChanged)
+    Q_PROPERTY(QVariant identification READ identification WRITE setIdentification RESET resetIdentification NOTIFY identificationChanged)
+    Q_PROPERTY(QVariant variables READ variables WRITE setVariables RESET resetVariables NOTIFY variablesChanged)
+    Q_PROPERTY(QVariant configurations READ configurations WRITE setConfigurations RESET resetConfigurations NOTIFY variablesChanged)
+    Q_PROPERTY(QVariant enabled READ enabled WRITE setEnabled RESET resetEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(QVariant name READ name WRITE setName RESET resetName NOTIFY nameChanged)
+    Q_PROPERTY(QVariant memoryLimit READ memoryLimit WRITE setMemoryLimit RESET resetMemoryLimit NOTIFY memoryLimitChanged)
+    Q_PROPERTY(QVariant activityLimit READ activityLimit WRITE setActivityLimit RESET resetActivityLimit NOTIFY activityLimitChanged)
+    Q_PROPERTY(QVariant activityInterval READ activityInterval WRITE setActivityInterval RESET resetActivityInterval NOTIFY activityIntervalChanged)
+    Q_PROPERTY(QVariant activityIntervalInitial READ activityIntervalInitial WRITE setActivityIntervalInitial RESET resetActivityIntervalInitial NOTIFY activityIntervalInitialChanged)
+    Q_PROPERTY(QVariant activityThread READ activityThread WRITE setActivityThread RESET resetActivityThread NOTIFY activityThreadChanged)
+    Q_PROPERTY(QVariant connection READ connection WRITE setConnection RESET resetConnection NOTIFY memoryLimitChanged)
+    Q_PROPERTY(QVariant headers READ headers WRITE setHeaders RESET resetHeaders NOTIFY headersChanged)
+    Q_PROPERTY(QVariant protocol READ protocol WRITE setProtocol RESET resetProtocol NOTIFY protocolChanged)
+    Q_PROPERTY(QVariant method READ method WRITE setMethod RESET resetMethod NOTIFY methodChanged)
+    Q_PROPERTY(QVariant driverName READ driverName WRITE setDriverName RESET resetDriverName NOTIFY driverNameChanged)
+    Q_PROPERTY(QVariant hostName READ hostName WRITE setHostName RESET resetHostName NOTIFY hostNameChanged)
+    Q_PROPERTY(QVariant userName READ userName WRITE setUserName RESET resetUserName NOTIFY userNameChanged)
+    Q_PROPERTY(QVariant password READ password WRITE setPassword RESET resetPassword NOTIFY passwordChanged)
+    Q_PROPERTY(QVariant port READ port WRITE setPort RESET resetPort NOTIFY portChanged)
+    Q_PROPERTY(QVariant route READ route WRITE setRoute RESET resetRoute NOTIFY routeChanged)
+    Q_PROPERTY(QVariant path READ path WRITE setPath RESET resetPath NOTIFY pathChanged)
+    Q_PROPERTY(QVariant parameters READ parameters WRITE setParameters RESET resetParameters NOTIFY parametersChanged)
+    Q_PROPERTY(QVariant body READ body WRITE setBody RESET resetBody NOTIFY bodyChanged)
+    Q_PROPERTY(QVariant cacheInterval READ cacheInterval WRITE setCacheInterval RESET resetCacheInterval NOTIFY cacheIntervalChanged)
+    Q_PROPERTY(QVariant cacheCleanup READ cacheCleanup WRITE setCacheCleanup RESET resetCacheCleanup NOTIFY cacheCleanupChanged)
+    Q_PROPERTY(QVariant cacheCleanupInterval READ cacheCleanupInterval WRITE setCacheCleanupInterval RESET resetCacheCleanupInterval NOTIFY cacheCleanupIntervalChanged)
 public:
     enum Method {
         HEAD = 1,
@@ -167,6 +168,7 @@ public:
     const QString name() const;
     SettingBase &setName(const QVariant &value);
     SettingBase &name(const QVariant &value){ return this->setName(value);}
+    SettingBase &resetName();
 
     //!
     //! \brief scope
@@ -175,6 +177,7 @@ public:
     const QStringList scope() const;
     SettingBase &setScope(const QVariant &value);
     SettingBase &scope(const QVariant &value){ return this->setScope(value);}
+    SettingBase &resetScope();
 
     //!
     //! \brief identification
@@ -183,6 +186,7 @@ public:
     const QString identification() const;
     SettingBase &setIdentification(const QVariant &value);
     SettingBase &identification(const QVariant &value){ return this->setIdentification(value);}
+    SettingBase &resetIdentification();
 
     //!
     //! \brief variables
@@ -191,6 +195,16 @@ public:
     const QVariantHash variables() const;
     SettingBase &setVariables(const QVariant &value);
     SettingBase &variables(const QVariant &value){ return this->setVariables(value);}
+    SettingBase &resetVariables();
+
+    //!
+    //! \brief variables
+    //! \return
+    //!
+    const QVariantHash configurations() const;
+    SettingBase &setConfigurations(const QVariant &value);
+    SettingBase &configurations(const QVariant &value){ return this->setConfigurations(value);}
+    SettingBase &resetConfigurations();
 
     //!
     //! \brief enabled
@@ -199,6 +213,7 @@ public:
     bool enabled() const;
     SettingBase &setEnabled(const QVariant &value);
     SettingBase &enabled(const QVariant &value){ return this->setEnabled(value);}
+    SettingBase &resetEnabled();
 
     //!
     //! \brief activityLimit
@@ -207,6 +222,7 @@ public:
     qlonglong activityLimit() const;
     SettingBase &setActivityLimit(const QVariant &value);
     SettingBase &activityLimit(const QVariant &value){ return this->setActivityLimit(value);}
+    SettingBase &resetActivityLimit();
 
     //!
     //! \brief activityInterval
@@ -215,6 +231,7 @@ public:
     qlonglong activityInterval() const;
     SettingBase &setActivityInterval(const QVariant &value);
     SettingBase &activityInterval(const QVariant &value){ return this->setActivityInterval(value);}
+    SettingBase &resetActivityInterval();
 
     //!
     //! \brief activityIntervalInitial
@@ -223,6 +240,7 @@ public:
     qlonglong activityIntervalInitial() const;
     SettingBase &setActivityIntervalInitial(const QVariant &value);
     SettingBase &activityIntervalInitial(const QVariant &value){ return this->setActivityIntervalInitial(value);}
+    SettingBase &resetActivityIntervalInitial();
 
     //!
     //! \brief activityThread
@@ -231,6 +249,7 @@ public:
     int activityThread() const;
     SettingBase &setActivityThread(const QVariant &value);
     SettingBase &activityThread(const QVariant &value){ return this->setActivityThread(value);}
+    SettingBase &resetActivityThread();
 
     //!
     //! \brief memoryLimit
@@ -239,6 +258,7 @@ public:
     qlonglong memoryLimit() const;
     SettingBase &setMemoryLimit(const QVariant &value);
     SettingBase &memoryLimit(const QVariant &value){ return this->setMemoryLimit(value);}
+    SettingBase &resetMemoryLimit();
 
     //!
     //! \brief connections
@@ -247,6 +267,7 @@ public:
     const QVariantHash connection() const;
     SettingBase &setConnection(const QVariant &value);
     SettingBase &connection(const QVariant &value){ return this->setConnection(value);}
+    SettingBase &resetConnection();
 
     //!
     //! \brief headers
@@ -255,6 +276,7 @@ public:
     const QVariantHash headers() const;
     SettingBase &setHeaders(const QVariant &value);
     SettingBase &headers(const QVariant &value){ return this->setHeaders(value);}
+    SettingBase &resetHeaders();
 
     //!
     //! \brief protocol
@@ -263,6 +285,7 @@ public:
     const QString protocol() const;
     SettingBase &setProtocol(const QVariant &value);
     SettingBase &protocol(const QVariant &value){ return this->setProtocol(value);}
+    SettingBase &resetProtocol();
 
     //!
     //! \brief method
@@ -271,6 +294,7 @@ public:
     const QString method() const;
     SettingBase &setMethod(const QVariant &value);
     SettingBase &method(const QVariant &value){ return this->setMethod(value);}
+    SettingBase &resetMethod();
 
     //!
     //! \brief driverName
@@ -279,6 +303,7 @@ public:
     const QString driverName() const;
     SettingBase &setDriverName(const QVariant &value);
     SettingBase &driverName(const QVariant &value){ return this->setDriverName(value);}
+    SettingBase &resetDriverName();
 
     //!
     //! \brief hostName
@@ -287,6 +312,7 @@ public:
     const QString hostName() const;
     SettingBase &setHostName(const QVariant &value);
     SettingBase &hostName(const QVariant &value){ return this->setHostName(value);}
+    SettingBase &resetHostName();
 
     //!
     //! \brief userName
@@ -295,6 +321,7 @@ public:
     const QString userName() const;
     SettingBase &setUserName(const QVariant &value);
     SettingBase &userName(const QVariant &value){ return this->setUserName(value);}
+    SettingBase &resetUserName();
 
     //!
     //! \brief password
@@ -303,6 +330,7 @@ public:
     const QString password() const;
     SettingBase &setPassword(const QVariant &value);
     SettingBase &password(const QVariant &value){ return this->setPassword(value);}
+    SettingBase &resetPassword();
 
     //!
     //! \brief port
@@ -311,6 +339,7 @@ public:
     int port() const;
     SettingBase &setPort(const QVariant &value);
     SettingBase &port(const QVariant &value){ return this->setPort(value);}
+    SettingBase &resetPort();
 
     //!
     //! \brief route
@@ -319,6 +348,7 @@ public:
     QVariant route() const;
     SettingBase &setRoute(const QVariant &value);
     SettingBase &route(const QVariant &value){ return this->setRoute(value);}
+    SettingBase &resetRoute();
 
     //!
     //! \brief routeList
@@ -333,6 +363,7 @@ public:
     const QString path() const;
     SettingBase &setPath(const QVariant &value);
     SettingBase &path(const QVariant &value){ return this->setPath(value);}
+    SettingBase &resetPath();
 
     //!
     //! \brief parameters
@@ -341,6 +372,7 @@ public:
     const QVariantHash parameters() const;
     SettingBase &setParameters(const QVariant &value);
     SettingBase &parameters(const QVariant &value){ return this->setParameters(value);}
+    SettingBase &resetParameters();
 
     //!
     //! \brief body
@@ -349,6 +381,7 @@ public:
     const QVariant body() const;
     SettingBase &setBody(const QVariant &value);
     SettingBase &body(const QVariant &value){ return this->setBody(value);}
+    SettingBase &resetBody();
 
     //!
     //! \brief cacheInterval
@@ -357,6 +390,7 @@ public:
     int cacheInterval() const;
     SettingBase &setCacheInterval(const QVariant &value);
     SettingBase &cacheInterval(const QVariant &value){ return this->setCacheInterval(value);}
+    SettingBase &resetCacheInterval();
 
     //!
     //! \brief cacheCleanup
@@ -365,6 +399,7 @@ public:
     bool cacheCleanup() const;
     SettingBase &setCacheCleanup(const QVariant &value);
     SettingBase &cacheCleanup(const QVariant &value){ return this->setCacheCleanup(value);}
+    SettingBase &resetCacheCleanup();
 
     //!
     //! \brief cacheCleanupInterval
@@ -373,12 +408,14 @@ public:
     int cacheCleanupInterval() const;
     SettingBase &setCacheCleanupInterval(const QVariant &value);
     SettingBase &cacheCleanupInterval(const QVariant &value){ return this->setCacheCleanupInterval(value);}
+    SettingBase &resetCacheCleanupInterval();
 
 signals:
     void scopeChanged();
     void identificationChanged();
     void nameChanged();
     void variablesChanged();
+    void configurationsChanged();
     void enabledChanged();
     void activityLimitChanged();
     void activityIntervalChanged();
