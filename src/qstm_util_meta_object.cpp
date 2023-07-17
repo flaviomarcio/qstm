@@ -223,7 +223,7 @@ public:
     }
 };
 
-MetaObjectUtil::MetaObjectUtil(QObject *parent):QObject{parent}, p{new MetaObjectUtilPvt{*parent->metaObject(), this}}
+MetaObjectUtil::MetaObjectUtil(QObject *parent):QObject{parent}, p{new MetaObjectUtilPvt{QObject::staticMetaObject, this}}
 {
 }
 
@@ -326,6 +326,8 @@ QMetaProperty MetaObjectUtil::property(const QByteArray &name)const
 
 const QVariantHash MetaObjectUtil::toHash(const QObject *object)const
 {
+    if(!object)
+        return {};
     QVariantHash __return;
     auto &metaObject = *object->metaObject();
     auto vProperty=p->toPropertyList(metaObject);

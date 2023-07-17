@@ -1,6 +1,7 @@
 #include "./qstm_object.h"
 #include "./qstm_util_hash.h"
 #include "./qstm_util_variant.h"
+#include "./qstm_util_meta_object.h"
 #include <QRandomGenerator>
 #include <QCryptographicHash>
 #include <QMetaObject>
@@ -300,6 +301,12 @@ bool Object::fromMap(const QVariantMap &value)
 bool Object::fromHash(const QVariantHash &value)
 {
     return p->fromHash(value);
+}
+
+bool Object::fromObject(const QObject *value)
+{
+    MetaObjectUtil util;
+    return  p->fromHash(util.toHash(value));
 }
 
 ResultValue &Object::storedProperty()

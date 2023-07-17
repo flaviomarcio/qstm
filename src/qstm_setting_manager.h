@@ -69,7 +69,7 @@ public:
     //! \param value
     //! \return
     //!
-    const SettingBase &setting(const QString &value) const;
+    SettingBase *setting(const QString &value) const;
 
     //!
     //! \brief settingClone

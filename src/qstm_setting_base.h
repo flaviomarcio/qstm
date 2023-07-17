@@ -11,6 +11,37 @@
 
 namespace QStm {
 class SettingBasePvt;
+
+#define __Q_STM_OBJECT_CONFIG(CLASS, BASECLASS)\
+public:\
+CLASS &operator=(const CLASS *object)\
+{\
+        this->fromObject(object);\
+        return *this;\
+}\
+CLASS &operator=(const CLASS &object)\
+{\
+        this->fromObject(&object);\
+        return *this;\
+}\
+CLASS &operator=(const QVariant &object)\
+{\
+    this->fromVar(object);\
+    return *this;\
+}\
+static CLASS *from(const QVariant &v, QObject *parent)\
+{\
+    auto item = new CLASS{parent};\
+    (*item)=v;\
+    if(!item->isValid()){\
+        delete item;\
+        return nullptr;\
+    }\
+    return item;\
+}
+
+#define Q_STM_OBJECT_CONFIG(CLASS) __Q_STM_OBJECT_CONFIG(CLASS, SettingBase)
+
 //!
 //! \brief The SettingBase class
 //!
@@ -18,6 +49,8 @@ class SettingBasePvt;
 class Q_STM_EXPORT SettingBase:public QStm::Object
 {
     Q_OBJECT
+
+    __Q_STM_OBJECT_CONFIG(SettingBase, QStm::Object)
 
     Q_PROPERTY(QVariant scope READ scope WRITE setScope NOTIFY scopeChanged)
     Q_PROPERTY(QVariant identification READ identification WRITE setIdentification NOTIFY identificationChanged)
