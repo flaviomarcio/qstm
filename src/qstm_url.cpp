@@ -5,15 +5,22 @@
 
 namespace QStm {
 
+static const auto __QStm__Url="__QStm__Url";
+static const auto __http="http";
+static const auto __name="name";
+static const auto __outPutName="outPutName";
+static const auto __outputname="outputname";
+static const auto __url="url";
+static const auto __headers="__headers";
+
 class UrlPvt{
 public:
     Url*parent=nullptr;
     Q_DECLARE_VU;
     QString name;
     QString outPutName;
-    QVariant body;
+    QVariantHash body;
     QVariantHash headers;
-    QUrl url;
     explicit UrlPvt(Url*parent)
     {
         this->parent=parent;
@@ -23,50 +30,56 @@ public:
     {
     }
 
-    Url&setData(){
-        this->body.clear();
-        QVariantHash vBody;
+    QUrl url()
+    {
+        if(!this->body.contains(__url))
+            return {};
+        return this->body.value(__url).toUrl();
+    }
+
+    Url &setData(){
+        auto &vBody=this->body;
+        vBody.clear();
         if(!this->name.isEmpty())
-            vBody[QStringLiteral("name")]=this->name;
+            vBody.insert(__name,this->name);
         if(!this->outPutName.isEmpty())
-            vBody[QStringLiteral("outPutName")]=this->name;
-        if(this->url.isValid() && !this->url.isEmpty()){
-            vBody[QT_STRINGIFY(url)]=this->url;
-            if(!this->headers.isEmpty())
-                vBody[QT_STRINGIFY(headers)]=this->headers;
-        }
-        this->body=vBody;
-        this->parent->setValue(vBody);
+            vBody.insert(__outPutName,this->name);
+        if(this->url().isValid() && !this->url().isEmpty())
+            vBody.insert(__url,this->url());
+        if(!this->headers.isEmpty())
+            vBody.insert(__headers, this->headers);
+        this->parent->setValue(vBody.isEmpty()?vBody:QVariant{});
         return *this->parent;
     }
 
     void setVar(const QVariant &v){
         if(!v.isValid() || v.isNull()){
-            this->url.clear();
+            this->body.clear();
             this->headers.clear();
             this->setData();
             return;
         }
         if(v.typeId()==QMetaType::QUrl){
-            this->url=v.toUrl();
+            this->body.insert(__url,v.toUrl());
             this->setData();
             return;
         }
-
+        this->body={};
         auto vMap=this->vu.toHash(v);
-        this->name=vMap[QStringLiteral("name")].toString().trimmed();
-        this->outPutName=vMap[QStringLiteral("outPutName")].toString().trimmed();
+        if(!vMap.contains(__QStm__Url))
+            return;
+
+        this->name=vMap.value(__name).toString().trimmed();
+        this->outPutName=vMap.value(__outPutName).toString().trimmed();
         if(this->outPutName.isEmpty())
-            this->outPutName=vMap[QStringLiteral("outputname")].toString().trimmed();
-        if(vMap.contains(QT_STRINGIFY(url))){
-            this->url=this->vu.toUrl(vMap[QT_STRINGIFY(url)]);
-            if(vMap.contains(QT_STRINGIFY(headers)))
-                this->headers=this->vu.toHash(vMap[QT_STRINGIFY(headers)]);
+            this->outPutName=vMap.value(__outputname).toString().trimmed();
+        if(vMap.contains(__url)){
+            this->body.insert(__url,this->vu.toUrl(__url));
+            if(vMap.contains(__headers))
+                this->headers=this->vu.toHash(vMap.value(__headers));
         }
-        else if(v.toString().toLower().startsWith(QStringLiteral("http")))
-            this->url=this->vu.toUrl(v);
-        else if(v.toString().toLower().startsWith(QStringLiteral("http")))
-            this->url=this->vu.toUrl(v);
+        else if(v.toString().toLower().startsWith(__http))
+            this->body.insert(__url, this->vu.toUrl(v));
         this->setData();
     }
 
@@ -170,48 +183,35 @@ Url &Url::setOutPutName(const QVariant &value)
     return p->setData();
 }
 
-QUrl &Url::url() const
+QUrl Url::url() const
 {
-
-    return p->url;
+    return p->url();
 }
 
 Url &Url::url(const QVariant &value)
 {
-
-    p->url=p->vu.toUrl(value);
+    p->body.insert(__url, p->vu.toUrl(value));
     return p->setData();
 }
 
 Url&Url::setUrl(const QVariant &value)
 {
-
-    p->url=p->vu.toUrl(value);
-    return p->setData();
+    return this->url(value);
 }
 
 bool Url::isValid() const
 {
-
-    return p->url.isValid();
-}
-
-bool Url::isNull() const
-{
-
-    return p->url.isEmpty();
+    return p->url().isValid() && p->url().isEmpty();
 }
 
 bool Url::isLocalFile() const
 {
-
-    return p->url.isLocalFile();
+    return p->url().isLocalFile();
 }
 
 QString Url::toLocalFile() const
 {
-
-    return p->url.toLocalFile();
+    return p->url().toLocalFile();
 }
 
 Url Url::fromLocalFile(const QString &localfile)
@@ -219,16 +219,11 @@ Url Url::fromLocalFile(const QString &localfile)
     return Url::from(QUrl::fromLocalFile(localfile));
 }
 
-QVariantMap Url::toMap() const
-{
-
-    return p->body.toMap();
-}
-
 QVariantHash Url::toHash() const
 {
-
-    return p->body.toHash();
+    auto vHash=p->body;
+    vHash.insert(__QStm__Url,true);
+    return vHash;
 }
 
 QByteArray Url::readBody() const
@@ -246,8 +241,7 @@ QByteArray Url::readBody() const
 
 QString Url::toString() const
 {
-
-    return p->url.toString();
+    return p->url().toString();
 }
 
 }

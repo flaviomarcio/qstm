@@ -118,7 +118,7 @@ public:
     //! \brief url
     //! \return
     //!
-    virtual QUrl &url() const;
+    virtual QUrl url() const;
 
     //!
     //! \brief url
@@ -141,12 +141,6 @@ public:
     virtual bool isValid() const;
 
     //!
-    //! \brief isNull
-    //! \return
-    //!
-    virtual bool isNull() const;
-
-    //!
     //! \brief isLocalFile
     //! \return
     //!
@@ -164,12 +158,6 @@ public:
     //! \return
     //!
     static Url fromLocalFile(const QString &localfile);
-
-    //!
-    //! \brief toMap
-    //! \return
-    //!
-    virtual QVariantMap toMap() const;
 
     //!
     //! \brief toHash
