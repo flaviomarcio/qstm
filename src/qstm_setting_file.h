@@ -50,6 +50,7 @@ public:
     //!
     QStringList &envs() const;
     SettingFile &envs(const QVariant &newEnvs);
+    SettingFile &envsAdd(const QVariant &newEnvs);
     SettingFile &resetEnvs();
 
 private:

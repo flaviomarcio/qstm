@@ -177,7 +177,12 @@ QStringList &SettingFile::envs() const
 
 SettingFile &SettingFile::envs(const QVariant &newEnvs)
 {
-    auto &varList=p->envs;
+    p->envs.clear();
+    return this->envsAdd(newEnvs);
+}
+
+SettingFile &SettingFile::envsAdd(const QVariant &newEnvs)
+{
     auto &newValues=newEnvs;
     QStringList strList;
     switch (newValues.typeId()) {
@@ -192,7 +197,7 @@ SettingFile &SettingFile::envs(const QVariant &newEnvs)
         break;
     }
 
-    varList.clear();
+    auto &varList=p->envs;
     for(auto &fileName : strList){
         if(!QFile::exists(fileName))
             continue;
