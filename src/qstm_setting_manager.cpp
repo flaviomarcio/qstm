@@ -296,7 +296,7 @@ public:
         if(setting)
             setting->deleteLater();
 
-        static auto l=QStringList{QT_STRINGIFY2(activityLimit),QT_STRINGIFY2(activityInterval),QT_STRINGIFY2(activityIntervalInitial)};
+        static const auto l=QStringList{QT_STRINGIFY2(activityLimit),QT_STRINGIFY2(activityInterval),QT_STRINGIFY2(activityIntervalInitial)};
         for(auto &property:l){
             auto v=vValue.value(property);
             if(v.isValid() && v.toLongLong()<=0){

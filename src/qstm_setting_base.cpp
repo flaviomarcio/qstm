@@ -53,6 +53,46 @@ static const auto __cacheCleanup="cacheCleanup";
 static const auto __cacheCleanupInterval="cacheCleanupInterval";
 
 
+static bool toBool(const QVariant &v)
+{
+    switch (v.typeId()) {
+    case QMetaType::Bool:
+        return v.toBool();
+        break;
+    case QMetaType::QString:
+    case QMetaType::QByteArray:
+    case QMetaType::QChar:
+    case QMetaType::QBitArray:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::Long:
+    case QMetaType::LongLong:
+    case QMetaType::ULong:
+    case QMetaType::ULongLong:
+    {
+        QString s;
+        switch (v.typeId()) {
+            case QMetaType::Int:
+            case QMetaType::UInt:
+            case QMetaType::Long:
+            case QMetaType::LongLong:
+            case QMetaType::ULong:
+            case QMetaType::ULongLong:
+                s=QString::number(v.toLongLong());
+                break;
+        default:
+            s=v.toString().toLower();
+        }
+        static const QVector<QString> envsBool={"true","t","1"};
+        return envsBool.contains(s);
+    }
+    default:
+        return false;
+    }
+
+}
+
+
 class SettingBasePvt:public QObject{
 public:
 
@@ -60,33 +100,33 @@ public:
     QStringList scope;
     QString identification;
     QString name;
-    bool enabled=false;
+    QVariant enabled=false;
     QVariant activityLimit=defaultLimit;
     QVariant activityInterval=defaultInterval;
     QVariant activityIntervalInitial=__t100ms;
-    int activityThread=1;
+    QVariant activityThread=1;
     QVariant memoryLimit;
     QStm::Envs envs;
-    QVariantHash configurations;
-    QVariantHash connection;
+    QVariant configurations;
+    QVariant connection;
 
-    QVariantHash headers;
-    QVariantHash parameters;
+    QVariant headers;
+    QVariant parameters;
     QVariant body;
-    QString method;
-    QString protocol;
-    QString driverName;
-    QString hostName;
+    QVariant method;
+    QVariant protocol;
+    QVariant driverName;
+    QVariant hostName;
     QVariant route;
-    QVariantList routeList;
-    QString path;
-    QString userName;
-    QString password;
-    int port=0;
-    QString cacheDir;
-    int cacheInterval=0;
-    bool cacheCleanup=false;
-    int cacheCleanupInterval=0;
+    QVariant routeList;
+    QVariant path;
+    QVariant userName;
+    QVariant password;
+    QVariant port=0;
+    QVariant cacheDir;
+    QVariant cacheInterval=0;
+    QVariant cacheCleanup=false;
+    QVariant cacheCleanupInterval=0;
 
     explicit SettingBasePvt(QObject *parent=nullptr):QObject{parent}, parent{parent}
     {
@@ -100,31 +140,31 @@ public:
         this->scope=vu.toStringList(vSetting.value(__scope));
         this->identification=vSetting.value(__identification).toString().trimmed();
         this->name=vSetting.value(__name).toString().trimmed();
-        this->enabled=vSetting.value(__enabled).toBool();
+        this->enabled=vSetting.value(__enabled);
         this->activityLimit=vSetting.value(__activityLimit);
         this->activityInterval=vSetting.value(__activityInterval);
         this->activityIntervalInitial=vSetting.value(__activityIntervalInitial);
-        this->activityThread=vSetting.value(__activityThread).toInt();
+        this->activityThread=vSetting.value(__activityThread);
         this->memoryLimit=vSetting.value(__memoryLimit);
-        this->connection=vSetting.value(__connection).toHash();
-        this->configurations=vSetting.value(__configurations).toHash();
-        this->headers=vSetting.value(__headers).toHash();
-        this->parameters=vSetting.value(__parameters).toHash();
+        this->connection=vSetting.value(__connection);
+        this->configurations=vSetting.value(__configurations);
+        this->headers=vSetting.value(__headers);
+        this->parameters=vSetting.value(__parameters);
         this->body=vSetting.value(__body);
-        this->method=vSetting.value(__method).toString();
-        this->protocol=vSetting.value(__protocol).toString();
-        this->driverName=vSetting.value(__driverName).toString();
-        this->hostName=vSetting.value(__hostName).toString();
+        this->method=vSetting.value(__method);
+        this->protocol=vSetting.value(__protocol);
+        this->driverName=vSetting.value(__driverName);
+        this->hostName=vSetting.value(__hostName);
         this->route=vSetting.value(__route);
         this->routeList=vSetting.value(__routeList).toList();
-        this->path=vSetting.value(__path).toString();
-        this->userName=vSetting.value(__userName).toString();
-        this->password=vSetting.value(__password).toString();
+        this->path=vSetting.value(__path);
+        this->userName=vSetting.value(__userName);
+        this->password=vSetting.value(__password);
         this->port=vSetting.value(__port).toInt();
-        this->cacheDir=vSetting.value(__cacheDir).toString();
-        this->cacheInterval=vSetting.value(__cacheInterval).toInt();
-        this->cacheCleanup=vSetting.value(__cacheCleanup).toBool();
-        this->cacheCleanupInterval=vSetting.value(__cacheCleanupInterval).toInt();
+        this->cacheDir=vSetting.value(__cacheDir);
+        this->cacheInterval=vSetting.value(__cacheInterval);
+        this->cacheCleanup=vSetting.value(__cacheCleanup);
+        this->cacheCleanupInterval=vSetting.value(__cacheCleanupInterval);
     }
 
 
@@ -481,7 +521,7 @@ SettingBase &SettingBase::setScope(const QVariant &value)
 
 SettingBase &SettingBase::resetScope()
 {
-return this->setScope({});
+    return this->setScope({});
 }
 
 const QString SettingBase::identification() const
@@ -499,7 +539,7 @@ SettingBase &SettingBase::setIdentification(const QVariant &value)
 
 SettingBase &SettingBase::resetIdentification()
 {
-return this->setIdentification({});
+    return this->setIdentification({});
 }
 
 const QVariantHash SettingBase::variables() const
@@ -516,12 +556,14 @@ SettingBase &SettingBase::setVariables(const QVariant &value)
 
 SettingBase &SettingBase::resetVariables()
 {
-return this->setVariables({});
+    return this->setVariables({});
 }
 
 const QVariantHash SettingBase::configurations() const
 {
-    return p->configurations;
+    auto env=p->envs.parser(p->configurations);
+    Q_DECLARE_VU;
+    return vu.toHash(env);
 }
 
 SettingBase &SettingBase::setConfigurations(const QVariant &value)
@@ -535,26 +577,26 @@ SettingBase &SettingBase::setConfigurations(const QVariant &value)
 
 SettingBase &SettingBase::resetConfigurations()
 {
-return this->setConfigurations({});
+    return this->setConfigurations({});
 }
 
 bool SettingBase::enabled() const
 {
-    return p->enabled;
+    return toBool(p->envs.parser(p->enabled));
 }
 
 SettingBase &SettingBase::setEnabled(const QVariant &value)
 {
     if(p->enabled==value)
         return *this;
-    p->enabled=value.toBool();
+    p->enabled=value;
     emit enabledChanged();
     return *this;
 }
 
 SettingBase &SettingBase::resetEnabled()
 {
-return this->setEnabled({});
+    return this->setEnabled({});
 }
 
 qlonglong SettingBase::activityLimit() const
@@ -575,7 +617,7 @@ SettingBase &SettingBase::setActivityLimit(const QVariant &value)
 
 SettingBase &SettingBase::resetActivityLimit()
 {
-return this->setActivityLimit({});
+    return this->setActivityLimit({});
 }
 
 qlonglong SettingBase::activityInterval() const
@@ -596,7 +638,7 @@ SettingBase &SettingBase::setActivityInterval(const QVariant &value)
 
 SettingBase &SettingBase::resetActivityInterval()
 {
-return this->setActivityInterval({});
+    return this->setActivityInterval({});
 }
 
 SettingBase &SettingBase::setActivityIntervalInitial(const QVariant &value)
@@ -610,7 +652,7 @@ SettingBase &SettingBase::setActivityIntervalInitial(const QVariant &value)
 
 SettingBase &SettingBase::resetActivityIntervalInitial()
 {
-return this->setActivityIntervalInitial({});
+    return this->setActivityIntervalInitial({});
 }
 
 qlonglong SettingBase::activityIntervalInitial() const
@@ -622,21 +664,21 @@ qlonglong SettingBase::activityIntervalInitial() const
 
 int SettingBase::activityThread() const
 {
-    return p->activityThread;
+    return p->envs.parser(p->activityThread).toInt();
 }
 
 SettingBase &SettingBase::setActivityThread(const QVariant &value)
 {
     if(p->activityThread==value)
         return *this;
-    p->activityThread=value.toInt();
+    p->activityThread=value;
     emit activityThreadChanged();
     return *this;
 }
 
 SettingBase &SettingBase::resetActivityThread()
 {
-return this->setActivityThread({});
+    return this->setActivityThread({});
 }
 
 qlonglong SettingBase::memoryLimit() const
@@ -656,12 +698,14 @@ SettingBase &SettingBase::setMemoryLimit(const QVariant &value)
 
 SettingBase &SettingBase::resetMemoryLimit()
 {
-return this->setMemoryLimit({});
+    return this->setMemoryLimit({});
 }
 
 const QVariantHash SettingBase::connection() const
 {
-    return p->connection;
+    auto env=p->envs.parser(p->connection);
+    Q_DECLARE_VU;
+    return vu.toHash(env);
 }
 
 SettingBase &SettingBase::setConnection(const QVariant &value)
@@ -675,7 +719,7 @@ SettingBase &SettingBase::setConnection(const QVariant &value)
 
 SettingBase &SettingBase::resetConnection()
 {
-return this->setConnection({});
+    return this->setConnection({});
 }
 
 const QVariantHash SettingBase::headers() const
@@ -693,14 +737,15 @@ SettingBase &SettingBase::setHeaders(const QVariant &value)
 
 SettingBase &SettingBase::resetHeaders()
 {
-return this->setHeaders({});
+    return this->setHeaders({});
 }
 
 const QString SettingBase::protocol() const
 {
-    if(p->protocol.isEmpty())
+    auto env=p->envs.parser(p->protocol).toString().trimmed();
+    if(env.isEmpty())
         return {};
-    MetaEnum<Protocol> e=this->envs().parser(p->protocol);
+    MetaEnum<Protocol> e=this->envs().parser(env);
     if(!e.isValid())
         return {};
     return e.name();
@@ -716,16 +761,17 @@ SettingBase &SettingBase::setProtocol(const QVariant &value)
 
 SettingBase &SettingBase::resetProtocol()
 {
-return this->setProtocol({});
+    return this->setProtocol({});
 }
 
 const QString SettingBase::method() const
 {
-    if(p->method.trimmed().isEmpty())
+    auto env=p->envs.parser(p->method).toString().trimmed();
+    if(env.isEmpty())
         return {};
     MetaEnum<Method> e=this->envs().parser(p->method);
     if(!e.isValid())
-        return p->method;
+        return {};
     return e.name();
 }
 
@@ -739,7 +785,7 @@ SettingBase &SettingBase::setMethod(const QVariant &value)
 
 SettingBase &SettingBase::resetMethod()
 {
-return this->setMethod({});
+    return this->setMethod({});
 }
 
 const QString SettingBase::driverName() const
@@ -757,7 +803,7 @@ SettingBase &SettingBase::setDriverName(const QVariant &value)
 
 SettingBase &SettingBase::resetDriverName()
 {
-return this->setDriverName({});
+    return this->setDriverName({});
 }
 
 const QString SettingBase::hostName() const
@@ -775,7 +821,7 @@ SettingBase &SettingBase::setHostName(const QVariant &value)
 
 SettingBase &SettingBase::resetHostName()
 {
-return this->setHostName({});
+    return this->setHostName({});
 }
 
 const QString SettingBase::userName() const
@@ -811,12 +857,12 @@ SettingBase &SettingBase::setPassword(const QVariant &value)
 
 SettingBase &SettingBase::resetPassword()
 {
-return this->setPassword({});
+    return this->setPassword({});
 }
 
 int SettingBase::port() const
 {
-    return p->port;
+    return p->envs.parser(p->port).toInt();
 }
 
 SettingBase &SettingBase::setPort(const QVariant &value)
@@ -829,7 +875,7 @@ SettingBase &SettingBase::setPort(const QVariant &value)
 
 SettingBase &SettingBase::resetPort()
 {
-return this->setPort({});
+    return this->setPort({});
 }
 
 QVariant SettingBase::route() const
@@ -839,17 +885,15 @@ QVariant SettingBase::route() const
 
 const QVariantList SettingBase::routeList() const
 {
+    auto env=p->envs.parser(p->route);
     Q_DECLARE_VU;
-    QVariantList vRouteList=vu.toList(p->route);
+    QVariantList vRouteList=vu.toList(env);
     if(vRouteList.isEmpty()){
         auto route=p->route.toString().trimmed();
         if(!route.isEmpty())
             vRouteList.append(route);
     }
-    for(auto &v:vRouteList)
-        v=this->envs().parser(v.toString().trimmed());
-
-    return p->routeList=vRouteList.isEmpty()?QVariantList{"/"}:vRouteList;
+    return vRouteList.isEmpty()?QVariantList{"/"}:vRouteList;
 }
 
 SettingBase &SettingBase::setRoute(const QVariant &value)
@@ -861,7 +905,7 @@ SettingBase &SettingBase::setRoute(const QVariant &value)
 
 SettingBase &SettingBase::resetRoute()
 {
-return this->setRoute({});
+    return this->setRoute({});
 }
 
 const QString SettingBase::path() const
@@ -879,7 +923,7 @@ SettingBase &SettingBase::setPath(const QVariant &value)
 
 SettingBase &SettingBase::resetPath()
 {
-return this->setPath({});
+    return this->setPath({});
 }
 
 const QVariantHash SettingBase::parameters() const
@@ -897,7 +941,7 @@ SettingBase &SettingBase::setParameters(const QVariant &value)
 
 SettingBase &SettingBase::resetParameters()
 {
-return this->setPath({});
+    return this->setPath({});
 }
 
 const QVariant SettingBase::body() const
@@ -914,7 +958,7 @@ SettingBase &SettingBase::setBody(const QVariant &value)
 
 SettingBase &SettingBase::resetBody()
 {
-return this->setBody({});
+    return this->setBody({});
 }
 
 int SettingBase::cacheInterval() const
@@ -924,7 +968,7 @@ int SettingBase::cacheInterval() const
 
 SettingBase &SettingBase::setCacheInterval(const QVariant &value)
 {
-    p->cacheInterval=value.toInt();
+    p->cacheInterval=value;
     emit cacheIntervalChanged();
     return *this;
 }
@@ -936,12 +980,12 @@ SettingBase &SettingBase::resetCacheInterval()
 
 bool SettingBase::cacheCleanup() const
 {
-    return p->cacheCleanup;
+    return toBool(p->envs.parser(p->cacheCleanup));
 }
 
 SettingBase &SettingBase::setCacheCleanup(const QVariant &value)
 {
-    p->cacheCleanup=value.toBool();
+    p->cacheCleanup=value;
     emit cacheCleanupChanged();
     return *this;
 }
@@ -958,7 +1002,7 @@ int SettingBase::cacheCleanupInterval() const
 
 SettingBase &SettingBase::setCacheCleanupInterval(const QVariant &value)
 {
-    p->cacheCleanupInterval=value.toInt();
+    p->cacheCleanupInterval=value;
     emit cacheCleanupIntervalChanged();
     return *this;
 }
