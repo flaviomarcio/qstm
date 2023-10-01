@@ -59,7 +59,7 @@ public:
     //! \brief readFom
     //! \return
     //!
-    Q_INVOKABLE virtual void readFrom(const QVariant &values);
+    Q_INVOKABLE virtual bool readFrom(const QVariant &values);
 
     //!
     //! \brief readFom
@@ -71,13 +71,13 @@ public:
     //! \brief mergeFrom
     //! \return
     //!
-    Q_INVOKABLE virtual void mergeFrom(const QVariant &values);
+    Q_INVOKABLE virtual bool mergeFrom(const QVariant &values);
 
     //!
     //! \brief mergeFrom
     //! \return
     //!
-    virtual void mergeFrom(const QObject *object);
+    virtual bool mergeFrom(const QObject *object);
 
     //!
     //! \brief clear

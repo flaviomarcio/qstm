@@ -48,10 +48,10 @@ bool ObjectWrapper::isValid() const
     return true;
 }
 
-void ObjectWrapper::readFrom(const QVariant &values)
+bool ObjectWrapper::readFrom(const QVariant &values)
 {
     QVariantHash v=ObjectWrapper::parserVariant(values).toHash();
-    this->setValues(v);
+    return this->setValues(v);
 }
 
 void ObjectWrapper::readFrom(const QObject *object)
@@ -59,7 +59,7 @@ void ObjectWrapper::readFrom(const QObject *object)
     this->setValues(QVariant::fromValue(object));
 }
 
-void ObjectWrapper::mergeFrom(const QVariant &values)
+bool ObjectWrapper::mergeFrom(const QVariant &values)
 {
     auto vHash=this->toHash();
     QVariantHash v=ObjectWrapper::parserVariant(values).toHash();
@@ -68,12 +68,12 @@ void ObjectWrapper::mergeFrom(const QVariant &values)
         i.next();
         vHash.insert(i.key(), i.value());
     }
-    this->setValues(vHash);
+    return this->setValues(vHash);
 }
 
-void ObjectWrapper::mergeFrom(const QObject *object)
+bool ObjectWrapper::mergeFrom(const QObject *object)
 {
-    this->mergeFrom(QVariant::fromValue(object));
+    return this->mergeFrom(QVariant::fromValue(object));
 }
 
 void ObjectWrapper::clear()

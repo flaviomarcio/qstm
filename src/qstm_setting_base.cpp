@@ -421,9 +421,11 @@ const QVariant SettingBase::url()const
     if(vRouteList.isEmpty() && !this->route().toString().isEmpty())
         vRouteList.append(this->route());
 
+    auto sport=(this->port()==80 || this->port()<=0)?"":QStringLiteral(":%1").arg(this->port());
+
     for(auto &v:vRouteList){
         auto route=v.toString().trimmed();
-        auto url=QStringLiteral("%1:%2/%3").arg(this->hostName()).arg(this->port()).arg(route);
+        auto url=QStringLiteral("%1%2/%3").arg(this->hostName(),sport,route);
         while(url.contains(QStringLiteral("//")))
             url=url.replace(QStringLiteral("//"), QStringLiteral("/"));
 

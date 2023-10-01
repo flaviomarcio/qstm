@@ -126,7 +126,7 @@ public:
         this->returnText.clear();
         this->resultVariant = {};
         this->resultInfo.clear();
-        this->resultInfo.setSuccess(true);
+        this->resultInfo.success(true);
     }
 
     bool makeResult()
@@ -148,13 +148,13 @@ public:
         }
         this->resultVariant=QVariantHash{{__resultInfo, this->resultInfo.toHash()}};
         this->returnBool=false;
-        this->resultInfo.setSuccess(false);
+        this->resultInfo.success(false);
         return {};
     }
 
     bool isOkCodes()const
     {
-        if(!this->resultInfo.p->messageType.equal(ResultValue::Information) && !this->resultInfo.p->messageType.equal(ResultValue::None)){
+        if(!this->resultInfo.p->messageType.equal(QStm::ResultInfo::Information) && !this->resultInfo.p->messageType.equal(QStm::ResultInfo::None)){
             if (this->returnCode.isEmpty() || !this->returnText.trimmed().isEmpty())
                 return {};
         }
@@ -166,7 +166,7 @@ public:
         if (QThread::currentThread()->isInterruptionRequested())
             return {};
 
-        if(!this->resultInfo.p->messageType.equal(ResultValue::Information) && !this->resultInfo.p->messageType.equal(ResultValue::None))
+        if(!this->resultInfo.p->messageType.equal(QStm::ResultInfo::Information) && !this->resultInfo.p->messageType.equal(QStm::ResultInfo::None))
             return {};
 
         if (!this->returnCode.isEmpty() || !this->returnText.trimmed().isEmpty())
@@ -190,15 +190,16 @@ public:
 
     const QVariantHash &toHash()
     {
-        dataHash.clear();
-        dataHash.insert(__returnBool, this->returnBool);
-        dataHash.insert(__returnType, this->resultInfo.messageType());
-        dataHash.insert(__returnCode, this->returnCode);
-        dataHash.insert(__returnHash, this->returnHash);
-        dataHash.insert(__returnText, this->returnText);
-        dataHash.insert(__resultVariant, this->resultVariant);
-        dataHash.insert(__resultInfo, this->resultInfo.toHash());
-        return dataHash;
+        return dataHash=QVariantHash
+        {
+            {__returnBool, this->returnBool},
+            {__returnType, this->resultInfo.messageType()},
+            {__returnCode, this->returnCode},
+            {__returnHash, this->returnHash},
+            {__returnText, this->returnText},
+            {__resultVariant, this->resultVariant},
+            {__resultInfo, this->resultInfo.toHash()},
+        };
     }
 
     const QVariantMap &toMap()
@@ -283,22 +284,22 @@ private slots:
     }
 };
 
-typedef QHash<ResultValue::MessageType, int> MakeArStats;
+typedef QHash<QStm::ResultInfo::MessageType, int> MakeArStats;
 typedef QVector<int> StatusCodeSuccessList;
 
 //Q_GLOBAL_STATIC(QStmConstsResult, staticConsts)
 Q_GLOBAL_STATIC(QStmResults, staticResults)
 Q_GLOBAL_STATIC_WITH_ARGS(StatusCodeSuccessList, statusCodeSuccessList, ({0, 200, 201, 202}))
-Q_GLOBAL_STATIC_WITH_ARGS(MakeArStats, staticMakeArStats, ({{ResultValue::None, 0},
-                                                      {ResultValue::Information, 0},
-                                                      {ResultValue::Warning, 406},
-                                                      {ResultValue::Validation, 406},
-                                                      {ResultValue::Notfound, 404},
-                                                      {ResultValue::UnsupportedMediaType, 415},
-                                                      {ResultValue::Critical, 500},
-                                                      {ResultValue::Unauthorized, 401},
-                                                      {ResultValue::NoContent, 204},
-                                                      {ResultValue::BadRequest, 400}}))
+Q_GLOBAL_STATIC_WITH_ARGS(MakeArStats, staticMakeArStats, ({{QStm::ResultInfo::None, 0},
+                                                      {QStm::ResultInfo::Information, 0},
+                                                      {QStm::ResultInfo::Warning, 406},
+                                                      {QStm::ResultInfo::Validation, 406},
+                                                      {QStm::ResultInfo::Notfound, 404},
+                                                      {QStm::ResultInfo::UnsupportedMediaType, 415},
+                                                      {QStm::ResultInfo::Critical, 500},
+                                                      {QStm::ResultInfo::Unauthorized, 401},
+                                                      {QStm::ResultInfo::NoContent, 204},
+                                                      {QStm::ResultInfo::BadRequest, 400}}))
 
 class ResultValuePvt:public QObject
 {
@@ -306,9 +307,8 @@ public:
     ResultValue *parent = nullptr;
     QStmThreadReturnItem returnItem;
 
-    explicit ResultValuePvt(ResultValue *parent):QObject{parent}
+    explicit ResultValuePvt(ResultValue *parent):QObject{parent}, parent{parent}
     {
-        this->parent = parent;
     }
 
     ResultValue &setResult(const ResultValue &value)
@@ -351,14 +351,14 @@ public:
         return *this->parent;
     }
 
-    ResultValue &setMessage(ResultValue::MessageType msgType, const QVariant &code, const QVariant &message)
+    ResultValue &setMessage(QStm::ResultInfo::MessageType msgType, const QVariant &code, const QVariant &message)
     {
         Q_DECLARE_VU;
         this->clear();
         if (message.isValid()) {
             returnItem.returnCode = vu.toByteArray(code);
             returnItem.returnText = variantConvertToText(message);
-            returnItem.resultInfo.setMessageType(msgType);
+            returnItem.resultInfo.messageType(msgType);
             if(!returnItem.makeResult()){
                 if(!staticResults->insert(returnItem))
                     return *this->parent;
@@ -430,9 +430,8 @@ public:
 
 };
 
-ResultValue::ResultValue(QObject *parent) : QObject{parent}
+ResultValue::ResultValue(QObject *parent) : QObject{parent}, p{new ResultValuePvt{this}}
 {
-    this->p = new ResultValuePvt{this};
 }
 
 ResultValue::operator bool() const
@@ -651,10 +650,9 @@ QByteArray &ResultValue::returnHash() const
     return p->returnItem.returnHash;
 }
 
-ResultValue::MessageType ResultValue::returnType() const
+QStm::ResultInfo::MessageType ResultValue::returnType() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return ResultValue::MessageType(m);
+    return p->returnItem.resultInfo.messageType();
 }
 
 QByteArray &ResultValue::returnCode() const
@@ -669,12 +667,12 @@ QString &ResultValue::returnText() const
 
 ResultValue &ResultValue::setMsg(const QVariant &value)
 {
-   return p->setMessage(MessageType::None, {}, value);
+   return p->setMessage(QStm::ResultInfo::None, {}, value);
 }
 
 ResultValue &ResultValue::setInformation(const QVariant &value)
 {
-    return p->setMessage(MessageType::Information, {}, value);
+    return p->setMessage(QStm::ResultInfo::Information, {}, value);
 }
 
 ResultValue &ResultValue::setWarning()
@@ -686,7 +684,7 @@ ResultValue &ResultValue::setWarning()
 
 ResultValue &ResultValue::setWarning(const QVariant &value)
 {
-    return p->setMessage(MessageType::Warning, {}, value);
+    return p->setMessage(QStm::ResultInfo::Warning, {}, value);
 }
 
 ResultValue &ResultValue::setValidation()
@@ -698,7 +696,7 @@ ResultValue &ResultValue::setValidation()
 
 ResultValue &ResultValue::setValidation(const QVariant &value)
 {
-    return p->setMessage(MessageType::Validation, {}, value);
+    return p->setMessage(QStm::ResultInfo::Validation, {}, value);
 }
 
 ResultValue &ResultValue::setValidation(const ResultValue &lr)
@@ -768,7 +766,7 @@ ResultValue &ResultValue::setUnauthorized(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(Unauthorized, {}, value);
+        p->setMessage(QStm::ResultInfo::Unauthorized, {}, value);
     return *this;
 }
 
@@ -791,7 +789,7 @@ ResultValue &ResultValue::setNotImplemented(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(NotImplemented, {}, value);
+        p->setMessage(QStm::ResultInfo::NotImplemented, {}, value);
     return *this;
 }
 
@@ -814,7 +812,7 @@ ResultValue &ResultValue::setBadRequest(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(BadRequest, {}, value);
+        p->setMessage(QStm::ResultInfo::BadRequest, {}, value);
     return *this;
 }
 
@@ -837,7 +835,7 @@ ResultValue &ResultValue::setNoContent(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(NoContent, {}, value);
+        p->setMessage(QStm::ResultInfo::NoContent, {}, value);
     return *this;
 }
 
@@ -851,7 +849,7 @@ ResultValue &ResultValue::setNotFound(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(Notfound, {}, value);
+        p->setMessage(QStm::ResultInfo::Notfound, {}, value);
     return *this;
 }
 
@@ -874,7 +872,7 @@ ResultValue &ResultValue::setUnsupportedMediaType(const QVariant &value)
 {
     p->clear();
     if (value.isValid())
-        p->setMessage(UnsupportedMediaType, {}, value);
+        p->setMessage(QStm::ResultInfo::UnsupportedMediaType, {}, value);
     return *this;
 }
 
@@ -900,17 +898,17 @@ ResultValue &ResultValue::setCritical()
 
 ResultValue &ResultValue::setCritical(const QString &value)
 {
-    return p->setMessage(Critical, {}, value);
+    return p->setMessage(QStm::ResultInfo::Critical, {}, value);
 }
 
 ResultValue &ResultValue::setCritical(const QVariantHash &value)
 {
-    return p->setMessage(Critical, {}, value);
+    return p->setMessage(QStm::ResultInfo::Critical, {}, value);
 }
 
 ResultValue &ResultValue::setCritical(const QVariantList &value)
 {
-    return p->setMessage(Critical, {}, value);
+    return p->setMessage(QStm::ResultInfo::Critical, {}, value);
 }
 
 ResultValue &ResultValue::setCritical(const ResultValue &lr)
@@ -924,7 +922,7 @@ ResultValue &ResultValue::setCritical(const ResultValue &lr)
 
 ResultValue &ResultValue::setCritical(const QVariant &code, const QVariant &message)
 {
-    return p->setMessage(Critical, code, message);
+    return p->setMessage(QStm::ResultInfo::Critical, code, message);
 }
 
 bool ResultValue::isOk() const
@@ -939,50 +937,42 @@ bool ResultValue::isNotOk() const
 
 bool ResultValue::isInformation() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Information;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Information;
 }
 
 bool ResultValue::isUnauthorized() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Unauthorized;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Unauthorized;
 }
 
 bool ResultValue::isNotfound() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Notfound;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Notfound;
 }
 
 bool ResultValue::isBadRequest() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==BadRequest;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::BadRequest;
 }
 
 bool ResultValue::isWarning() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Warning;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Warning;
 }
 
 bool ResultValue::isValidation() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Validation;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Validation;
 }
 
 bool ResultValue::isCritical() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m==Critical;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::Critical;
 }
 
 bool ResultValue::isNoContent() const
 {
-    int m=p->returnItem.resultInfo.messageType();
-    return m == NoContent;
+    return p->returnItem.resultInfo.messageType()==QStm::ResultInfo::NoContent;
 }
 
 QVariantHash ResultValue::data() const

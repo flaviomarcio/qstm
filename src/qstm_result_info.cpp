@@ -10,56 +10,63 @@ class ResultInfoPvt:public QObject
 {
 public :
     ResultInfo *parent=nullptr;
+    QUuid md5Counter;
     bool enabled=false;
+    MetaEnum<ResultInfo::MessageType> messageType=ResultInfo::None;
     int code=0;
     QStringList messages;
     QString messagesText;
     bool success=true;
     int page=0;
-    int perPage=9999999;
+    int perPage=10;
     int count=0;
     int totalCount=0;
     int totalPages=0;
 
-    QStm::MetaEnum<ResultInfo::MessageType> messageType=ResultInfo::MessageType::None;
-
-    explicit ResultInfoPvt(ResultInfo *parent):QObject{parent}
+    explicit ResultInfoPvt(ResultInfo *parent):QObject{parent}, parent{parent}
     {
-        this->parent=parent;
     }
 
-    void clear()
-    {
-        this->success=false;
-        this->page=0;
-        this->perPage=9999999;
-        this->count=0;
-        this->totalCount=0;
-        this->totalPages=0;
-        this->code=0;
-        this->messages.clear();
-        this->messageType=ResultInfo::MessageType::None;
-        this->success=true;
-    }
 };
 
-ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}
+ResultInfo::ResultInfo(QObject *parent):ObjectWrapper{parent}, p{new ResultInfoPvt{this}}
 {
-    this->p=new ResultInfoPvt{this};
-}
-void ResultInfo::clear()
-{
-    p->clear();
 }
 
-bool ResultInfo::enabled()
+bool ResultInfo::enabled()const
 {
+    if(p->perPage<=0)
+        return false;
     return p->enabled;
 }
 
-void ResultInfo::setEnabled(bool value)
+ResultInfo &ResultInfo::enabled(const QVariant &value)
 {
-    p->enabled=value;
+    p->enabled=value.toBool();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetEnabled()
+{
+    return this->enabled({});
+}
+
+QUuid ResultInfo::md5Counter()
+{
+    return p->md5Counter;
+}
+
+ResultInfo &ResultInfo::md5Counter(const QVariant &value)
+{
+    Q_DECLARE_VU;
+    p->md5Counter=vu.toMd5Uuid(value);
+    emit md5CounterChanged();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetMd5Counter()
+{
+    return this->md5Counter({});
 }
 
 int ResultInfo::code()
@@ -67,7 +74,7 @@ int ResultInfo::code()
     return p->code;
 }
 
-ResultInfo &ResultInfo::setCode(const QVariant &newCode)
+ResultInfo &ResultInfo::code(const QVariant &newCode)
 {
     if (p->messageType == newCode)
         return *this;
@@ -78,7 +85,7 @@ ResultInfo &ResultInfo::setCode(const QVariant &newCode)
 
 ResultInfo &ResultInfo::resetCode()
 {
-    return setCode(ResultInfo::None);
+    return code(ResultInfo::None);
 }
 
 ResultInfo::MessageType ResultInfo::messageType() const
@@ -86,17 +93,18 @@ ResultInfo::MessageType ResultInfo::messageType() const
     return p->messageType.type();
 }
 
-void ResultInfo::setMessageType(const QVariant &value)
+ResultInfo &ResultInfo::messageType(const QVariant &value)
 {
     if (p->messageType == value)
-        return;
+        return *this;
     p->messageType = value;
     emit messageTypeChanged();
+    return *this;
 }
 
-void ResultInfo::resetMessageType()
+ResultInfo &ResultInfo::resetMessageType()
 {
-    setMessageType(None);
+    return messageType(None);
 }
 
 QStringList &ResultInfo::messages()
@@ -104,10 +112,16 @@ QStringList &ResultInfo::messages()
     return p->messages;
 }
 
-void ResultInfo::setMessages(const QVariant &value)
+ResultInfo &ResultInfo::messages(const QVariant &value)
 {
     Q_DECLARE_VU;
     p->messages=vu.toStringList(value);
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetMessages()
+{
+    return this->messages({});
 }
 
 QString &ResultInfo::messagesText()
@@ -134,9 +148,15 @@ bool ResultInfo::success() const
     return p->success;
 }
 
-void ResultInfo::setSuccess(bool value)
+ResultInfo &ResultInfo::success(const QVariant &value)
 {
-    p->success=value;
+    p->success=value.toBool();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetSuccess()
+{
+    return this->success(true);
 }
 
 int ResultInfo::page() const
@@ -144,9 +164,15 @@ int ResultInfo::page() const
     return p->page;
 }
 
-void ResultInfo::setPage(int value)
+ResultInfo &ResultInfo::page(const QVariant &value)
 {
-    p->page = value;
+    p->page = value.toInt();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetPage()
+{
+    return this->page(0);
 }
 
 int ResultInfo::perPage() const
@@ -154,9 +180,15 @@ int ResultInfo::perPage() const
     return p->perPage;
 }
 
-void ResultInfo::setPerPage(int value)
+ResultInfo &ResultInfo::perPage(const QVariant &value)
 {
-    p->perPage = value;
+    p->perPage = value.toInt();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetPerPage()
+{
+    return this->perPage(40);
 }
 
 int ResultInfo::count() const
@@ -164,9 +196,15 @@ int ResultInfo::count() const
     return p->count;
 }
 
-void ResultInfo::setCount(int value)
+ResultInfo &ResultInfo::count(const QVariant &value)
 {
-    p->count = value;
+    p->count = value.toInt();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetCount()
+{
+    return this->count(0);
 }
 
 int ResultInfo::totalCount() const
@@ -174,82 +212,34 @@ int ResultInfo::totalCount() const
     return p->totalCount;
 }
 
-void ResultInfo::setTotalCount(int value)
+ResultInfo &ResultInfo::totalCount(const QVariant &value)
 {
-    p->totalCount = value;
+    p->totalCount = value.toInt();
+    return *this;
+}
+
+ResultInfo &ResultInfo::resetTotalCount()
+{
+    return this->totalCount(0);
 }
 
 int ResultInfo::totalPages() const
 {
-    return p->totalPages;
+    if(p->totalCount<=0 || p->perPage<=0)
+        return 0;
+    return p->totalCount/p->perPage;
 }
 
-void ResultInfo::setTotalPages(int value)
+int ResultInfo::offSetRecords(int offSetPages) const
 {
-    p->totalPages = value;
-}
+    if(!this->enabled())
+        return 0;
 
-const QVariantHash ResultInfo::toRequestHash() const
-{
-    return {{QT_STRINGIFY(page),this->page()},{QT_STRINGIFY(per_page), this->perPage()}};
+    auto offSetRecords=(this->perPage()*this->page());
+    if(offSetPages<=0)
+        return offSetRecords;
+    offSetRecords=offSetRecords-(offSetPages*this->perPage());
+    return offSetRecords<=0?0:offSetRecords;
 }
-
-QVariant ResultInfo::toVar()const
-{
-    return this->toHash();
-}
-
-bool ResultInfo::fromVar(const QVariant &v)
-{
-    switch (v.typeId()) {
-    case QMetaType::QString:
-    case QMetaType::QByteArray:
-        return this->fromHash(QJsonDocument::fromJson(v.toByteArray()).toVariant().toHash());
-    case QMetaType::QVariantHash:
-    case QMetaType::QVariantMap:
-        return this->fromHash(v.toHash());
-    default:
-        return false;
-    }
-}
-
-bool ResultInfo::fromMap(const QVariantMap&map)
-{
-    bool __return=false;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        if(property.write(this, map.value(property.name()))){
-            __return=true;
-        }
-    }
-    return __return;
-}
-
-bool ResultInfo::fromHash(const QVariantHash &map)
-{
-    bool __return=false;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        if(property.write(this, map.value(property.name()))){
-            __return=true;
-        }
-    }
-    return __return;
-}
-
-bool ResultInfo::fromResultInfo(const ResultInfo &resultInfo)
-{
-    bool __return=false;
-    auto &metaObject = *this->metaObject();
-    for(int col = 0; col < metaObject.propertyCount(); ++col) {
-        auto property = metaObject.property(col);
-        if(property.write(this, property.read(&resultInfo)))
-            __return=true;
-    }
-    return __return;
-}
-
 
 }

@@ -4,27 +4,11 @@
 #include <QVariant>
 #include <QVariantList>
 #include <QVariantHash>
+#include <QUuid>
 #include "./qstm_object_wrapper.h"
 
 namespace QStm {
 class ResultInfoPvt;
-
-
-#define Q_STM_DECLARE_MESSAGE_TYPE public:\
-enum MessageType { \
-None = 1, \
-Information = 2, \
-Warning = 4, \
-Validation = 8, \
-Critical = 16, \
-Unauthorized = 32, \
-Notfound = 64, \
-BadRequest = 128, \
-UnsupportedMediaType = 256, \
-NoContent = 512, \
-NotImplemented = 1024, \
-}; \
-Q_ENUM(MessageType)
 
 //!
 //! \brief The ResultInfo class
@@ -35,19 +19,34 @@ class Q_STM_EXPORT ResultInfo:public ObjectWrapper
     Q_OBJECT
     Q_STM_OBJECT_WRAPPER(ResultInfo)
 
-    Q_STM_DECLARE_MESSAGE_TYPE
-
-    Q_PROPERTY(QVariant code READ code WRITE setCode RESET resetCode NOTIFY codeChanged)
-    Q_PROPERTY(QVariant messageType READ messageType WRITE setMessageType RESET resetMessageType NOTIFY messageTypeChanged)
-    Q_PROPERTY(QVariant messages READ messages WRITE setMessages NOTIFY messagesChanged)
-    Q_PROPERTY(bool success READ success WRITE setSuccess NOTIFY successChanged)
-    Q_PROPERTY(int page READ page WRITE setPage NOTIFY pageChanged)
-    Q_PROPERTY(int perPage READ perPage WRITE setPerPage NOTIFY perPageChanged)
-    Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged)
-    Q_PROPERTY(int totalCount READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
-    Q_PROPERTY(int totalPages READ totalPages WRITE setTotalPages NOTIFY totalPagesChanged)
+    Q_PROPERTY(bool success READ success WRITE success NOTIFY successChanged)
+    Q_PROPERTY(int code READ code WRITE code RESET resetCode NOTIFY codeChanged)
+    Q_PROPERTY(int count READ count WRITE count RESET resetCount NOTIFY countChanged)
+    Q_PROPERTY(int page READ page WRITE page NOTIFY pageChanged)
+    Q_PROPERTY(int perPage READ perPage WRITE perPage RESET resetPerPage NOTIFY perPageChanged)
+    Q_PROPERTY(int totalCount READ totalCount WRITE totalCount RESET resetTotalCount NOTIFY totalCountChanged)
+    Q_PROPERTY(int totalPages READ totalPages NOTIFY totalPagesChanged)
+    Q_PROPERTY(QVariant messageType READ messageType WRITE messageType RESET resetMessageType NOTIFY messageTypeChanged)
+    Q_PROPERTY(QStringList messages READ messages WRITE messages NOTIFY messagesChanged)
+    Q_PROPERTY(QUuid md5Counter READ md5Counter WRITE md5Counter RESET resetMd5Counter NOTIFY md5CounterChanged)
 
 public:
+
+    enum MessageType {
+        None = 1,
+        Information = 2,
+        Warning = 4,
+        Validation = 8,
+        Critical = 16,
+        Unauthorized = 32,
+        Notfound = 64,
+        BadRequest = 128,
+        UnsupportedMediaType = 256,
+        NoContent = 512,
+        NotImplemented = 1024,
+    };
+    Q_ENUM(MessageType)
+
     //!
     //! \brief ResultInfo constructor
     //! \param parent
@@ -55,30 +54,27 @@ public:
     Q_INVOKABLE explicit ResultInfo(QObject *parent=nullptr);
 
     //!
-    //! \brief clear
-    //!
-    //!
-    //! clear all values
-    virtual void clear();
-
-    //!
     //! \brief enabled
     //! \return
     //!
-    virtual bool enabled();
+    virtual bool enabled() const;
+    virtual ResultInfo &enabled(const QVariant &value);
+    virtual ResultInfo &resetEnabled();
 
     //!
-    //! \brief setEnabled
-    //! \param value
+    //! \brief md5Counter
+    //! \return
     //!
-    virtual void setEnabled(bool value);
+    virtual QUuid md5Counter();
+    ResultInfo &md5Counter(const QVariant &value);
+    ResultInfo &resetMd5Counter();
 
     //!
     //! \brief code
     //! \return
     //!
     virtual int code();
-    ResultInfo &setCode(const QVariant &value);
+    ResultInfo &code(const QVariant &value);
     ResultInfo &resetCode();
 
     //!
@@ -86,17 +82,17 @@ public:
     //! \return
     //!
     QStm::ResultInfo::MessageType messageType() const;
-    void setMessageType(const QVariant &value);
-    void resetMessageType();
+    ResultInfo &messageType(const QVariant &value);
+    ResultInfo &resetMessageType();
 
     //!
     //! \brief messages
     //! \return
     //!
-    //!
     //! return message to server
     virtual QStringList &messages();
-    void setMessages(const QVariant &value);
+    ResultInfo &messages(const QVariant &value);
+    ResultInfo &resetMessages();
     virtual QString &messagesText();
 
     //!
@@ -105,12 +101,8 @@ public:
     //!
     //! return success true ou false to request
     bool success() const;
-
-    //!
-    //! \brief setSuccess
-    //! \param value
-    //!
-    void setSuccess(bool value);
+    ResultInfo &success(const QVariant &value);
+    ResultInfo &resetSuccess();
 
     //!
     //! \brief page
@@ -118,12 +110,8 @@ public:
     //!
     //! currenty page
     int page() const;
-
-    //!
-    //! \brief setPage
-    //! \param value
-    //!
-    void setPage(int value);
+    ResultInfo &page(const QVariant &value);
+    ResultInfo &resetPage();
 
     //!
     //! \brief perPage
@@ -131,12 +119,8 @@ public:
     //!
     //! rows per page
     int perPage() const;
-
-    //!
-    //! \brief setPerPage
-    //! \param value
-    //!
-    void setPerPage(int value);
+    ResultInfo &perPage(const QVariant &value);
+    ResultInfo &resetPerPage();
 
     //!
     //! \brief count
@@ -144,84 +128,43 @@ public:
     //!
     //! returneds row per page
     int count() const;
-
-    //!
-    //! \brief setCount
-    //! \param value
-    //!
-    void setCount(int value);
+    ResultInfo &count(const QVariant &value);
+    ResultInfo &resetCount();
 
     //!
     //! \brief totalCount
     //! \return
     //! total rows to all pages
     int totalCount() const;
-
-    //!
-    //! \brief setTotalCount
-    //! \param value
-    //!
-    void setTotalCount(int value);
+    ResultInfo &totalCount(const QVariant &value);
+    ResultInfo &resetTotalCount();
 
     //!
     //! \brief totalPages
     //! \return
     //! total pages
     int totalPages() const;
-    void setTotalPages(int value);
 
     //!
-    //! \brief toRequestHash
+    //! \brief offSetRecords
+    //! \param offSetPages
     //! \return
     //!
-    virtual const QVariantHash toRequestHash() const;
-
-    //!
-    //! \brief toVar
-    //! \return
-    //!
-    virtual QVariant toVar() const;
-
-    //!
-    //! \brief fromVar
-    //! \param v
-    //! \return
-    //!
-    virtual bool fromVar(const QVariant &v);
-
-    //!
-    //! \brief fromMap
-    //! \param map
-    //! \return
-    //!
-    virtual bool fromMap(const QVariantMap &map);
-
-    //!
-    //! \brief fromHash
-    //! \param map
-    //! \return
-    //!
-    virtual bool fromHash(const QVariantHash &map);
-
-    //!
-    //! \brief fromResultInfo
-    //! \param map
-    //! \return
-    //!
-    virtual bool fromResultInfo(const ResultInfo &resultInfo);
+    int offSetRecords(int offSetPages=-1) const;
 
 public:
     ResultInfoPvt *p=nullptr;
 signals:
     void codeChanged();
+    void countChanged();
+    void md5CounterChanged();
     void messagesChanged();
-    void successChanged();
+    void messageTypeChanged();
     void pageChanged();
     void perPageChanged();
-    void countChanged();
+    void successChanged();
     void totalCountChanged();
     void totalPagesChanged();
-    void messageTypeChanged();
 };
 
 }

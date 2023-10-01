@@ -34,8 +34,6 @@ class Q_STM_EXPORT ResultValue : public QObject
 
     friend class QStmThreadReturnItem;
 
-    Q_STM_DECLARE_MESSAGE_TYPE
-
     Q_PROPERTY(QVariantHash data READ data NOTIFY dataChanged)
 public:
 
@@ -241,7 +239,7 @@ public:
     //! \brief returnType
     //! \return
     //!
-    MessageType returnType() const;
+    QStm::ResultInfo::MessageType returnType() const;
 
     //!
     //! \brief returnCode
