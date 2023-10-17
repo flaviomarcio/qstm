@@ -150,7 +150,7 @@ public:
     //! \param offSetPages
     //! \return
     //!
-    int offSetRecords(int offSetPages=-1) const;
+    int offSetRecords() const;
 
 public:
     ResultInfoPvt *p=nullptr;

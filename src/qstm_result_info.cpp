@@ -18,7 +18,7 @@ public :
     QString messagesText;
     bool success=true;
     int page=0;
-    int perPage=10;
+    int perPage=0;
     int count=0;
     int totalCount=0;
     int totalPages=0;
@@ -161,12 +161,19 @@ ResultInfo &ResultInfo::resetSuccess()
 
 int ResultInfo::page() const
 {
+    if(this->totalPages()<=0)
+        return 0;
+
+    if(p->page<=0)
+        return 1;
+
     return p->page;
 }
 
 ResultInfo &ResultInfo::page(const QVariant &value)
 {
     p->page = value.toInt();
+    emit pageChanged();
     return *this;
 }
 
@@ -183,12 +190,14 @@ int ResultInfo::perPage() const
 ResultInfo &ResultInfo::perPage(const QVariant &value)
 {
     p->perPage = value.toInt();
+    emit perPageChanged();
+    emit totalPagesChanged();
     return *this;
 }
 
 ResultInfo &ResultInfo::resetPerPage()
 {
-    return this->perPage(40);
+    return this->perPage(0);
 }
 
 int ResultInfo::count() const
@@ -199,6 +208,7 @@ int ResultInfo::count() const
 ResultInfo &ResultInfo::count(const QVariant &value)
 {
     p->count = value.toInt();
+    emit countChanged();
     return *this;
 }
 
@@ -215,6 +225,8 @@ int ResultInfo::totalCount() const
 ResultInfo &ResultInfo::totalCount(const QVariant &value)
 {
     p->totalCount = value.toInt();
+    emit totalCountChanged();
+    emit totalPagesChanged();
     return *this;
 }
 
@@ -227,19 +239,15 @@ int ResultInfo::totalPages() const
 {
     if(p->totalCount<=0 || p->perPage<=0)
         return 0;
-    return p->totalCount/p->perPage;
+    double pages=double(p->totalCount)/double(p->perPage);
+    return pages>0 && pages<1?1:int(pages);
 }
 
-int ResultInfo::offSetRecords(int offSetPages) const
+int ResultInfo::offSetRecords() const
 {
-    if(!this->enabled())
-        return 0;
-
-    auto offSetRecords=(this->perPage()*this->page());
-    if(offSetPages<=0)
-        return offSetRecords;
-    offSetRecords=offSetRecords-(offSetPages*this->perPage());
-    return offSetRecords<=0?0:offSetRecords;
+    auto page=this->page()-1;
+    page=(page<=0)?0:page;
+    return this->perPage()*page;
 }
 
 }

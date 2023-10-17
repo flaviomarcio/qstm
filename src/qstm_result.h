@@ -86,6 +86,12 @@ public:
     QStm::ResultInfo &resultInfo()const;
 
     //!
+    //! \brief resultInfo
+    //! \return
+    //!
+    ResultValue &resultInfo(const QStm::ResultInfo &resultInfo);
+
+    //!
     //! \brief printInfo
     //! \param v
     //! \return

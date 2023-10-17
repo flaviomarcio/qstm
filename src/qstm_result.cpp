@@ -468,6 +468,12 @@ QStm::ResultInfo &ResultValue::resultInfo()const
     return p->returnItem.resultInfo;
 }
 
+ResultValue &ResultValue::resultInfo(const QStm::ResultInfo &resultInfo)
+{
+    p->returnItem.resultInfo.setValues(&resultInfo);
+    return *this;
+}
+
 ResultValue &ResultValue::printInfo(const QVariant &v)
 {
     Q_DECLARE_VU;
@@ -499,7 +505,8 @@ QVariant ResultValue::resultVariantInfo() const
     case QMetaType::QVariantHash:
     case QMetaType::QVariantMap:{
         auto vHash=p->returnItem.resultVariant.toHash();
-        vHash.insert(__resultInfo, p->returnItem.resultInfo.toHash());
+        if(!vHash.contains(__resultInfo))
+            vHash.insert(__resultInfo, p->returnItem.resultInfo.toHash());
         return vHash;
     }
     default:
