@@ -259,7 +259,7 @@ bool MetaObjectUtil::invoke(QObject *object, const QMetaMethod &method, QVariant
     auto arg08=vars.value(8);
     auto arg09=vars.value(9);
 
-    //invoke QNotation method
+    //invoke QAnnotation method
     if (!method.invoke(object, arg00, arg01, arg02, arg03, arg04, arg05, arg06, arg07, arg08, arg09, Qt::DirectConnection, argReturn))
         return false;
 
