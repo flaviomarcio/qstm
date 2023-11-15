@@ -7,12 +7,11 @@ namespace QStm {
 
 class QCurrencyPvt{
 public:
-    QBCMath qbcmath;
     QCurrency*parent=nullptr;
+    QBCMath qbcmath;
     int precision=2;
-    explicit QCurrencyPvt(QCurrency*parent)
+    explicit QCurrencyPvt(QCurrency*parent): parent{parent}
     {
-        this->parent=parent;
     }
     virtual ~QCurrencyPvt()
     {
@@ -28,10 +27,8 @@ public:
     }
 };
 
-QCurrency::QCurrency(const QVariant &v, const QVariant &precision):QVariant{v}
+QCurrency::QCurrency(const QVariant &v, const QVariant &precision):QVariant{v}, p{new QCurrencyPvt{this}}
 {
-    this->p = new QCurrencyPvt{this};
-
     if(precision.isValid())
         p->precision=precision.toInt();
     p->setValue(v);

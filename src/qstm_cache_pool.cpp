@@ -21,9 +21,6 @@ public:
     explicit CachePoolPvt(QObject *parent):QObject{parent}
     {
     }
-    virtual ~CachePoolPvt()
-    {
-    }
 
     QByteArray toMd5(const QVariant &value)const
     {
@@ -49,9 +46,8 @@ public:
 };
 
 
-CachePool::CachePool(QObject *parent) : QObject{parent}
+CachePool::CachePool(QObject *parent) : QObject{parent},p{new CachePoolPvt{parent}}
 {
-    this->p=new CachePoolPvt{parent};
 }
 
 CachePool &CachePool::i()

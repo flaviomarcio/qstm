@@ -34,9 +34,8 @@ public:
 
 
 CryptoUtil::CryptoUtil(QObject *parent)
-    : QObject{parent}
+    : QObject{parent}, p{new CryptoUtilPvt{this}}
 {
-    this->p=new CryptoUtilPvt{this};
 }
 
 QByteArray CryptoUtil::encrypt(const QByteArray &plain)

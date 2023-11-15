@@ -114,14 +114,12 @@ public:
 };
 
 SettingFile::SettingFile(QObject *parent)
-    : QObject{parent}
+    : QObject{parent}, p{new SettingFilePvt{this}}
 {
-    this->p=new SettingFilePvt{this};
 }
 
-SettingFile::SettingFile(const QVariant &setting, const QVariant &envs)
+SettingFile::SettingFile(const QVariant &setting, const QVariant &envs): p{new SettingFilePvt{this}}
 {
-    this->p=new SettingFilePvt{this};
     this->p->setting=setting.toStringList();
     this->p->envs=envs.toStringList();
 }

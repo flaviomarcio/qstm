@@ -19,9 +19,8 @@ public:
     CacheIO *parent=nullptr;
     QString lastError, rootName, scopeName, storageDir, storageTree, storageBackup;
     QString storage;
-    explicit CacheIOPvt(CacheIO*parent):QObject{parent}
+    explicit CacheIOPvt(CacheIO*parent):QObject{parent}, parent{parent}
     {
-        this->parent=parent;
         this->readParent();
         this->cachePrepare();
     }

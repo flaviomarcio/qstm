@@ -33,10 +33,8 @@ public:
     }
 };
 
-PathUtil::PathUtil(const QVariant &v)
+PathUtil::PathUtil(const QVariant &v): p{new PathUtilPvt{this}}
 {
-    this->p = new PathUtilPvt{this};
-
     p->v=v.toString();
 }
 

@@ -21,13 +21,11 @@ public:
     QString outPutName;
     QVariantHash body;
     QVariantHash headers;
-    explicit UrlPvt(Url*parent)
+    explicit UrlPvt(Url*parent):parent{parent}
     {
-        this->parent=parent;
     }
 
-    virtual ~UrlPvt()
-    {
+    virtual ~UrlPvt(){
     }
 
     QUrl url()
@@ -85,15 +83,13 @@ public:
 
 };
 
-Url::Url(const QVariant &v):QVariant{}
+Url::Url(const QVariant &v):QVariant{},p{new UrlPvt{this}}
 {
-    this->p = new UrlPvt{this};
     p->setVar(v);
 }
 
-Url::Url(const ResultValue *v):QVariant{}
+Url::Url(const ResultValue *v):QVariant{},p{new UrlPvt{this}}
 {
-    this->p = new UrlPvt{this};
     if(v)
         p->setVar(v->resultHash());
 }

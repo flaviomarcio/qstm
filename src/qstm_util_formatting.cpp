@@ -77,16 +77,15 @@ Q_COREAPP_STARTUP_FUNCTION(init)
 
 class FormattingUtilPvt{
 public:
+    FormattingUtil*parent=nullptr;
     QLocale c=QLocale::c();
     int prec_dbl=doublePrecision;
     int prec_cur=currencyPrecision;
     int prec_per=percentagePrecision;
-    FormattingUtil*parent=nullptr;
     QHash<QString, QString> maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
     FormattingUtil::Masks masks;
-    explicit FormattingUtilPvt(FormattingUtil*parent):masks()
+    explicit FormattingUtilPvt(FormattingUtil*parent):parent{parent}, masks()
     {
-        this->parent=parent;
         this->maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
     }
     virtual ~FormattingUtilPvt()
@@ -164,10 +163,8 @@ FormattingUtil::Masks &FormattingUtil::masks()const
     return p->masks;
 }
 
-FormattingUtil::FormattingUtil(const QVariant &v):QVariant{v}
+FormattingUtil::FormattingUtil(const QVariant &v):QVariant{v}, p{new FormattingUtilPvt{this}}
 {
-    this->p = new FormattingUtilPvt{this};
-
     p->masks.p=this->p;
 }
 

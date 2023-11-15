@@ -27,17 +27,14 @@ static const auto __name="name";
 
 class SettingManagerPvt: public QObject{
 public:
+    SettingManager*parent=nullptr;
+    QObject *parentParent=nullptr;
     QVariantHash arguments, settingBody;
     Envs envs;
     QHash<QString, SettingBase*> settings;
-    SettingManager*parent=nullptr;
-    QObject *parentParent=nullptr;
 
-    explicit SettingManagerPvt(SettingManager*parent)
-        : QObject{parent},
-        envs{parent}
+    explicit SettingManagerPvt(SettingManager*parent): QObject{parent},parent{parent}, envs{parent}
     {
-        this->parent=parent;
     }
 
     bool isLoaded()

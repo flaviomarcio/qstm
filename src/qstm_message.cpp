@@ -15,7 +15,6 @@ public:
 public:
     Message*parent=nullptr;
     QVariant body;
-public:
     QVariantHash variables;
     QUuid uuid;
     QString name;
@@ -27,9 +26,8 @@ public:
     QString bodyText;
     QString bodyHtml;
     QVariantList attachment;
-    explicit MessagePvt(Message*parent)
+    explicit MessagePvt(Message*parent): parent{parent}
     {
-        this->parent=parent;
     }
 
     virtual ~MessagePvt()
@@ -195,11 +193,8 @@ public:
 
 };
 
-Message::Message(const QVariant &v, const QString &settingName):QVariant{}
+Message::Message(const QVariant &v, const QString &settingName):QVariant{}, p{new MessagePvt{this}}
 {
-    this->p = new MessagePvt{this};
-
-
     QVariant vv;
     QVariantHash vHash=v.toHash();
     if(!settingName.trimmed().isEmpty()){
@@ -212,9 +207,8 @@ Message::Message(const QVariant &v, const QString &settingName):QVariant{}
     p->setVar(vv);
 }
 
-Message::Message(const ResultValue &v):QVariant{}
+Message::Message(const ResultValue &v):QVariant{}, p{new MessagePvt{this}}
 {
-    this->p = new MessagePvt{this};
     p->setVar(v.resultHash());
 }
 

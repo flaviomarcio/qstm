@@ -25,7 +25,7 @@ public:
     //! \brief Url
     //! \param v
     //!
-    Q_INVOKABLE explicit Url(const ResultValue *v);
+    explicit Url(const ResultValue *v);
 
     //!
     //! \brief ~Url
