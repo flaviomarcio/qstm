@@ -22,9 +22,13 @@ static const int currencyPrecision=2;
 static const int doublePrecision=6;
 static const char fChar='f';
 
-static auto nativeCountryName()
+static auto nativeTerritoryName()
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
     return QLocale::c().nativeCountryName();
+#else
+    return QLocale::c().nativeTerritoryName();
+#endif
 }
 
 
@@ -57,8 +61,13 @@ public:
         vHash.insert(QStringLiteral("boolean")+keyFalse, QObject::tr("Não"));
 
         StringStringStringHash __staticMaskHash;
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
         __staticMaskHash.insert(brz.nativeCountryName(), vHash);
         __staticMaskHash.insert(sys.nativeCountryName(), vHash);
+#else
+        __staticMaskHash.insert(brz.nativeTerritoryName(), vHash);
+        __staticMaskHash.insert(sys.nativeTerritoryName(), vHash);
+#endif
         __staticMaskHash.insert(loc.nativeLanguageName(), vHash);
         __staticMaskHash.insert({}, vHash);
 
@@ -82,11 +91,11 @@ public:
     int prec_dbl=doublePrecision;
     int prec_cur=currencyPrecision;
     int prec_per=percentagePrecision;
-    QHash<QString, QString> maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
+    QHash<QString, QString> maskMap=___formattingUtilStruct->staticMaskMap[nativeTerritoryName()];
     FormattingUtil::Masks masks;
     explicit FormattingUtilPvt(FormattingUtil*parent):parent{parent}, masks()
     {
-        this->maskMap=___formattingUtilStruct->staticMaskMap[nativeCountryName()];
+        this->maskMap=___formattingUtilStruct->staticMaskMap[nativeTerritoryName()];
     }
     virtual ~FormattingUtilPvt()
     {
