@@ -35,7 +35,7 @@ public:
     //! \param args
     //! \return
     //!
-    static bool invoke(QObject *object, const QMetaMethod &method, QVariant &returnValue, const QVariantHash &args={});
+    static bool invoke(QObject *object, QMetaMethod &method, QVariant &returnValue, const QVariantHash &args={});
 
     //!
     //! \brief invoke
@@ -49,12 +49,12 @@ public:
 
     //!
     //! \brief invoke
-    //! \param methodName
+    //! \param method
     //! \param returnValue
     //! \param args
     //! \return
     //!
-    bool invoke(const QMetaMethod &methodName, QVariant &returnValue, const QVariantHash &args={});
+    bool invoke(QMetaMethod &method, QVariant &returnValue, const QVariantHash &args={});
 
     //!
     //! \brief invoke
@@ -108,6 +108,13 @@ public:
     //! \return
     //!write values in property using QVariantHash
     bool writeHash(QObject *object, const QVariantHash &v);
+
+    //!
+    //! \brief reset
+    //! \param object
+    //! \return
+    //!
+    void reset(QObject *object);
 
     //!
     //! \brief toMethodList

@@ -147,12 +147,29 @@ bool ObjectWrapper::setValues(const QVariant &v)
     bool __return=false;
     auto propList=this->toPropList();
 
+    auto getValue=[&vParser](const QByteArray &propertyName){
+        if(vParser.contains(propertyName))
+            return vParser.value(propertyName);
+
+        auto pName=propertyName.toLower().trimmed();
+
+        QHashIterator<QString, QVariant> i(vParser);
+        while(i.hasNext()){
+            i.next();
+            auto key=i.key().toLower().trimmed();
+            if(key==pName)
+                return i.value();
+        }
+        return QVariant{};
+    };
+
+
     for(auto &property:propList) {
 
         if(!property.isWritable())
             continue;
 
-        auto value=vParser.value(property.name());
+        auto value=getValue(property.name());
 
         if(!beforeSetProperty(property, value))
             continue;

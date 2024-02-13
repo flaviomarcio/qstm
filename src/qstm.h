@@ -11,6 +11,7 @@
 #include "./qstm_macro.h"
 #include "./qstm_message.h"
 #include "./qstm_meta_enum.h"
+#include "./qstm_meta_items.h"
 #include "./qstm_meta_types.h"
 #include "./qstm_network_types.h"
 #include "./qstm_object.h"

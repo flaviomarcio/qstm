@@ -276,4 +276,4 @@ private:
     int _type=-1;
 };
 
-} // namespace QMFE
+} // namespace QStm
